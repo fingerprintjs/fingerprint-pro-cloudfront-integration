@@ -2,11 +2,15 @@
 
 const https = require('https');
 
+//TODO set the main route
 const FINGERPRINT_PATH = 'fpjs';
+//TODO set the agent download path
 const AGENT_DOWNLOAD_PATH = 'agent';
+//TODO set the result path
 const GET_RESULT_PATH = 'visitorId';
-const REGION = 'us';
 
+
+const REGION = 'us';
 const AGENT_URI = `/${FINGERPRINT_PATH}/${AGENT_DOWNLOAD_PATH}`;
 const RESULT_URI = `/${FINGERPRINT_PATH}/${GET_RESULT_PATH}`;
 
