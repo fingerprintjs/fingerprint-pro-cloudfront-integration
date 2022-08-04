@@ -81,23 +81,23 @@ function getFpApiHost() {
 
 function getApiKey(qs) {
     const params = qs.split('&');
-    params.forEach(p => {
-        const kv = p.split('=');
-        if (kv[0] === 'apiKey') {
+    for (let i = 0; i < params.length; i++) {
+        const kv = params[i].split('=');
+        if (kv[0] === 'agent') {
             return kv[1];
         }
-    });    
+    }  
     return undefined;
 }
 
 function getLoaderVersion(qs) {
     const params = qs.split('&');
-    params.forEach(p => {
-        const kv = p.split('=');
+    for (let i = 0; i < params.length; i++) {
+        const kv = params[i].split('=');
         if (kv[0] === 'loaderVersion') {
             return kv[1];
         }
-    });
+    }    
     return undefined;
 }
 
