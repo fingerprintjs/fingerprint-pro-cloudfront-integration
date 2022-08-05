@@ -9,6 +9,9 @@ const AGENT_DOWNLOAD_PATH = 'agent';
 //TODO set the result path
 const GET_RESULT_PATH = 'visitorId';
 
+//TODO set domain name
+const DOMAIN_NAME = 'example.com';
+
 
 const REGION = 'us';
 const AGENT_URI = `/${FINGERPRINT_PATH}/${AGENT_DOWNLOAD_PATH}`;
@@ -57,6 +60,7 @@ exports.handler = event => {
         const apiKey = getApiKey(request.querystring);
         const loaderVersion = getLoaderVersion(request.querystring);
         const endpoint = `/v3/${apiKey}/loader_v${loaderVersion}.js`;
+        console.info(`agent endpoint ${endpoint}`);
         return downloadAgent({
             host: 'fpcdn.io',
             path: endpoint,
@@ -69,9 +73,8 @@ exports.handler = event => {
             method: request.method,
             headers: filteredHeaders,
         }, request.body);
-    } else {
-        return request;
     }
+    return request;
 };
 
 function getFpApiHost() {
@@ -83,7 +86,7 @@ function getApiKey(qs) {
     const params = qs.split('&');
     for (let i = 0; i < params.length; i++) {
         const kv = params[i].split('=');
-        if (kv[0] === 'agent') {
+        if (kv[0] === 'apiKey') {
             return kv[1];
         }
     }  
@@ -164,6 +167,7 @@ function handleResult(url, options, body) {
         req.write(Buffer.from(body.data, 'base64'));
 
         req.on('error', e => {
+            console.error(e);
             resolve(error(e, req.statusCode));
         });
 
@@ -180,6 +184,21 @@ function error(e, statusCode) {
     });
 }
 
+function updateCookie(cookieValue) {
+    const parts = cookieValue.split(';');
+    for (let i = 0; i < parts.length; i++) {
+        const s = parts[i].trim();
+        const kv = s.split('=');
+        if (kv[0].toLowerCase() === 'domain') {
+            kv[1] = DOMAIN_NAME;
+            parts[i] = `${kv[0]}=${kv[1]}`
+        } else {
+            parts[i] = s;
+        }
+    }
+    return parts.join('; ');
+}
+
 function respond(internalResponse, body, bodyEncoding) {
     const response = {
         status: internalResponse.statusCode,
@@ -188,8 +207,14 @@ function respond(internalResponse, body, bodyEncoding) {
         headers: {}
     };
 
-    for (let name of ALLOWED_RESPONSE_HEADER) {
+    for (let name of ALLOWED_RESPONSE_HEADER) {        
         let headerValue = internalResponse.headers[name];
+
+        if (name === 'set-cookie' && headerValue) {
+            const strVal = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+            headerValue = updateCookie(strVal);
+        }
+
         if (headerValue) {
             if (!Array.isArray(headerValue)) {
                 headerValue = [headerValue];
