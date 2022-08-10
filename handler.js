@@ -16,6 +16,7 @@ const DOMAIN_NAME = 'example.com';
 const REGION = 'us';
 const AGENT_URI = `/${FINGERPRINT_PATH}/${AGENT_DOWNLOAD_PATH}`;
 const RESULT_URI = `/${FINGERPRINT_PATH}/${GET_RESULT_PATH}`;
+const HEALTH_CHECK_URI = `${FINGERPRINT_PATH}/health`;
 
 const ALLOWED_RESPONSE_HEADER = [
     'access-control-allow-credentials',
@@ -38,7 +39,7 @@ const BLACKLISTED_REQUEST_HEADERS = [
 ];
 
 exports.handler = event => {
-    const { request } = event.Records[0].cf;
+    const { request } = event.Records[0].cf;    
     const headers = Object.entries(request.headers)
         .reduce((acc, [name, [{ value }]]) => {
             acc[name] = value;
@@ -73,6 +74,17 @@ exports.handler = event => {
             method: request.method,
             headers: filteredHeaders,
         }, request.body);
+    } else if (request.uri === HEALTH_CHECK_URI) {
+        const response = {
+            status: 200,
+            body: {
+                status: 'ok',
+            },
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        return response;
     }
     return request;
 };
