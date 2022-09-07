@@ -2,23 +2,14 @@
 
 const https = require('https');
 
-//TODO set the main route
-const FINGERPRINT_PATH = 'fpjs';
-//TODO set the agent download path
-const AGENT_DOWNLOAD_PATH = 'agent';
-//TODO set the result path
-const GET_RESULT_PATH = 'visitorId';
-
 
 const Defaults = {
-    AGENT_DOWNLOAD_ROUTE: 'agent_default',
-    VISITOR_ID_ROUTE: 'visitorId_default'
+    FPJS_BEHAVIOR_PATH: 'fpjs',
+    AGENT_DOWNLOAD_PATH: 'agent',
+    GET_RESULT_PATH: 'visitorId'
 };
 
-const REGION = 'us';
-const HEALTH_CHECK_URI = `${FINGERPRINT_PATH}/health`;
-
-const ALLOWED_RESPONSE_HEADER = [
+const ALLOWED_RESPONSE_HEADERS = [
     'access-control-allow-credentials',
     'access-control-allow-origin',
     'access-control-expose-headers',
@@ -39,16 +30,14 @@ const BLACKLISTED_REQUEST_HEADERS = [
 ];
 
 exports.handler = event => {
+    console.info(JSON.stringify(event));
     const { request } = event.Records[0].cf;    
-    const headers = Object.entries(request.headers)
-        .reduce((acc, [name, [{ value }]]) => {
-            acc[name] = value;
-            return acc;
-        }, {});    
+    
+    const requestHeaders = extractHeaders(request.headers);
+    requestHeaders['x-forwarded-for'] = updateXForwardedFor(requestHeaders['x-forwarded-for'], request.clientIp);
+    const domainName = requestHeaders['host'];
 
-    headers['x-forwarded-for'] = updateXForwardedFor(headers['x-forwarded-for'], request.clientIp);
-
-    const filteredHeaders = filterHeaders(headers);
+    const filteredHeaders = filterHeaders(requestHeaders);
     if (filteredHeaders.cookie) {
         filteredHeaders.cookie = filteredHeaders.cookie
             .split(/; */)
@@ -56,22 +45,17 @@ exports.handler = event => {
             .join('; ');
     }
 
-    const customHeaders = Object.entries(request.origin.custom.customHeaders)
-        .reduce((acc, [name, [{value}]]) => {
-            acc[name] = value;
-            return acc;
-        }, {});
-    const config = getConfiguration(customHeaders);
+    const configHeaders = extractHeaders(request.origin.custom.customHeaders);
+    const config = getConfiguration(configHeaders);
 
-    const AGENT_URI = `/${FINGERPRINT_PATH}/${config.AGENT_DOWNLOAD_ROUTE}`;
-    const RESULT_URI = `/${FINGERPRINT_PATH}/${config.VISITOR_ID_ROUTE}`;
-
-    const domainName = headers['host'];
+    const agentUri = `/${config.FPJS_BEHAVIOR_PATH}/${config.AGENT_DOWNLOAD_PATH}`;
+    const getResultUri = `/${config.FPJS_BEHAVIOR_PATH}/${config.GET_RESULT_PATH}`;    
+    const healthCheckUri = `/${config.FPJS_BEHAVIOR_PATH}/health`;
 
     console.info(`handle ${request.uri}`);
-    if (request.uri === AGENT_URI) {
-        const apiKey = getApiKey(request.querystring);
-        const loaderVersion = getLoaderVersion(request.querystring);
+    if (request.uri === agentUri) {
+        const apiKey = findQueryParam(request.querystring, 'apiKey');
+        const loaderVersion = findQueryParam(request.querystring, 'loaderVersion');
         const endpoint = `/v3/${apiKey}/loader_v${loaderVersion}.js`;
         console.info(`agent endpoint ${endpoint}`);
         return downloadAgent({
@@ -80,13 +64,14 @@ exports.handler = event => {
             method: request.method,
             headers: filteredHeaders,
         }, domainName);
-    } else if (request.uri === RESULT_URI) {
-        const url = `${getFpApiHost()}?${request.querystring}`;
+    } else if (request.uri === getResultUri) {
+        const region = getRegion(request.querystring);
+        const url = `${getFpApiHost(region)}?${request.querystring}`;
         return handleResult(url, {
             method: request.method,
             headers: filteredHeaders,
         }, request.body, domainName);
-    } else if (request.uri === HEALTH_CHECK_URI) {
+    } else if (request.uri === healthCheckUri) {
         const response = {
             status: 200,
             body: {
@@ -101,51 +86,62 @@ exports.handler = event => {
     return request;
 };
 
-function getConfiguration(headers) {
-    console.info(JSON.stringify(headers));
+function extractHeaders(headers) {
+    return Object.entries(headers)
+    .reduce((acc, [name, [{value}]]) => {
+        acc[name] = value;
+        return acc;
+    }, {});
+}
+
+function getConfiguration(headers) {    
     const config = {
-        AGENT_DOWNLOAD_ROUTE: Defaults.AGENT_DOWNLOAD_ROUTE,
-        VISITOR_ID_ROUTE: Defaults.VISITOR_ID_ROUTE,
-        DOMAIN: '',
+        FPJS_BEHAVIOR_PATH: Defaults.FPJS_BEHAVIOR_PATH,
+        AGENT_DOWNLOAD_PATH: Defaults.AGENT_DOWNLOAD_PATH,
+        GET_RESULT_PATH: Defaults.GET_RESULT_PATH,
         PRE_SHARED_SECRET: ''
     };
-    if (headers.hasOwnProperty('fpjs_agent_download_route')) {
-        config.AGENT_DOWNLOAD_ROUTE = headers['fpjs_agent_download_route'];
+    if (headers.hasOwnProperty('fpjs_behavior_path')) {
+        config.FPJS_BEHAVIOR_PATH = headers['fpjs_behavior_path'];
     }
-    if (headers.hasOwnProperty('fpjs_visitor_route')) {
-        config.VISITOR_ID_ROUTE = headers['fpjs_visitor_route'];
+    if (headers.hasOwnProperty('fpjs_agent_download_path')) {
+        config.AGENT_DOWNLOAD_PATH = headers['fpjs_agent_download_path'];
     }
-    config.DOMAIN = headers['fpjs_domain'];
+    if (headers.hasOwnProperty('fpjs_visitor_path')) {
+        config.VISITOR_ID_ROUTE = headers['fpjs_visitor_path'];
+    }
     config.PRE_SHARED_SECRET = headers['fpjs_pre_shared_secret'];
 
     return config;
 }
 
-function getFpApiHost() {
-    const region = REGION === 'us' ? '' : `${REGION}.`;
-    return `https://${region}api.fpjs.io`
+function getFpApiHost(region) {
+    const prefix = region === 'us' ? '' : region;
+    return `https://${prefix}api.fpjs.io`
+}
+
+function findQueryParam(querystring, key) {
+    const params = querystring.split('&');
+    for (let i = 0; i < params.length; i++) {
+        const kv = params[i].split('=');
+        if (kv[0] === key) {
+            return kv[1];
+        }
+    }
+    return undefined;
 }
 
 function getApiKey(qs) {
-    const params = qs.split('&');
-    for (let i = 0; i < params.length; i++) {
-        const kv = params[i].split('=');
-        if (kv[0] === 'apiKey') {
-            return kv[1];
-        }
-    }  
-    return undefined;
+    return findQueryParam(qs, 'apiKey');
 }
 
 function getLoaderVersion(qs) {
-    const params = qs.split('&');
-    for (let i = 0; i < params.length; i++) {
-        const kv = params[i].split('=');
-        if (kv[0] === 'loaderVersion') {
-            return kv[1];
-        }
-    }    
-    return undefined;
+    return findQueryParam(qs, 'loaderVersion');    
+}
+
+function getRegion(querystring) {
+    const value = findQueryParam(querystring, 'region');
+    return value === undefined || value === null ? 'us' : value;
 }
 
 function filterHeaders(headers) {
@@ -253,7 +249,7 @@ function respond(internalResponse, body, bodyEncoding, domainName) {
         headers: {}
     };
 
-    for (let name of ALLOWED_RESPONSE_HEADER) {        
+    for (let name of ALLOWED_RESPONSE_HEADERS) {        
         let headerValue = internalResponse.headers[name];
 
         if (name === 'set-cookie' && headerValue) {
