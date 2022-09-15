@@ -1,0 +1,12 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - . scripts/deploy.sh
+      - sam package --template-file template.yaml --s3-bucket ${S3_BUCKET} --output-template-file packaged.yaml
+artifacts:
+  files:
+    - "packaged.yaml"
+  discard-paths: yes
+  
