@@ -1,0 +1,207 @@
+{
+    "Records": [
+        {
+            "cf": {
+                "config": {
+                    "distributionDomainName": "d31cbk6iaeupum.cloudfront.net",
+                    "distributionId": "E9YYI6W8G9MV1",
+                    "eventType": "origin-request",
+                    "requestId": "orNoBXKGup5oY_pmsgx5y3VnVPapX0ptkNIdZdXh7YGd8IBWo5jNnQ=="
+                },
+                "request": {
+                    "body": {
+                        "action": "read-only",
+                        "data": "jZCUjZFMAvdEEL3qbmHVfjLH5TlpmCtKjv4eb7B8VtreFE+BJTKRsyEgzWZ8n71ubtV+MtfiIC3EaiaTpW4u1Sl/n6sXIJ4gMuC9bnHCcjKH6m5x1X4gkbM6IM1mWtbaKHXPNWaKp30wmiB08OILUsYoc9DdPnHYKXHK5gkxkhZ069INU7p8ZtnIfli+d2fQ9n5vliJ32ac5O7oTW9ioD3WQF2LU4ghmgid0j/AYQdwxI//ECVeHBlLUywpHjydYhNB/ZIAQf/ToOlq/HVjZyC1HzyVi/P4HUMQ8X/b8emOvKHOLonVw2C8hyvRjbq0gZojGFTDCHFHP0hh6hWsn/8Udd78HY9PzBTbEMDvt0HtUvRVY7tIGRaAPW8zyNk+zKnzZxBQtxTdUn+xgIIRyJ5+rNyCEZiqQoGAggWYq0+QgbopoMsjjICDNZnjJ5TxxzWs/zvAhcpshPdL/YWGRanbN+z8shCw/n71uccJxMofqbnHVfiCRszogzWZa5OR5dcITQPj2OTbDDGTW0HhpmHMh6f58VrkLO4+ney2tHV/YpX9BnSklkt54b8IhO9PhLWe/Nlju+Sh0uRVzx8IPesZ0Q4X4HXiHfFf1oRpBs3Balvw5e6Z5LZ/sYCCEdySfqzcghGYqjb1udNV+S5/yLWyTLXTc5Sk4xnYmiKF9MMZ9IJ2gbHeTNDCPoH0xzncnjKR9Is8gctmoKDSVaSPZp38vwydxhLwtMJQmPYipfmeUJSaN9H0zzmp80vItbtdyIYSmfCKDPWCd+SNxg2R32P8pcJYwedL/bDLXMXbP8CsitG9e6LEiZ4Mzf8/6YWGYN2SdqHU71Wgy3vAiZp4gccn0djrDdiGLonw2zmQhneQoctd1JoqmezDOcSOIsX8swHY+j6V0LMZwIp2nfTvAdDDJ6DwihDZ20elscJYgdM+xfCzHaiCToWxwhytiybF8IpAhftjjLXaeK36doWx3kTZx2rEPKbkRMNP0OHWYNnuQ8iNxg2QphKhuX4poMs6keCDNPzLOs3YvxWgyy7N2bIIofMC9bnHCdjKH6m5x1X4gkbM6IM1mcYT3KjHAdHaNqCphznQliKd7O5R2IdynfWGRd3aMoXUgimgyzqJ5IM0/Ms6zdi/GaDLLs3Zsgih8wL1uccR1MofqbnHVfiCRszogzSJx0eIpf9tmY4uzdnnVNzKHoWAggWYq5qN5LsdoIJGiel+KaDLOo3ogzT8yzrN2MttmZp+rF3nVIDKHs24u1SMyh7MqYJUidNn3fjKWcHKJ9HQylnYh26h0NMQicoqje2bEfSje8nk0lCci2KB+YM4mJIWgdGSUICHfqXQ1ziByjqd4INtme5+rbmOCIHnS+CJygjAykbMgIM1mMsC9NyCTZiqfs2AgkGYqn/UpZMBxIY33eWTOdiPepi80zncj3/d5M8cic4ikdTGWdyfZp3ljliEp36N7ZMMmJdijKjLBdSfeoCkzlHAoi6VuLtUvMoezOmuTIX/U/zx3g2Y8n/1uONVmbZHqbmbVfjKfvW5l1X4y2/MuZJMgdo+hLTaVcHWFoS0wxiIphad/ZJVzIor1fzvPJ3OIpy9hxSEhj/N1YMN8IYX3L2bGJiiFpnVmlXcmibNgIJxmKp/wOWaeK3/I5Tx3g2Y8n/1uONVmbeDsYCCEdSifqzcghGYqjb1udNV+MtvnfkebHEnJpx87ljQj8d4jds8RWvyscSCKaDLOqW44jGZjn6t8LtUyMoezeTHDclP/oQoyxnQgjaF8MtU5PJ/ieTrVfmuf4m44x2gyy7N2edUmMofKNyCVZiqf1iNtkCh1ndIkcJgpdZ+9bnTVfjKMoXkgimhrn/NuONUKf8m4DTm1NnHT9W4u1TIyh7N0IIpoa5/zbjjVB3jP/iFrgikykbM6IM1mIY2kbn+qaDLQs3Zklihj2L1uctV+MtDwL02kZjyf+W44jGZyz/AiZoRmKp/KN17VJmLc/yhe1X5Mn9YjbZAodZ3SJHCYKXXhs2Be1TJ1z+IlbZkYMofNbjPHcUyf7GB5q2Zyz/AiZqtmKuGzAm2DbVGG0z5jmSBMn70QIIEhYs74I2yrZirhs3Re1Tk8xs1uYIUlftnNbjirZlPV4yNvnjF94bNgXtUydc/iJW2ZGDKHzW4zx3FMn+wRINtmfdLzJW6SZiqf9y1uhCEykbM8bpYwdtLjISDNZn3c8gNR1Wgyzf0tdpErYtDHKXCELX/Ts3YgxnY+ib98INtmcc/yJGuDIXPJ5D5n1X4y3OMhINtmctTlImeENzKHs3o21Wgy0P4oZ5tmKp+zYCCCJVbI/SBUkjZj1P4iIM1mIY2kYjLZcSGEpGIzx3YykbMqd5soRtjjP2uYKlzU4jggzWZLxs1uYIUlftnNbjirZlfS/itukmRT1eMjb5IYMpHNbnSSNmPU/iJe1X5Mn6B8N9l0PoigdTfZdSCPzW5/2z9Mn/M+Y5kgTJ+rECC5K2SU0HdAhSV+2c1uLqtmZtjjP2uYKkyfqxAgz2ogk6FiMqtmbZHqECCVNnHT9RAgzRgy/vk+bZotZdDNbi6rZmbY4z9rmCpMn6sQIMZ0JZOhYjfGfSWToHwwq2Zt4LMxLtUqcdWzdlmqOW2Rsz8wx2YqxrM/IM10PJ/nbjisZlHP+C1u1xF+1PIjZpJkXe6zYCCwLXzRsR9jmTcykbMEZ5sydcn4L2PXCnXI9G4u1Ql10/0jIKo5PJ/ifzTVfmuf4m442nU8n+duOJkxfNHsYCCEcSGfqzcghGYqjb1udNV+a5/1KWSWMXzJs3Yzw3M+iKd+N9tmcc3hIGfVfiGJpmI3wXYlkbM/Z4Utdp+rfTbAaiWLo3ku1Tdx0+JuOMZwJJOhfTfBdiWRsyFtmSsyh6B/MNlyIoi9bm+eKjKHqGIwxHAjiqRgIIQ9Y8n0ISDNdSSLv3w7xHMlwOxgIIR2IZ+rNyCEZiqNvW501X4hj6ViMsN3JImoejrDcyWMqHR/22Zjj6NuOIxmY5+rfC7VMjKHoHV/22ZjjqFuOIxmY5+rYTPbZmafqyJ3myhtkbM/McRmKsazPyDNdDyf5244kSV8zvQxLtU3JImzdnnVNzKHoWAggWYqyeM5Z4poMs6leSDNPzLOs3Yy22Zmn6sXM8FyI46geDfHcCeLpmAzwXIjjqJ1NcdwJ4umEX/bZmOJqW44jGZjn6t8LtUyMofKfTXFdieMpH0xwWg9jKN6McF0J42leC7GdiGMpHgyw3Qokbx5N8J9IYykeS7acymKqXkwxHMgkbx4O8F1J46lfDWqOTyf4ng71X5rn+JuOMdoMsuzdlnHaiCEqHU7zn0giad/MMJyKI6nYDLZdSCNoXwyx3YjhaV9OsJzKYzMMS7VNyWNs3Z51Tcyh6FgIIFmKomjdTbAdCWMpH5/22ZjiKJuOIxmY5+rfi7VMjKHym5kgioykbMqd5lmTcC9bnHCczKH6m5x1X4gkbM6IM12bZGzPzfOZirGsz8gzXQ8n+duOJElfM70MS7VNyaNs3Z51Tcyh6FgIIFmKtvwIHGSOTyf4noz1X5rn+JuOMdoMsuzdnaFMXXAvW5xwXYyh+pucdV+IJGzOiDNInHR4il/22Zji6JuOIxmY5+rfC7VMjKH9y1uhCFtkbM/NMNmKsazPyDNdDyf5244kSV8zvQxLtU3JoizdnnVNzKHoWAggWYq2/AgcZI5PJ/iejTVfmuf4m442nU8n+duOJkxfNHsYCCEciifqzcghGYqjb1udNV+dtz9P2eKaDLOp3UgzT8yzrN2MttmZp+rF3nVKDKHsyR2gzRjh75jcZYpYNH0YW2ZaXPbvypynTc+zvljINtmdp+rbiCKGW2Rsz81xmYqxrM/IM10PJ/nbjiMZmefq25qgzBgzqtjLYQlfc39KS+YKj3e92Jkhy5jk+IkINtmfJ+rbmqDMGDOq2MthCV9zf0pL5gqPd73YmSHLmOT4iQg22Zxn6sXX4o5PJ/ifjbVfmuf4m44x2gyy7N2McQ5PJ/iezDVfmuf4m44x2gyy7N2ZJYoY9jsYCCEdTKH6m5x1X49jL1udNV+fsj9IH/bZmOPs3Z51Tcyh6FgIIFmKubKbmeZaVf/sxFfimgyzqJuOIxmY5+rfC7VMjKHonx/22ZjibN2edU3MoehYCCBZiqF7GAghHEyh+pucdV+IJGzOiDNHyGLqXwuxnQljcwxLtU3J5+rNyCEZiqNvW501X4owL1ucc5mKsazPyDNdDyf52441QVj1PBjTJgyf874LmuFN3uf7GAghHUgn6s3IIRmKo29bnTVfmTP5Cl/22ZjjKBuOIxmY5+rfC7VMjKH5T53kjk8n+J9MNV+a5/ibjjHaDLLs3Z2hTF1wL1uccZ3MofqbnHVfiCRszogzTBiyPQxLtU3IYmzdnnVNzKHvH0u1TIyh/85bps5PJ/ifTfVfmuf4m44x2gyy7N2ILolc/T/OGebZm2Rsz8zwWYqxrM/IM10PJ/nbjisPzLT8CFn1X4y7dUKIqEtdcr0PiDbZnTY4i9wnjRk1P4iIM1mQNLjOGOVKHWd1SNhgil10+VsRJg2fdzlbi7VKXnQ9Bh7hyFjn6sXedUwac30bjjVJWDN/SVhljB50v9jcpMiMpGzP3eRInnF9D8gzWZg2fduf9s/MsnoPGfVfjLJ9DR22DR027NgIIQxdtv4NGeEZiqf4Shk1TlNwL03IJklfdizdiC0LGLS/CkipwBWncclZ4AhYp+9bmaSN3PP+Dx2nit+n6tuUpg2ZNzzIGfXAH/e5CFnmTAw+/4+b5YwMpGzIWuaIUTE4Slx1X5LxrM4e4chMoezLXKHKHne8DhrmCo/zfUqINtmY8j3KmuPIWOfq25ykyIywL03IIM9YNizdiCDIWjJvjxmkWY8n+I5ZJEtaNjibjjVNHTbszFfimhrn/8tb5JmKp/SJHCYKXnI/GxSswIw6/gpdZI2MpGzKGeEJ2LU4ThrmCoyh7McbYUwcd/9KSKzK3PI/Clsg2RW0uMhY4NmPJ/8JW+SEGnN9D8gzR9rn+U1cpJmKp/wPHKbLXPc5SVtmWtg2fduLtU3Zdv3JXqSNzKHszxmkWZtkepudo40dZ+rbnaSPGSS4Shk1WgyzuQqZJ48dc6zdiCHIHaf7BF/2z8y0/AhZ9V+MvD4L3CYN3/b5WxHkyN1ncEIRNcSedjmKXDVaDLZ9D9hhS1gyfgjbNV+Mu3+PnaWJnzYsQhtlDF92P84IrErYtDwOCDbZn3U/ClWjjR1zrN2WYxmZMThKSDNZnHN4SBrlCVk1P4iLYcgdp+9bnGCInbU6Slx1X4yzfUqIIpoa5/lNXKSZiqf5Sl6g2tg2fduLtU3Zdv3JXqSNzKHszxmkWZt4OxgedUqcdD0bjjVE3Xf2iV21yZl1P04L54qMO3VCiDbZnTY4i9wnjRk1P4iIM1mQNLjOGOVKHWd1SNhgil10+VsRJg2fdzlbi7VKXnQ9Bh7hyFjn6sXedUwac30bjjVJWDN/SVhljB50v9jcpMiMpGzP3eRInnF9D8gzWZg2fduf9s/MsnoPGfVfjLJ9DR22DR027NgIIQxdtv4NGeEZiqf4Shk1TlNwMwxLtU3IYqzdnnVNzKHoWAggWYqxrM7a5kgedP2bjiDNmXYvW5lkit92OU+e9V+Mo2ndDOTIXHZo38ykiEp3vB0Z8FzdYX1KGDHJSmLoX0x1WgyyfQ0dtV+Mo2oKWfDcyaLoXozwHwnjaEuO5F3coijezTBIHOJoCo11TltkbM/M85mKsazPyDNdDyf5244jGZ93OkYbYIneO3+JWyDNzKHoWAggytl3vkJdJIqZJ+rKmObN3WRszhtgid47uUtcINmKtvwIHGSOW2Rsz8wwGYqxrM/IM10PJ/nbjjVA3/S9iBn1w1+3r9uf9tmY4+pbjiMZmOfq3wu1TIyh8puYZ82f9D0bl+KaDLOon4gzT8yzrN2MttmZp+rOHCCIW2Rsz8xwGYqxrM/IM10PJ/nbjjVNnXeo3wwx2ZtkbM/NsZmKsazPyDNaSGRszogzSpl0f0xLtU3I4SzdnnVNzKHoWAggWYq2/AgcZI5PJ/ieDDVfmuf4m44x2gyy7N2MopoMs6idCDNPzLOs3Yy22Zmn6t8f9tmY4mibjiMZmOfq3wu1TIyh/ctboQhbZGzPzbHZirGsz8gzXQ8n+duOIM2ZdjsYCCEcCafqzcghGYqjb1udNV+MoioejGUInWPpCpnwXV0jfMuZsAmJISjfGCUciCP9S861Tk8n+J7MdV+a5/ibjjadTyf5244mTF80exgIIRzJJ+rNyCEZiqNvW501X5rn+cpcIQtf9OzdiCgIXL63Wwz2XQwld48Z5kDXJ3UHyLFaiCd0iRwmCl5yPxlINtmZtj/KG2FZiqfxilgvC1kn71udJIqdNLjGWyaJWPW9CggzWZX0v4rbpJkWdPyYiLfBWDN/Skr1Wgyz/QiZpI2dc+zdiCgIXL2+DgioCFy+t1uLtU2ddP1KXCSNkXT/C1xnCF0n6tuQ7kDXPixZEOHNHzYvWxDhzR82LEBM9tkX830IkW7ZCSToGUg22Zj1fAoa5kjXNz/K3eWI3Xr9D5xnit+n6tuVZImV/GxC06kCDD4wmwz2XQwld48Z5kDXJ3UHyKwCEPxsQlR13U+jbEPaoUrfdTkISvVOW2Rsz81wmYqxrM/IM10PJ/nbjiMZnPS/zhnjzBRyeU+a5UxZNjibjjVcnKM9CgxxHIojqEoMJUnKYuleDCWfXSKp381xHYlj/BuLtU0cc/wIWeDIWLOs3Ygx3MljaR1YJZ9dor3eDrGISiMo34xxyYl26J9M8FydoSzYCCELHHZ9D5ShSFz1OIlbZk3MoezKjDFd3Tb8y9mwnwg3vd9NsUgcYykembOdyeEoSlgz3cykbMpeoMhfs74I2yEZiqfpSphwXZ02KMuMcd0ItykKDTHdiaKoy0zwXByifcqMs5mPJ/0NHaSKmPU/iJSljZx0PQ4Z4U3MoezfWfHISLb8yhjzyAoi6UpMZNwJNyiemCVcXLYpHg2xnQywOxgIIRzJp+rNyCEZiqNvW501X4yhPR4YMRwJ4qgLzHHdCbe83gzznEjivN4MsF1JYWgfzfVOW0=",
+                        "encoding": "base64",
+                        "inputTruncated": false
+                    },
+                    "clientIp": "3.93.218.191",
+                    "headers": {
+                        "host": [
+                            {
+                                "key": "Host",
+                                "value": "sample-on-cf.fpjs.sh"
+                            }
+                        ],
+                        "cookie": [
+                            {
+                                "key": "Cookie",
+                                "value": "_iidt=2FmPb/aKYjB7JaMuVVaixABFYrRPv7fF85yG60FgSzozdggAA8y4+WFC9mrIhaZcIi9e8yratDNs2OLSWOJZSNiOQA==; _vid_t=JYu5w5WPEgu44HtkA4ko71To0TNO+267/ZYOe43Cjm5/O4m5e+npaeHrHShdvNQczSCx10S8iQzp8GH0VCD4J+muyQ==; amp_5dceee=qQ-LiJdeqwh8Rjr1HLsjJV.dXNyX2QybzZyNVVOS290MzlpRXA=..1gd20s923.1gd20se2q.0.3.3"
+                            }
+                        ],
+                        "accept-language": [
+                            {
+                                "key": "Accept-Language",
+                                "value": "en-GB,en-US;q=0.9,en;q=0.8"
+                            }
+                        ],
+                        "accept": [
+                            {
+                                "key": "Accept",
+                                "value": "*/*"
+                            }
+                        ],
+                        "referer": [
+                            {
+                                "key": "Referer",
+                                "value": "https://sample-on-cf.fpjs.sh/"
+                            }
+                        ],
+                        "cloudfront-forwarded-proto": [
+                            {
+                                "key": "CloudFront-Forwarded-Proto",
+                                "value": "https"
+                            }
+                        ],
+                        "x-forwarded-for": [
+                            {
+                                "key": "X-Forwarded-For",
+                                "value": "3.93.218.191"
+                            }
+                        ],
+                        "user-agent": [
+                            {
+                                "key": "User-Agent",
+                                "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+                            }
+                        ],
+                        "via": [
+                            {
+                                "key": "Via",
+                                "value": "1.1 d2cae44c4b89b0c714ea9853797014de.cloudfront.net (CloudFront)"
+                            }
+                        ],
+                        "content-length": [
+                            {
+                                "key": "Content-Length",
+                                "value": "5351"
+                            }
+                        ],
+                        "pragma": [
+                            {
+                                "key": "pragma",
+                                "value": "no-cache"
+                            }
+                        ],
+                        "cache-control": [
+                            {
+                                "key": "cache-control",
+                                "value": "no-cache"
+                            }
+                        ],
+                        "sec-ch-ua": [
+                            {
+                                "key": "sec-ch-ua",
+                                "value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+                            }
+                        ],
+                        "sec-ch-ua-mobile": [
+                            {
+                                "key": "sec-ch-ua-mobile",
+                                "value": "?0"
+                            }
+                        ],
+                        "sec-ch-ua-platform": [
+                            {
+                                "key": "sec-ch-ua-platform",
+                                "value": "\"macOS\""
+                            }
+                        ],
+                        "content-type": [
+                            {
+                                "key": "content-type",
+                                "value": "text/plain"
+                            }
+                        ],
+                        "origin": [
+                            {
+                                "key": "origin",
+                                "value": "https://sample-on-cf.fpjs.sh"
+                            }
+                        ],
+                        "sec-fetch-site": [
+                            {
+                                "key": "sec-fetch-site",
+                                "value": "same-origin"
+                            }
+                        ],
+                        "sec-fetch-mode": [
+                            {
+                                "key": "sec-fetch-mode",
+                                "value": "cors"
+                            }
+                        ],
+                        "sec-fetch-dest": [
+                            {
+                                "key": "sec-fetch-dest",
+                                "value": "empty"
+                            }
+                        ],
+                        "accept-encoding": [
+                            {
+                                "key": "accept-encoding",
+                                "value": "gzip, deflate, br"
+                            }
+                        ],
+                        "cloudfront-viewer-address": [
+                            {
+                                "key": "CloudFront-Viewer-Address",
+                                "value": "3.72.248.142:51009"
+                            }
+                        ],
+                        "cloudfront-viewer-tls": [
+                            {
+                                "key": "CloudFront-Viewer-TLS",
+                                "value": "TLSv1.3:TLS_AES_128_GCM_SHA256:connectionReused"
+                            }
+                        ]
+                    },
+                    "method": "POST",
+                    "origin": {
+                        "custom": {
+                            "customHeaders": {
+                                "fpjs_agent_download_path": [
+                                    {
+                                        "key": "FPJS_AGENT_DOWNLOAD_PATH",
+                                        "value": "agent"
+                                    }
+                                ],
+                                "fpjs_behavior_path": [
+                                    {
+                                        "key": "FPJS_BEHAVIOR_PATH",
+                                        "value": "fpjs"
+                                    }
+                                ],
+                                "fpjs_get_result_path": [
+                                    {
+                                        "key": "FPJS_GET_RESULT_PATH",
+                                        "value": "visitorId"
+                                    }
+                                ],
+                                "fpjs_pre_shared_secret": [
+                                    {
+                                        "key": "FPJS_PRE_SHARED_SECRET",
+                                        "value": "secret-123-456"
+                                    }
+                                ]
+                            },
+                            "domainName": "sample-ws.fpjs.sh",
+                            "keepaliveTimeout": 5,
+                            "path": "",
+                            "port": 443,
+                            "protocol": "https",
+                            "readTimeout": 30,
+                            "sslProtocols": [
+                                "TLSv1",
+                                "TLSv1.1",
+                                "TLSv1.2"
+                            ]
+                        }
+                    },
+                    "querystring": "ci=js/3.7.4",
+                    "uri": "/fpjs/visitorId"
+                }
+            }
+        }
+    ]
+}

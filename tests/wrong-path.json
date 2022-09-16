@@ -1,0 +1,183 @@
+{
+    "Records": [
+        {
+            "cf": {
+                "config": {
+                    "distributionDomainName": "d31cbk6iaeupum.cloudfront.net",
+                    "distributionId": "E9YYI6W8G9MV1",
+                    "eventType": "origin-request",
+                    "requestId": "Qxfnu2UfV6e7ek4tCAKRaN0iKyyl_MunnTXxFh4vh0YwoWz4Z4tKFA=="
+                },
+                "request": {
+                    "body": {
+                        "action": "read-only",
+                        "data": "",
+                        "encoding": "base64",
+                        "inputTruncated": false
+                    },
+                    "clientIp": "3.72.248.142",
+                    "headers": {
+                        "host": [
+                            {
+                                "key": "Host",
+                                "value": "sample-on-cf.fpjs.sh"
+                            }
+                        ],
+                        "cookie": [
+                            {
+                                "key": "Cookie",
+                                "value": "_iidt=bj+1IckklmaggIJ0XtJrJdy2dBQvWkUTCq69H9k/97GOKhywVa19vnQmH+0pr0f6BRMBe0YTLiM6BSdVsG9tM2YySw==; _vid_t=3nNYFwlwnS+CJGCXG/XBP18ILQiGLf48ThptQq+e3TVZ/EQjujbZJ4b0rkesZY/znIMZ9ix3Q1ii0BSTAs4fZJPxAw==; amp_5dceee=qQ-LiJdeqwh8Rjr1HLsjJV.dXNyX2QybzZyNVVOS290MzlpRXA=..1gd20s923.1gd20se2q.0.3.3"
+                            }
+                        ],
+                        "accept-language": [
+                            {
+                                "key": "Accept-Language",
+                                "value": "en-GB,en-US;q=0.9,en;q=0.8"
+                            }
+                        ],
+                        "accept": [
+                            {
+                                "key": "Accept",
+                                "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+                            }
+                        ],
+                        "cloudfront-forwarded-proto": [
+                            {
+                                "key": "CloudFront-Forwarded-Proto",
+                                "value": "https"
+                            }
+                        ],
+                        "x-forwarded-for": [
+                            {
+                                "key": "X-Forwarded-For",
+                                "value": "3.72.248.142"
+                            }
+                        ],
+                        "user-agent": [
+                            {
+                                "key": "User-Agent",
+                                "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+                            }
+                        ],
+                        "via": [
+                            {
+                                "key": "Via",
+                                "value": "2.0 eeb2f3ca588ea4437f4b97ed276a6664.cloudfront.net (CloudFront)"
+                            }
+                        ],
+                        "accept-encoding": [
+                            {
+                                "key": "Accept-Encoding",
+                                "value": "br,gzip"
+                            }
+                        ],
+                        "sec-ch-ua": [
+                            {
+                                "key": "sec-ch-ua",
+                                "value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+                            }
+                        ],
+                        "sec-ch-ua-mobile": [
+                            {
+                                "key": "sec-ch-ua-mobile",
+                                "value": "?0"
+                            }
+                        ],
+                        "sec-ch-ua-platform": [
+                            {
+                                "key": "sec-ch-ua-platform",
+                                "value": "\"macOS\""
+                            }
+                        ],
+                        "upgrade-insecure-requests": [
+                            {
+                                "key": "upgrade-insecure-requests",
+                                "value": "1"
+                            }
+                        ],
+                        "sec-fetch-site": [
+                            {
+                                "key": "sec-fetch-site",
+                                "value": "none"
+                            }
+                        ],
+                        "sec-fetch-mode": [
+                            {
+                                "key": "sec-fetch-mode",
+                                "value": "navigate"
+                            }
+                        ],
+                        "sec-fetch-user": [
+                            {
+                                "key": "sec-fetch-user",
+                                "value": "?1"
+                            }
+                        ],
+                        "sec-fetch-dest": [
+                            {
+                                "key": "sec-fetch-dest",
+                                "value": "document"
+                            }
+                        ],
+                        "cloudfront-viewer-address": [
+                            {
+                                "key": "CloudFront-Viewer-Address",
+                                "value": "3.72.248.142:51009"
+                            }
+                        ],
+                        "cloudfront-viewer-tls": [
+                            {
+                                "key": "CloudFront-Viewer-TLS",
+                                "value": "TLSv1.3:TLS_AES_128_GCM_SHA256:connectionReused"
+                            }
+                        ]
+                    },
+                    "method": "GET",
+                    "origin": {
+                        "custom": {
+                            "customHeaders": {
+                                "fpjs_agent_download_path": [
+                                    {
+                                        "key": "FPJS_AGENT_DOWNLOAD_PATH",
+                                        "value": "agent"
+                                    }
+                                ],
+                                "fpjs_behavior_path": [
+                                    {
+                                        "key": "FPJS_BEHAVIOR_PATH",
+                                        "value": "fpjs"
+                                    }
+                                ],
+                                "fpjs_get_result_path": [
+                                    {
+                                        "key": "FPJS_GET_RESULT_PATH",
+                                        "value": "visitorId"
+                                    }
+                                ],
+                                "fpjs_pre_shared_secret": [
+                                    {
+                                        "key": "FPJS_PRE_SHARED_SECRET",
+                                        "value": "secret-123-456"
+                                    }
+                                ]
+                            },
+                            "domainName": "sample-ws.fpjs.sh",
+                            "keepaliveTimeout": 5,
+                            "path": "",
+                            "port": 443,
+                            "protocol": "https",
+                            "readTimeout": 30,
+                            "sslProtocols": [
+                                "TLSv1",
+                                "TLSv1.1",
+                                "TLSv1.2"
+                            ]
+                        }
+                    },
+                    "querystring": "",
+                    "uri": "/fpjs/dfgfddf"
+                }
+            }
+        }
+    ]
+}

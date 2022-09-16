@@ -1,0 +1,195 @@
+{
+    "Records": [
+        {
+            "cf": {
+                "config": {
+                    "distributionDomainName": "d31cbk6iaeupum.cloudfront.net",
+                    "distributionId": "E9YYI6W8G9MV1",
+                    "eventType": "origin-request",
+                    "requestId": "yr6D63QwY9OeFbfVrYtDAIEIsKvpvXxDaciLH48R7Yx1YOgSUty_wA=="
+                },
+                "request": {
+                    "body": {
+                        "action": "read-only",
+                        "data": "",
+                        "encoding": "base64",
+                        "inputTruncated": false
+                    },
+                    "clientIp": "3.93.218.191",
+                    "headers": {
+                        "host": [
+                            {
+                                "key": "Host",
+                                "value": "sample-on-cf.fpjs.sh"
+                            }
+                        ],
+                        "cookie": [
+                            {
+                                "key": "Cookie",
+                                "value": "_iidt=2FmPb/aKYjB7JaMuVVaixABFYrRPv7fF85yG60FgSzozdggAA8y4+WFC9mrIhaZcIi9e8yratDNs2OLSWOJZSNiOQA==; _vid_t=JYu5w5WPEgu44HtkA4ko71To0TNO+267/ZYOe43Cjm5/O4m5e+npaeHrHShdvNQczSCx10S8iQzp8GH0VCD4J+muyQ==; amp_5dceee=qQ-LiJdeqwh8Rjr1HLsjJV.dXNyX2QybzZyNVVOS290MzlpRXA=..1gd20s923.1gd20se2q.0.3.3"
+                            }
+                        ],
+                        "accept-language": [
+                            {
+                                "key": "Accept-Language",
+                                "value": "en-GB,en-US;q=0.9,en;q=0.8"
+                            }
+                        ],
+                        "accept": [
+                            {
+                                "key": "Accept",
+                                "value": "*/*"
+                            }
+                        ],
+                        "referer": [
+                            {
+                                "key": "Referer",
+                                "value": "https://sample-on-cf.fpjs.sh/"
+                            }
+                        ],
+                        "cloudfront-forwarded-proto": [
+                            {
+                                "key": "CloudFront-Forwarded-Proto",
+                                "value": "https"
+                            }
+                        ],
+                        "x-forwarded-for": [
+                            {
+                                "key": "X-Forwarded-For",
+                                "value": "3.93.218.191"
+                            }
+                        ],
+                        "user-agent": [
+                            {
+                                "key": "User-Agent",
+                                "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+                            }
+                        ],
+                        "via": [
+                            {
+                                "key": "Via",
+                                "value": "2.0 eeb2f3ca588ea4437f4b97ed276a6664.cloudfront.net (CloudFront)"
+                            }
+                        ],
+                        "if-none-match": [
+                            {
+                                "key": "If-None-Match",
+                                "value": "W/\"tBkC+r7fnVgIdEcIOKDwUyujxrE\""
+                            }
+                        ],
+                        "accept-encoding": [
+                            {
+                                "key": "Accept-Encoding",
+                                "value": "br,gzip"
+                            }
+                        ],
+                        "pragma": [
+                            {
+                                "key": "Pragma",
+                                "value": "no-cache"
+                            }
+                        ],
+                        "sec-ch-ua": [
+                            {
+                                "key": "sec-ch-ua",
+                                "value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+                            }
+                        ],
+                        "sec-ch-ua-mobile": [
+                            {
+                                "key": "sec-ch-ua-mobile",
+                                "value": "?0"
+                            }
+                        ],
+                        "sec-ch-ua-platform": [
+                            {
+                                "key": "sec-ch-ua-platform",
+                                "value": "\"macOS\""
+                            }
+                        ],
+                        "sec-fetch-site": [
+                            {
+                                "key": "sec-fetch-site",
+                                "value": "same-origin"
+                            }
+                        ],
+                        "sec-fetch-mode": [
+                            {
+                                "key": "sec-fetch-mode",
+                                "value": "no-cors"
+                            }
+                        ],
+                        "sec-fetch-dest": [
+                            {
+                                "key": "sec-fetch-dest",
+                                "value": "script"
+                            }
+                        ],
+                        "cloudfront-viewer-address": [
+                            {
+                                "key": "CloudFront-Viewer-Address",
+                                "value": "3.72.248.142:51009"
+                            }
+                        ],
+                        "cloudfront-viewer-tls": [
+                            {
+                                "key": "CloudFront-Viewer-TLS",
+                                "value": "TLSv1.3:TLS_AES_128_GCM_SHA256:connectionReused"
+                            }
+                        ],
+                        "cache-control": [
+                            {
+                                "key": "Cache-Control",
+                                "value": "no-cache"
+                            }
+                        ]
+                    },
+                    "method": "GET",
+                    "origin": {
+                        "custom": {
+                            "customHeaders": {
+                                "fpjs_agent_download_path": [
+                                    {
+                                        "key": "FPJS_AGENT_DOWNLOAD_PATH",
+                                        "value": "agent"
+                                    }
+                                ],
+                                "fpjs_behavior_path": [
+                                    {
+                                        "key": "FPJS_BEHAVIOR_PATH",
+                                        "value": "fpjs"
+                                    }
+                                ],
+                                "fpjs_get_result_path": [
+                                    {
+                                        "key": "FPJS_GET_RESULT_PATH",
+                                        "value": "visitorId"
+                                    }
+                                ],
+                                "fpjs_pre_shared_secret": [
+                                    {
+                                        "key": "FPJS_PRE_SHARED_SECRET",
+                                        "value": "secret-123-456"
+                                    }
+                                ]
+                            },
+                            "domainName": "sample-ws.fpjs.sh",
+                            "keepaliveTimeout": 5,
+                            "path": "",
+                            "port": 443,
+                            "protocol": "https",
+                            "readTimeout": 30,
+                            "sslProtocols": [
+                                "TLSv1",
+                                "TLSv1.1",
+                                "TLSv1.2"
+                            ]
+                        }
+                    },
+                    "querystring": "apiKey=ztukooZ3oRmG8FgOXMva&version=3&loaderVersion=3.6.4",
+                    "uri": "/fpjs/agent"
+                }
+            }
+        }
+    ]
+}
