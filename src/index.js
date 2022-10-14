@@ -67,6 +67,10 @@ exports.handler = event => {
     } else if (request.uri === getResultUri) {
         const region = getRegion(request.querystring);
         const url = `${getFpApiHost(region)}?${request.querystring}`;
+
+        filteredHeaders['FPJS-Client-IP'] = request.clientIp;
+        filteredHeaders['FPJS-Proxy-Identification'] = Defaults.PRE_SHARED_SECRET;
+
         return handleResult(url, {
             method: request.method,
             headers: filteredHeaders,
