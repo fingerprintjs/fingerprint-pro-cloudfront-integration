@@ -1,7 +1,9 @@
+import { OutgoingHttpHeaders } from "http";
+
 export interface ResultOptions {
   apiEndpoint: string,
   method: string,
-  headers: {[key: string]: string},
-  body: any,
+  headers: OutgoingHttpHeaders,
+  body: string,
   domain: string
 }

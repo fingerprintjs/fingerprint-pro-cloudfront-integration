@@ -3,7 +3,7 @@ import { AgentOptions } from './AgentOptions';
 import { ResultOptions } from './ResultOptions';
 
 import https from 'https';
-import { IncomingHttpHeaders } from 'http';
+import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http';
 
 const ALLOWED_RESPONSE_HEADERS = [
   'access-control-allow-credentials',
@@ -38,14 +38,8 @@ export const handler = async (event: CloudFrontRequestEvent, context: Context): 
   console.info(`result path = ${getResultPath(request)}`);
   console.info(`pre shared secret = ${getPreSharedSecret(request)}`);
 
-  const headers = extractAndFilterHeaders(request);
-  headers.forEach((v, k) => {
-    console.info(`${k} -> ${v}`);
-  });
-
   const agentUri = `/${getBehaviorPath(request)}/${getAgentDownloadPath(request)}`;
   const getResultUri = `/${getBehaviorPath(request)}/${getResultPath(request)}`;
-  //const statusUri = `/${getBehaviorPath(request)}/status`;
 
   console.info(`handle ${request.uri}`);
   if (request.uri === agentUri) {
@@ -62,8 +56,8 @@ export const handler = async (event: CloudFrontRequestEvent, context: Context): 
     return handleResult({
       apiEndpoint: endpoint,
       method: request.method,
-      headers: filterHeaders(request),
-      body: request.body,
+      headers: prepareHeadersForIngressAPI(request),
+      body: request.body?.data || '',
       domain: getHost(request)
     });
   } else {
@@ -96,35 +90,28 @@ function getHost(request: CloudFrontRequest): string {
   return request.headers['host'][0].value;
 }
 
-function filterHeaders(request: CloudFrontRequest) {
+function filterHeaders(request: CloudFrontRequest): OutgoingHttpHeaders {
   return Object.entries(request.headers).reduce((result: {[key: string]: string}, [name, value]) => {
-    if (!BLACKLISTED_REQUEST_HEADERS.includes(name)) {      
-        result[name] = value[0].value;
+    const headerName = name.toLowerCase();
+    if (!BLACKLISTED_REQUEST_HEADERS.includes(headerName)) {
+        let headerValue = value[0].value;
+        if (headerName === 'cookie') {
+          headerValue = headerValue.split(/; */).filter(isAllowedCookie).join('; ');
+        }
+
+        result[headerName] = headerValue;
     }
     return result;
 }, {});
 }
 
-function extractAndFilterHeaders(request: CloudFrontRequest): Map<string, string> {
-  const map: Map<string, Array<{
-    key?: string | undefined;
-    value: string;
-    }>> = new Map(Object.entries(request.headers));
-  const result = new Map<string, string>();
-  
-  map.forEach((v, _) => {
-    const name = v[0].key?.toLowerCase();
-    if (name !== undefined && !BLACKLISTED_REQUEST_HEADERS.includes(name)) {
-      let value = v[0].value;
-      if (name === 'cookie') {
-        value = value.split(/; */).filter(isAllowedCookie).join('; ');
-      }
+function prepareHeadersForIngressAPI(request: CloudFrontRequest): OutgoingHttpHeaders {
+  const headers = filterHeaders(request);
 
-      result.set(name, value);
-    }    
-  });
+  headers['fpjs-client-ip'] = request.clientIp;
+  headers['fpjs-proxy-identification'] = getPreSharedSecret(request) || 'secret-is-not-defined';
 
-  return result;
+  return headers;
 }
 
 function isAllowedCookie(cookie: string) {    
@@ -270,7 +257,7 @@ function updateResponseHeaders(headers: IncomingHttpHeaders, domain: string): Cl
       }
       
       resultHeaders[name] = [{
-        key: 'fds',
+        key: name,
         value: value
       }];
     }            
