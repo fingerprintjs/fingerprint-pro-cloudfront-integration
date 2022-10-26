@@ -8,6 +8,10 @@ import {
   getHost,
 } from './headers'
 import { getApiKey, getLoaderVersion, getRegion } from './request'
+import {
+  addTrafficMonitoringSearchParamsForVisitorIdRequest,
+  addTrafficMonitoringSearchParamsForProCDN,
+} from './traffic'
 
 export {
   getAgentUri,
@@ -20,4 +24,6 @@ export {
   getApiKey,
   getLoaderVersion,
   getRegion,
+  addTrafficMonitoringSearchParamsForVisitorIdRequest,
+  addTrafficMonitoringSearchParamsForProCDN,
 }

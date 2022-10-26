@@ -2,14 +2,20 @@ import { ResultOptions } from '../model'
 import { CloudFrontResultResponse } from 'aws-lambda'
 import https from 'https'
 
-import { updateResponseHeaders } from '../utils/headers'
+import { updateResponseHeaders, addTrafficMonitoringSearchParamsForVisitorIdRequest } from '../utils'
 
 export function handleResult(options: ResultOptions): Promise<CloudFrontResultResponse> {
   return new Promise((resolve) => {
     const data: any[] = []
 
+    const url = new URL(getIngressAPIHost(options.region))
+    options.querystring.split('&').forEach((it) => {
+      const kv = it.split('=')
+      url.searchParams.append(kv[0], kv[1])
+    })
+    addTrafficMonitoringSearchParamsForVisitorIdRequest(url)
     const request = https.request(
-      getIngressAPIEndpoint(options.region, options.querystring),
+      url,
       {
         method: options.method,
         headers: options.headers,
@@ -47,7 +53,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
   })
 }
 
-function getIngressAPIEndpoint(region: string, querystring: string): string {
+function getIngressAPIHost(region: string): string {
   const prefix = region === 'us' ? '' : `${region}.`
-  return `https://${prefix}__INGRESS_API__?${querystring}`
+  return `https://${prefix}__INGRESS_API__`
 }

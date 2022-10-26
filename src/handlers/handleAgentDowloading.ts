@@ -2,17 +2,19 @@ import { AgentOptions } from '../model'
 import { CloudFrontResultResponse } from 'aws-lambda'
 import https from 'https'
 
-import { updateResponseHeaders } from '../utils/headers'
+import { updateResponseHeaders, addTrafficMonitoringSearchParamsForProCDN } from '../utils'
 
 export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultResponse> {
   return new Promise((resolve) => {
     const data: any[] = []
 
+    const url = new URL('https://__FPCDN__')
+    url.pathname = options.path
+    addTrafficMonitoringSearchParamsForProCDN(url)
     const request = https.request(
+      url,
       {
-        host: '__FPCDN__',
         method: options.method,
-        path: options.path,
         headers: options.headers,
       },
       (response) => {

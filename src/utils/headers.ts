@@ -1,6 +1,6 @@
 import { CloudFrontHeaders, CloudFrontRequest } from 'aws-lambda'
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http'
-import { updateCookie, isAllowedCookie } from './cookie'
+import { updateCookie } from './cookie'
 
 const ALLOWED_RESPONSE_HEADERS = [
   'access-control-allow-credentials',
@@ -49,7 +49,7 @@ export function filterRequestHeaders(request: CloudFrontRequest): OutgoingHttpHe
     if (!BLACKLISTED_REQUEST_HEADERS.includes(headerName)) {
       let headerValue = value[0].value
       if (headerName === 'cookie') {
-        headerValue = headerValue.split(/; */).filter(isAllowedCookie).join('; ')
+        headerValue = headerValue.split(/; */).join('; ')
       }
 
       result[headerName] = headerValue

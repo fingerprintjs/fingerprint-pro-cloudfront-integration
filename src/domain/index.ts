@@ -1,3 +1,3 @@
-import { getDomainFromHostname } from "./utils"
+import { getDomainFromHostname } from './utils'
 
 export { getDomainFromHostname }
