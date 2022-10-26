@@ -12,9 +12,12 @@ import {
   getApiKey,
   getLoaderVersion,
 } from './utils'
+import { getDomainFromHostname } from './domain'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   const request = event.Records[0].cf.request
+
+  const domain = getDomainFromHostname(getHost(request))
 
   if (request.uri === getAgentUri(request)) {
     const endpoint = `/v3/${getApiKey(request)}/loader_v${getLoaderVersion(request)}.js`
@@ -22,7 +25,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       path: endpoint,
       method: request.method,
       headers: filterRequestHeaders(request),
-      domain: getHost(request),
+      domain: domain,
     })
   } else if (request.uri === getResultUri(request)) {
     return handleResult({
@@ -31,7 +34,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       method: request.method,
       headers: prepareHeadersForIngressAPI(request),
       body: request.body?.data || '',
-      domain: getHost(request),
+      domain: domain,
     })
   } else if (request.uri === getStatusUri(request)) {
     return handleStatus()
