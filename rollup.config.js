@@ -31,8 +31,9 @@ const commonInput = {
     typescript(),
     external(),
     replace({
-      'process.env.FPCDN': process.env.FPCDN,
-      'process.env.INGRESS_API': process.env.INGRESS_API,
+      __FPCDN__: process.env.FPCDN,
+      __INGRESS_API__: process.env.INGRESS_API,
+      __lambda_func_version__: packageJson.version,
       preventAssignment: true,
     }),
     commonBanner,

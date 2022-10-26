@@ -1,7 +1,8 @@
 import { OutgoingHttpHeaders } from 'http'
 
 export interface ResultOptions {
-  apiEndpoint: string
+  region: string
+  querystring: string
   method: string
   headers: OutgoingHttpHeaders
   body: string

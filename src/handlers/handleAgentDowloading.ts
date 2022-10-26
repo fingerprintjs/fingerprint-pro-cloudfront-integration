@@ -10,7 +10,7 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
 
     const request = https.request(
       {
-        host: "__FPCDN__",
+        host: '__FPCDN__',
         method: options.method,
         path: options.path,
         headers: options.headers,
