@@ -5,7 +5,9 @@
   "author": "FingerprintJS, Inc (https://fingerprint.com)",
   "license": "MIT",
   "scripts": {
-    "build": "rimraf dist && rollup -c rollup.config.js"
+    "build": "rimraf dist && rollup -c rollup.config.js",
+    "lint": "eslint --ext .js,.ts --ignore-path .gitignore --max-warnings 0 src/",
+    "lint:fix": "yarn lint --fix"
   },
   "main": "dist/fingerprintjs-pro-cloudflare-lambda-function.js",
   "sideEffects": false,
@@ -13,7 +15,10 @@
     "dist"
   ],
   "dependencies": {
-    "aws-sdk": "^2.1234.0"
+    "aws-sdk": "^2.1234.0",
+    "eslint": "^8.26.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1"
   },
   "devDependencies": {
     "@rollup/plugin-json": "^4.1.0",
