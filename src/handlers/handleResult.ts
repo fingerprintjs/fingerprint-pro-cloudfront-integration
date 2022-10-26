@@ -2,14 +2,14 @@ import { ResultOptions } from '../model'
 import { CloudFrontResultResponse } from 'aws-lambda'
 import https from 'https'
 
-import { updateResponseHeaders } from './utils'
+import { updateResponseHeaders } from '../utils/headers'
 
 export function handleResult(options: ResultOptions): Promise<CloudFrontResultResponse> {
   return new Promise((resolve) => {
     const data: any[] = []
 
     const request = https.request(
-      options.apiEndpoint,
+      getIngressAPIEndpoint(options.region, options.querystring),
       {
         method: options.method,
         headers: options.headers,
@@ -33,7 +33,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
     request.write(Buffer.from(options.body, 'base64'))
 
     request.on('error', (e) => {
-      console.info(`error ${JSON.stringify(e)}`)
+      console.error(`unable to handle result ${e}`)
       resolve({
         status: '500',
         statusDescription: 'Bad request',
@@ -45,4 +45,9 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
 
     request.end()
   })
+}
+
+function getIngressAPIEndpoint(region: string, querystring: string): string {
+  const prefix = region === 'us' ? '' : `${region}.`
+  return `https://${prefix}__INGRESS_API__?${querystring}`
 }

@@ -2,7 +2,7 @@ import { AgentOptions } from '../model'
 import { CloudFrontResultResponse } from 'aws-lambda'
 import https from 'https'
 
-import { updateResponseHeaders } from './utils'
+import { updateResponseHeaders } from '../utils/headers'
 
 export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultResponse> {
   return new Promise((resolve) => {
@@ -10,7 +10,7 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
 
     const request = https.request(
       {
-        host: options.host,
+        host: "__FPCDN__",
         method: options.method,
         path: options.path,
         headers: options.headers,
