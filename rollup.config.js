@@ -2,6 +2,7 @@ import typescript from '@rollup/plugin-typescript'
 import jsonPlugin from '@rollup/plugin-json'
 import external from 'rollup-plugin-peer-deps-external'
 import licensePlugin from 'rollup-plugin-license'
+import dtsPlugin from 'rollup-plugin-dts'
 import { join } from 'path'
 
 const { dependencies = {} } = require('./package.json')
@@ -45,5 +46,13 @@ export default [
         format: 'cjs',
       },
     ],
+  },
+  {
+    ...commonInput,
+    plugins: [dtsPlugin(), commonBanner],
+    output: {
+      file: `${outputDirectory}/${artifactName}.d.ts`,
+      format: 'es',
+    },
   },
 ]
