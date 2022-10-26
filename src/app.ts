@@ -5,6 +5,7 @@ import { OutgoingHttpHeaders } from 'http'
 import { downloadAgent, handleResult } from './handlers'
 import { filterHeaders } from './headers'
 
+
 export const handler = async (event: CloudFrontRequestEvent, context: Context): Promise<CloudFrontResultResponse> => {
   console.info(`Config: ${JSON.stringify(event.Records[0].cf.config, null, 2)}`)
   console.info(`Request: ${JSON.stringify(event.Records[0].cf.request, null, 2)}`)
@@ -24,7 +25,7 @@ export const handler = async (event: CloudFrontRequestEvent, context: Context): 
   if (request.uri === agentUri) {
     const endpoint = `/v3/${getApiKey(request)}/loader_v${getLoaderVersion(request)}.js`
     return downloadAgent({
-      host: 'fpcdn.io',
+      host: process.env.FPCDN!!,
       path: endpoint,
       method: request.method,
       headers: filterHeaders(request),
@@ -99,6 +100,6 @@ function getQueryParameter(request: CloudFrontRequest, key: string): string | un
 }
 
 function getIngressAPIEndpoint(region: string): string {
-  const prefix = region === 'us' ? '' : region
-  return `https://${prefix}apiv2.fpjs.sh`
+  const prefix = region === 'us' ? '' : `${region}.`
+  return `https://${prefix}${process.env.INGRESS_API}`
 }

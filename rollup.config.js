@@ -3,10 +3,14 @@ import jsonPlugin from '@rollup/plugin-json'
 import external from 'rollup-plugin-peer-deps-external'
 import licensePlugin from 'rollup-plugin-license'
 import dtsPlugin from 'rollup-plugin-dts'
+import replace from '@rollup/plugin-replace'
 import { join } from 'path'
+const dotenv = require('dotenv')
+dotenv.config()
 
 const { dependencies = {} } = require('./package.json')
 const packageJson = require('./package.json')
+//const env = require('./.env')
 
 const inputFile = 'src/app.ts'
 const outputDirectory = 'dist'
@@ -22,10 +26,15 @@ const commonBanner = licensePlugin({
 
 const commonInput = {
   input: inputFile,
-  plugins: [    
+  plugins: [
     jsonPlugin(),
     typescript(),
     external(),
+    replace({
+      'process.env.FPCDN': process.env.FPCDN,
+      'process.env.INGRESS_API': process.env.INGRESS_API,
+      preventAssignment: true,
+    }),
     commonBanner,
   ],
 }
