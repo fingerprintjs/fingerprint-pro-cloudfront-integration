@@ -6,13 +6,15 @@ export function updateCookie(cookieValue: string, domainName: string): string {
     const kv = s.split('=')
     if (kv.length === 1) {
       return s
-    } else if (kv[0].toLowerCase() === 'domain') {
-      kv[1] = domainName
-      return `${kv[0]}=${kv[1]}`
     } else {
-      return kv
-    }
-  })
+      if (kv[0].toLowerCase() === 'domain') {
+        kv[1] = domainName
+        return `${kv[0]}=${kv[1]}`
+      } else {
+        return s
+      }
+    }     
+  });
 
-  return updated.join('; ')
+  return updated.join('; ').trim()
 }
