@@ -94,7 +94,7 @@ function updateCacheControlHeader(headerValue: string): string {
 }
 
 function updateCacheControlAge(headerValue: string, type: 'max-age' | 's-maxage'): string {
-  const cacheControlDirectives = headerValue.split(', ').filter((it) => it !== 'no-cache')
+  const cacheControlDirectives = headerValue.split(', ')
   const maxAgeIndex = cacheControlDirectives.findIndex(
     (directive) => directive.split('=')[0].trim().toLowerCase() === type,
   )
