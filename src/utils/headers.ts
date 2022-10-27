@@ -35,11 +35,11 @@ export const getResultUri = (request: CloudFrontRequest) => `/${getBehaviorPath(
 
 export const getStatusUri = (request: CloudFrontRequest) => `/${getBehaviorPath(request)}/status`
 
-const getAgentDownloadPath = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_agent_download_path')
+const getAgentDownloadPath = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_agent_download_path') || 'agent'
 
-const getBehaviorPath = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_behavior_path')
+const getBehaviorPath = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_behavior_path') || 'fpjs'
 
-const getResultPath = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_get_result_path')
+const getResultPath = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_get_result_path') || 'resultId'
 
 const getPreSharedSecret = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_pre_shared_secret')
 
@@ -93,7 +93,7 @@ function updateCacheControlHeader(headerValue: string): string {
 }
 
 function updateCacheControlAge(headerValue: string, type: 'max-age' | 's-maxage'): string {
-  const cacheControlDirectives = headerValue.split(', ')
+  const cacheControlDirectives = headerValue.split(', ').filter(it => it !== 'no-cache')
   const maxAgeIndex = cacheControlDirectives.findIndex(
     (directive) => directive.split('=')[0].trim().toLowerCase() === type,
   )
@@ -109,8 +109,8 @@ function updateCacheControlAge(headerValue: string, type: 'max-age' | 's-maxage'
 
 function getCustomHeader(request: CloudFrontRequest, headerName: string): string | undefined {
   const headers = request.origin?.custom?.customHeaders
-  if (headers === undefined) {
+  if (headers === undefined || headers[headerName] === undefined) {
     return undefined
-  }
+  }  
   return headers[headerName][0].value
 }
