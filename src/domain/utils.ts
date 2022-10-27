@@ -1,10 +1,27 @@
 import domainSuffixList from './domain-suffix-list.json'
 
-export function getDomainFromHostname(hostname: string) {
+export function getDomainFromHostname(hostname: string): string {
   if (!hostname) {
     return hostname
   }
 
+  const matchingETLD = findETLDMatch(hostname)
+  if (!matchingETLD) {
+    return hostname
+  }
+
+  const lengthDiff = hostname.length - matchingETLD.length
+  const partBeforeSuffix = hostname.substring(0, lengthDiff - 1)
+  const lastDotIndex = partBeforeSuffix.lastIndexOf('.')
+  if (lastDotIndex === -1) {
+    return hostname
+  }
+
+  return hostname.substring(lastDotIndex + 1)
+}
+
+function findETLDMatch(hostname: string): string | null {
+  let currentMatch = null
   for (const domainSuffix of domainSuffixList) {
     const lengthDiff = hostname.length - domainSuffix.length
     if (lengthDiff < 0) {
@@ -16,14 +33,10 @@ export function getDomainFromHostname(hostname: string) {
       continue
     }
 
-    const partBeforeSuffix = hostname.substring(0, lengthDiff - 1)
-    const lastDotIndex = partBeforeSuffix.lastIndexOf('.')
-    if (lastDotIndex === -1) {
-      return hostname
+    if (currentMatch == null || currentMatch.length < domainSuffix.length) {
+      currentMatch = domainSuffix
     }
-
-    return hostname.substring(lastDotIndex + 1)
   }
 
-  return hostname
+  return currentMatch
 }

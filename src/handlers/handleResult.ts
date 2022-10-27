@@ -14,6 +14,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
       url.searchParams.append(kv[0], kv[1])
     })
     addTrafficMonitoringSearchParamsForVisitorIdRequest(url)
+    console.info(`handle result url = ${url.toString()}`)
     const request = https.request(
       url,
       {
