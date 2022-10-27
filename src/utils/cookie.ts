@@ -13,8 +13,8 @@ export function updateCookie(cookieValue: string, domainName: string): string {
       } else {
         return s
       }
-    }     
-  });
+    }
+  })
 
   return updated.join('; ').trim()
 }

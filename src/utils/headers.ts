@@ -35,7 +35,8 @@ export const getResultUri = (request: CloudFrontRequest) => `/${getBehaviorPath(
 
 export const getStatusUri = (request: CloudFrontRequest) => `/${getBehaviorPath(request)}/status`
 
-const getAgentDownloadPath = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_agent_download_path') || 'agent'
+const getAgentDownloadPath = (request: CloudFrontRequest) =>
+  getCustomHeader(request, 'fpjs_agent_download_path') || 'agent'
 
 const getBehaviorPath = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_behavior_path') || 'fpjs'
 
@@ -93,7 +94,7 @@ function updateCacheControlHeader(headerValue: string): string {
 }
 
 function updateCacheControlAge(headerValue: string, type: 'max-age' | 's-maxage'): string {
-  const cacheControlDirectives = headerValue.split(', ').filter(it => it !== 'no-cache')
+  const cacheControlDirectives = headerValue.split(', ').filter((it) => it !== 'no-cache')
   const maxAgeIndex = cacheControlDirectives.findIndex(
     (directive) => directive.split('=')[0].trim().toLowerCase() === type,
   )
@@ -111,6 +112,6 @@ function getCustomHeader(request: CloudFrontRequest, headerName: string): string
   const headers = request.origin?.custom?.customHeaders
   if (headers === undefined || headers[headerName] === undefined) {
     return undefined
-  }  
+  }
   return headers[headerName][0].value
 }
