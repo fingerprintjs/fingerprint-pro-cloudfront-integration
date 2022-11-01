@@ -40,17 +40,50 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
 
     request.on('error', (e) => {
       console.error(`unable to handle result ${e}`)
+      
       resolve({
         status: '500',
         statusDescription: 'Bad request',
         headers: {},
         bodyEncoding: 'text',
-        body: 'error',
+        body: generateErrorResponse(e),
       })
     })
 
     request.end()
   })
+}
+
+function generateErrorResponse(err: Error): string {
+  const body = {
+    v: '2',
+    error: {
+      code: 1,
+      message: `An error occured with Fingerprint Pro Lambda function. Reason ${err}`
+    },
+    requestId: generateRequestId,
+    products: {},
+  }
+  return JSON.stringify(body)
+}
+
+function generateRequestId(): string {
+  const uniqueId = generateRequestUniqueId()
+  const now = new Date().getTime()
+  return `${now}.cfi-${uniqueId}`
+}
+
+function generateRandomString(length: number): string {
+  let result = ''
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length))
+  }
+  return result
+}
+
+function generateRequestUniqueId(): string {
+  return generateRandomString(2)
 }
 
 function getIngressAPIHost(region: string): string {
