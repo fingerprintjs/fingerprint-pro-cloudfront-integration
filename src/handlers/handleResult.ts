@@ -40,7 +40,6 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
 
     request.on('error', (e) => {
       console.error(`unable to handle result ${e}`)
-      
       resolve({
         status: '500',
         statusDescription: 'Bad request',
@@ -59,7 +58,7 @@ function generateErrorResponse(err: Error): string {
     v: '2',
     error: {
       code: 1,
-      message: `An error occured with Fingerprint Pro Lambda function. Reason ${err}`
+      message: `An error occured with Fingerprint Pro Lambda function. Reason ${err}`,
     },
     requestId: generateRequestId,
     products: {},
