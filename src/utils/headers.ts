@@ -1,6 +1,7 @@
 import { CloudFrontHeaders, CloudFrontRequest } from 'aws-lambda'
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http'
 import { updateCookie } from './cookie'
+import { updateCacheControlHeader } from './cache-control'
 
 const ALLOWED_RESPONSE_HEADERS = [
   'access-control-allow-credentials',
@@ -72,7 +73,7 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
       if (name === 'set-cookie') {
         value = updateCookie(value, domain)
       } else if (name === 'cache-control') {
-        value = updateCacheControlHeader(value)
+        value = updateCacheControlHeader(value, CACHE_MAX_AGE)
       }
 
       resultHeaders[name] = [
@@ -85,27 +86,6 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
   }
 
   return resultHeaders
-}
-
-function updateCacheControlHeader(headerValue: string): string {
-  headerValue = updateCacheControlAge(headerValue, 'max-age')
-  headerValue = updateCacheControlAge(headerValue, 's-maxage')
-  return headerValue
-}
-
-function updateCacheControlAge(headerValue: string, type: 'max-age' | 's-maxage'): string {
-  const cacheControlDirectives = headerValue.split(', ')
-  const maxAgeIndex = cacheControlDirectives.findIndex(
-    (directive) => directive.split('=')[0].trim().toLowerCase() === type,
-  )
-  if (maxAgeIndex === -1) {
-    cacheControlDirectives.push(`${type}=${CACHE_MAX_AGE}`)
-  } else {
-    const oldMaxAge = Number(cacheControlDirectives[maxAgeIndex].split('=')[1])
-    const newMaxAge = Math.min(CACHE_MAX_AGE, oldMaxAge)
-    cacheControlDirectives[maxAgeIndex] = `${type}=${newMaxAge}`
-  }
-  return cacheControlDirectives.join(', ')
 }
 
 function getCustomHeader(request: CloudFrontRequest, headerName: string): string | undefined {
