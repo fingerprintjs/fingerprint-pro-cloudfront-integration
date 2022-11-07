@@ -10,7 +10,6 @@ dotenv.config()
 
 const { dependencies = {} } = require('./package.json')
 const packageJson = require('./package.json')
-//const env = require('./.env')
 
 const inputFile = 'src/app.ts'
 const outputDirectory = 'dist'
