@@ -5,8 +5,10 @@ module.exports = {
   testRegex: '/test/.+test.tsx?$',
   passWithNoTests: true,
   collectCoverageFrom: [
-    './src/domain/**.ts',
-    './src/utils/**.ts',
+    './src/**/**.ts',
+    '!**/handlers/**.ts',
+    '!**/model/**.ts',
+    '!./src/app.ts'
   ],
   coverageReporters: ['lcov', 'json-summary', ['text', { file: 'coverage.txt', path: './' }]],
 }
