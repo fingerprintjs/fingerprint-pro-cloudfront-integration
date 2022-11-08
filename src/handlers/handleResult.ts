@@ -69,7 +69,7 @@ function generateErrorResponse(err: Error): string {
 function generateRequestId(): string {
   const uniqueId = generateRequestUniqueId()
   const now = new Date().getTime()
-  return `${now}.cfi-${uniqueId}`
+  return `${now}.aws-${uniqueId}`
 }
 
 function generateRandomString(length: number): string {
