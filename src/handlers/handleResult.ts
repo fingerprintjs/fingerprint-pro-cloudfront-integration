@@ -57,7 +57,7 @@ function generateErrorResponse(err: Error): string {
   const body = {
     v: '2',
     error: {
-      code: 1,
+      code: 'Failed',
       message: `An error occured with Fingerprint Pro Lambda function. Reason ${err}`,
     },
     requestId: generateRequestId,
