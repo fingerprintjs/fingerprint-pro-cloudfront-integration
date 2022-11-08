@@ -8,7 +8,8 @@ module.exports = {
     './src/**/**.ts',
     '!**/handlers/**.ts',
     '!**/model/**.ts',
-    '!./src/app.ts'
+    '!./src/app.ts',
+    '!**/index.ts'
   ],
   coverageReporters: ['lcov', 'json-summary', ['text', { file: 'coverage.txt', path: './' }]],
 }
