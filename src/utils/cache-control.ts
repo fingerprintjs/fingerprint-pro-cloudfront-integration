@@ -1,6 +1,5 @@
 export function updateCacheControlHeader(headerValue: string, maxAge: number): string {
   headerValue = updateCacheControlAge(headerValue, 'max-age', maxAge)
-  headerValue = updateCacheControlAge(headerValue, 's-maxage', maxAge)
   return headerValue
 }
 
