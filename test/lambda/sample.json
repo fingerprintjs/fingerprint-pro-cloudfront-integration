@@ -1,0 +1,163 @@
+{
+  "Records": [
+      {
+          "cf": {
+              "config": {
+                  "distributionDomainName": "dhcd9teqood6o.cloudfront.net",
+                  "distributionId": "E2DWY2CL6DDVBE",
+                  "eventType": "origin-request",
+                  "requestId": "Kq6gomvBYXVzTzot7POn9CP_7g6fPcxod1xR-m4nerfTtqaVeKGx9A=="
+              },
+              "request": {
+                  "body": {
+                      "action": "read-only",
+                      "data": "",
+                      "encoding": "base64",
+                      "inputTruncated": false
+                  },
+                  "clientIp": "13.13.183.91",
+                  "headers": {
+                      "if-none-match": [
+                          {
+                              "key": "If-None-Match",
+                              "value": "W/\"zqfC0r7CbGaOyBMy1VDhcCu0XXc\""
+                          }
+                      ],
+                      "host": [
+                          {
+                              "key": "Host",
+                              "value": "cloudfront-demo.fpjs.sh"
+                          }
+                      ],
+                      "cookie": [
+                          {
+                              "key": "Cookie",
+                              "value": "_iidt=8Bl6x2cQ+Nfiq6IeDtZNSMcUmv0I8lCqNc8Xrw==; _iidt=EevugkJ+is8B3vxBk70RvMr8hyw3NKYT/f2Lg==; _vid_t=4ZOqHBfoU+IKJRLw==; amp_5dceee=YvyFZQzHHbfdoa8hkw=..1ggaa9l0v.1ggaacst5.9.i.r"
+                          }
+                      ],
+                      "accept-language": [
+                          {
+                              "key": "Accept-Language",
+                              "value": "en-GB,en-US;q=0.9,en;q=0.8"
+                          }
+                      ],
+                      "accept": [
+                          {
+                              "key": "Accept",
+                              "value": "*/*"
+                          }
+                      ],
+                      "referer": [
+                          {
+                              "key": "Referer",
+                              "value": "https://cloudfront-demo.fpjs.sh/"
+                          }
+                      ],
+                      "x-forwarded-for": [
+                          {
+                              "key": "X-Forwarded-For",
+                              "value": "13.53.214.146"
+                          }
+                      ],
+                      "user-agent": [
+                          {
+                              "key": "User-Agent",
+                              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
+                          }
+                      ],
+                      "via": [
+                          {
+                              "key": "Via",
+                              "value": "2.0 8ea75fde43c768e7e1d041f8b7a07bd6.cloudfront.net (CloudFront)"
+                          }
+                      ],
+                      "accept-encoding": [
+                          {
+                              "key": "Accept-Encoding",
+                              "value": "br,gzip"
+                          }
+                      ],
+                      "sec-ch-ua": [
+                          {
+                              "key": "sec-ch-ua",
+                              "value": "\"Chromium\";v=\"106\", \"Google Chrome\";v=\"106\", \"Not;A=Brand\";v=\"99\""
+                          }
+                      ],
+                      "sec-ch-ua-mobile": [
+                          {
+                              "key": "sec-ch-ua-mobile",
+                              "value": "?0"
+                          }
+                      ],
+                      "sec-ch-ua-platform": [
+                          {
+                              "key": "sec-ch-ua-platform",
+                              "value": "\"macOS\""
+                          }
+                      ],
+                      "sec-fetch-site": [
+                          {
+                              "key": "sec-fetch-site",
+                              "value": "same-origin"
+                          }
+                      ],
+                      "sec-fetch-mode": [
+                          {
+                              "key": "sec-fetch-mode",
+                              "value": "no-cors"
+                          }
+                      ],
+                      "sec-fetch-dest": [
+                          {
+                              "key": "sec-fetch-dest",
+                              "value": "script"
+                          }
+                      ]
+                  },
+                  "method": "GET",
+                  "origin": {
+                      "custom": {
+                          "customHeaders": {
+                              "fpjs_agent_download_path": [
+                                  {
+                                      "key": "fpjs_agent_download_path",
+                                      "value": "download"
+                                  }
+                              ],
+                              "fpjs_behavior_path": [
+                                  {
+                                      "key": "fpjs_behavior_path",
+                                      "value": "lambda-path"
+                                  }
+                              ],
+                              "fpjs_get_result_path": [
+                                  {
+                                      "key": "fpjs_get_result_path",
+                                      "value": "visitor"
+                                  }
+                              ],
+                              "fpjs_pre_shared_secret": [
+                                  {
+                                      "key": "fpjs_pre_shared_secret",
+                                      "value": "TEST_SECRET_VALUE_999_111"
+                                  }
+                              ]
+                          },
+                          "domainName": "example.com",
+                          "keepaliveTimeout": 5,
+                          "path": "",
+                          "port": 443,
+                          "protocol": "https",
+                          "readTimeout": 30,
+                          "sslProtocols": [
+                              "TLSv1.2"
+                          ]
+                      }
+                  },
+                  "querystring": "apiKey=TEST_API_KEY_777&version=3&loaderVersion=3.6.2",
+                  "uri": "/lambda-path/download"
+              }
+          }
+      }
+  ]
+}
