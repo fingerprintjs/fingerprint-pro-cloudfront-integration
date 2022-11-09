@@ -1,4 +1,11 @@
-import { prepareHeadersForIngressAPI, getAgentUri, getResultUri, getStatusUri, filterRequestHeaders, updateResponseHeaders } from '../../src/utils/headers'
+import {
+  prepareHeadersForIngressAPI,
+  getAgentUri,
+  getResultUri,
+  getStatusUri,
+  filterRequestHeaders,
+  updateResponseHeaders,
+} from '../../src/utils/headers'
 import { CloudFrontRequest, CloudFrontHeaders } from 'aws-lambda'
 import { IncomingHttpHeaders } from 'http'
 
@@ -9,10 +16,10 @@ describe('test fpjs-headers preparation', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-      headers: { },
+      headers: {},
       origin: {
         custom: {
-          domainName: 'adewe.cloudfront.net',      
+          domainName: 'adewe.cloudfront.net',
           keepaliveTimeout: 60,
           path: '/',
           port: 443,
@@ -20,14 +27,16 @@ describe('test fpjs-headers preparation', () => {
           readTimeout: 60,
           sslProtocols: ['TLSv2'],
           customHeaders: {
-            'fpjs_pre_shared_secret': [{
-              key: 'fpjs_pre_shared_secret',
-              value: 'qwertyuio1356767'
-            }]
-          }
-        }
-      }
-    }  
+            fpjs_pre_shared_secret: [
+              {
+                key: 'fpjs_pre_shared_secret',
+                value: 'qwertyuio1356767',
+              },
+            ],
+          },
+        },
+      },
+    }
     const headers = prepareHeadersForIngressAPI(req)
     expect(headers['fpjs-client-ip']).toBe('1.1.1.1')
     expect(headers['fpjs-proxy-identification']).toBe('qwertyuio1356767')
@@ -39,20 +48,20 @@ describe('test fpjs-headers preparation', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-      headers: { },
+      headers: {},
       origin: {
         custom: {
-          domainName: 'adewe.cloudfront.net',      
+          domainName: 'adewe.cloudfront.net',
           keepaliveTimeout: 60,
           path: '/',
           port: 443,
           protocol: 'https',
           readTimeout: 60,
           sslProtocols: ['TLSv2'],
-          customHeaders: { }
-        }
-      }
-    }    
+          customHeaders: {},
+        },
+      },
+    }
     const headers = prepareHeadersForIngressAPI(req)
     expect(headers['fpjs-client-ip']).toBe('1.1.1.1')
     expect(headers['fpjs-proxy-identification']).toBe('secret-is-not-defined')
@@ -66,10 +75,10 @@ describe('test custom headers', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-      headers: { },
+      headers: {},
       origin: {
         custom: {
-          domainName: 'adewe.cloudfront.net',      
+          domainName: 'adewe.cloudfront.net',
           keepaliveTimeout: 60,
           path: '/',
           port: 443,
@@ -77,25 +86,33 @@ describe('test custom headers', () => {
           readTimeout: 60,
           sslProtocols: ['TLSv2'],
           customHeaders: {
-            'fpjs_pre_shared_secret': [{
-              key: 'fpjs_pre_shared_secret',
-              value: 'qwertyuio1356767'
-            }],
-            'fpjs_agent_download_path': [{
-              key: 'fpjs_agent_download_path',
-              value: 'greiodsfkljlds',
-            }],
-            'fpjs_behavior_path': [{
-              key: 'fpjs_behavior_path',
-              value: 'eifjdsnmzxcn',
-            }],
-            'fpjs_get_result_path': [{
-              key: 'fpjs_get_result_path',
-              value: 'eiwflsdkadlsjdsa'
-            }]
-          }
-        }
-      }
+            fpjs_pre_shared_secret: [
+              {
+                key: 'fpjs_pre_shared_secret',
+                value: 'qwertyuio1356767',
+              },
+            ],
+            fpjs_agent_download_path: [
+              {
+                key: 'fpjs_agent_download_path',
+                value: 'greiodsfkljlds',
+              },
+            ],
+            fpjs_behavior_path: [
+              {
+                key: 'fpjs_behavior_path',
+                value: 'eifjdsnmzxcn',
+              },
+            ],
+            fpjs_get_result_path: [
+              {
+                key: 'fpjs_get_result_path',
+                value: 'eiwflsdkadlsjdsa',
+              },
+            ],
+          },
+        },
+      },
     }
 
     expect(getAgentUri(req)).toBe('/eifjdsnmzxcn/greiodsfkljlds')
@@ -109,19 +126,19 @@ describe('test custom headers', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-      headers: { },
+      headers: {},
       origin: {
         custom: {
-          domainName: 'adewe.cloudfront.net',      
+          domainName: 'adewe.cloudfront.net',
           keepaliveTimeout: 60,
           path: '/',
           port: 443,
           protocol: 'https',
           readTimeout: 60,
           sslProtocols: ['TLSv2'],
-          customHeaders: { }
-        }
-      }
+          customHeaders: {},
+        },
+      },
     }
 
     expect(getAgentUri(req)).toBe('/fpjs/agent')
@@ -138,40 +155,52 @@ describe('filterRequestHeaders', () => {
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
       headers: {
-        'content-type': [{
-          key: 'content-type',
-          value: 'application/json',
-        }],
-        'content-length': [{
-          key: 'content-length',
-          value: '24354',
-        }],
-        'host': [{
-          key: 'host',
-          value: 'fpjs.sh',
-        }],
-        'transfer-encoding': [{
-          key: 'transfer-encoding',
-          value: 'br'
-        }],
-        'via': [{
-          key: 'via',
-          value: 'cloudfront.net'
-        }],
-        'cookie': [{
-          key: 'cookie',
-          value: '_iidt,rGjGpiWkgQ,,;_iidt=7A03Gwg==;_vid_t=gEFRuIQlzYmv692/UL4GLA=='
-        }]
-      },      
+        'content-type': [
+          {
+            key: 'content-type',
+            value: 'application/json',
+          },
+        ],
+        'content-length': [
+          {
+            key: 'content-length',
+            value: '24354',
+          },
+        ],
+        host: [
+          {
+            key: 'host',
+            value: 'fpjs.sh',
+          },
+        ],
+        'transfer-encoding': [
+          {
+            key: 'transfer-encoding',
+            value: 'br',
+          },
+        ],
+        via: [
+          {
+            key: 'via',
+            value: 'cloudfront.net',
+          },
+        ],
+        cookie: [
+          {
+            key: 'cookie',
+            value: '_iidt,rGjGpiWkgQ,,;_iidt=7A03Gwg==;_vid_t=gEFRuIQlzYmv692/UL4GLA==',
+          },
+        ],
+      },
     }
     const headers = filterRequestHeaders(req)
-    
+
     expect(headers.hasOwnProperty('content-length')).toBe(false)
     expect(headers.hasOwnProperty('host')).toBe(false)
     expect(headers.hasOwnProperty('transfer-encoding')).toBe(false)
     expect(headers.hasOwnProperty('via')).toBe(false)
     expect(headers['content-type']).toBe('application/json')
-    expect(headers['cookie']).toBe('_iidt,rGjGpiWkgQ,,; _iidt=7A03Gwg==; _vid_t=gEFRuIQlzYmv692/UL4GLA==')  
+    expect(headers['cookie']).toBe('_iidt,rGjGpiWkgQ,,; _iidt=7A03Gwg==; _vid_t=gEFRuIQlzYmv692/UL4GLA==')
   })
 })
 
@@ -186,10 +215,10 @@ describe('updateResponseHeaders', () => {
       'content-length': '73892',
       'content-type': 'application/json',
       'cross-origin-resource-policy': 'cross-origin',
-      'etag': 'dskjhfadsjk',
+      etag: 'dskjhfadsjk',
       'set-cookie': ['_iidf', 'HttpOnly', 'Domain=cloudfront.net'],
-      'vary': 'Accept-Encoding',
-      'custom-header-1': 'gdfddfd'
+      vary: 'Accept-Encoding',
+      'custom-header-1': 'gdfddfd',
     }
     const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(false)
@@ -208,10 +237,10 @@ describe('updateResponseHeaders', () => {
       'content-length': '73892',
       'content-type': 'application/json',
       'cross-origin-resource-policy': 'cross-origin',
-      'etag': 'dskjhfadsjk',
+      etag: 'dskjhfadsjk',
       'set-cookie': ['_iidf', 'HttpOnly', 'Domain=cloudfront.net'],
-      'vary': 'Accept-Encoding',
-      'custom-header-1': 'gdfddfd'
+      vary: 'Accept-Encoding',
+      'custom-header-1': 'gdfddfd',
     }
     const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(false)
