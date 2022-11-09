@@ -1,8 +1,11 @@
-import { addTrafficMonitoringSearchParamsForProCDN, addTrafficMonitoringSearchParamsForVisitorIdRequest} from '../../src/utils/traffic'
+import {
+  addTrafficMonitoringSearchParamsForProCDN,
+  addTrafficMonitoringSearchParamsForVisitorIdRequest,
+} from '../../src/utils/traffic'
 
 describe('test procdn call', () => {
   test('test', () => {
-    const url = new URL('https://fpjs.sh/agent?smth')    
+    const url = new URL('https://fpjs.sh/agent?smth')
     addTrafficMonitoringSearchParamsForProCDN(url)
 
     const param = url.searchParams.get('ii')

@@ -8,7 +8,7 @@ describe('api key', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'version=3&loaderVersion=3.6.2',
-      headers: {}      
+      headers: {},
     }
     expect(getApiKey(req)).toBe(undefined)
   })
@@ -19,7 +19,7 @@ describe('api key', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-      headers: {}
+      headers: {},
     }
     expect(getApiKey(req)).toBe('ujKG34hUYKLJKJ1F')
   })
@@ -32,7 +32,7 @@ describe('loader version', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3',
-      headers: {}      
+      headers: {},
     }
     expect(getLoaderVersion(req)).toBe(undefined)
   })
@@ -43,7 +43,7 @@ describe('loader version', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-      headers: {}      
+      headers: {},
     }
     expect(getLoaderVersion(req)).toBe('3.6.2')
   })
@@ -56,7 +56,7 @@ describe('region', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3',
-      headers: {}      
+      headers: {},
     }
     expect(getRegion(req)).toBe('us')
   })
@@ -67,9 +67,8 @@ describe('region', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2&region=eu',
-      headers: {}      
+      headers: {},
     }
     expect(getRegion(req)).toBe('eu')
   })
 })
-

@@ -88,8 +88,17 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
   return resultHeaders
 }
 
+function getOriginForHeaders({ origin }: CloudFrontRequest) {
+  if (origin?.s3) {
+    return origin.s3
+  }
+
+  return origin?.custom
+}
+
 function getCustomHeader(request: CloudFrontRequest, headerName: string): string | undefined {
-  const headers = request.origin?.custom?.customHeaders
+  const origin = getOriginForHeaders(request)
+  const headers = origin?.customHeaders
   if (headers === undefined || headers[headerName] === undefined) {
     return undefined
   }
