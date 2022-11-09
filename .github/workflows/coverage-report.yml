@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - coverage #TODO remove before merge
 
 jobs:
   build-and-run-tests:
