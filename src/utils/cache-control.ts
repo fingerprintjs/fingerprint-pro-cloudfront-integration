@@ -1,5 +1,5 @@
 const CACHE_MAX_AGE = 3600
-const SHARED_CACHE_MAX_AGE = 180
+const SHARED_CACHE_MAX_AGE = 60
 
 export function updateCacheControlHeader(headerValue: string): string {
   headerValue = updateCacheControlAge(headerValue, 'max-age', CACHE_MAX_AGE)
