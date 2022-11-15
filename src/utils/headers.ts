@@ -18,8 +18,6 @@ const ALLOWED_RESPONSE_HEADERS = [
 
 const BLACKLISTED_REQUEST_HEADERS = ['content-length', 'host', 'transfer-encoding', 'via']
 
-const CACHE_MAX_AGE = 3600
-
 export function prepareHeadersForIngressAPI(request: CloudFrontRequest): OutgoingHttpHeaders {
   const headers = filterRequestHeaders(request)
 
@@ -73,7 +71,7 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
       if (name === 'set-cookie') {
         value = updateCookie(value, domain)
       } else if (name === 'cache-control') {
-        value = updateCacheControlHeader(value, CACHE_MAX_AGE)
+        value = updateCacheControlHeader(value)
       }
 
       resultHeaders[name] = [
