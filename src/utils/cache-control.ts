@@ -1,5 +1,9 @@
-export function updateCacheControlHeader(headerValue: string, maxAge: number): string {
-  headerValue = updateCacheControlAge(headerValue, 'max-age', maxAge)
+const CACHE_MAX_AGE = 3600
+const SHARED_CACHE_MAX_AGE = 180
+
+export function updateCacheControlHeader(headerValue: string): string {
+  headerValue = updateCacheControlAge(headerValue, 'max-age', CACHE_MAX_AGE)
+  headerValue = updateCacheControlAge(headerValue, 's-maxage', SHARED_CACHE_MAX_AGE)
   return headerValue
 }
 
