@@ -5,7 +5,9 @@ import {
   getStatusUri,
   filterRequestHeaders,
   updateResponseHeaders,
+  getHost,
 } from '../../src/utils/headers'
+import { getDomainFromHostname } from '../../src/domain'
 import { CloudFrontRequest, CloudFrontHeaders } from 'aws-lambda'
 import { IncomingHttpHeaders } from 'http'
 
@@ -295,5 +297,109 @@ describe('updateResponseHeaders', () => {
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('no-cache, max-age=3600, s-maxage=180')
     expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
+  })
+})
+
+describe('checkHostValues', () => {
+  test('second-level domain', () => {
+    const req: CloudFrontRequest = {
+      clientIp: '1.1.1.1',
+      method: 'GET',
+      uri: 'fpjs/agent',
+      querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+      headers: {
+        'content-type': [
+          {
+            key: 'content-type',
+            value: 'application/json',
+          },
+        ],
+        'content-length': [
+          {
+            key: 'content-length',
+            value: '24354',
+          },
+        ],
+        host: [
+          {
+            key: 'host',
+            value: 'fpjs.sh',
+          },
+        ],
+        'transfer-encoding': [
+          {
+            key: 'transfer-encoding',
+            value: 'br',
+          },
+        ],
+        via: [
+          {
+            key: 'via',
+            value: 'cloudfront.net',
+          },
+        ],
+        cookie: [
+          {
+            key: 'cookie',
+            value: '_iidt,rGjGpiWkgQ,,;_iidt=7A03Gwg==;_vid_t=gEFRuIQlzYmv692/UL4GLA==',
+          },
+        ],
+      },
+    }
+    const host = getHost(req)
+
+    expect(host).toBe('fpjs.sh')
+    expect(getDomainFromHostname(host)).toBe('fpjs.sh')
+  })
+
+  test('third-level domain', () => {
+    const req: CloudFrontRequest = {
+      clientIp: '1.1.1.1',
+      method: 'GET',
+      uri: 'fpjs/agent',
+      querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+      headers: {
+        'content-type': [
+          {
+            key: 'content-type',
+            value: 'application/json',
+          },
+        ],
+        'content-length': [
+          {
+            key: 'content-length',
+            value: '24354',
+          },
+        ],
+        host: [
+          {
+            key: 'host',
+            value: 'anime.fpjs.sh',
+          },
+        ],
+        'transfer-encoding': [
+          {
+            key: 'transfer-encoding',
+            value: 'br',
+          },
+        ],
+        via: [
+          {
+            key: 'via',
+            value: 'cloudfront.net',
+          },
+        ],
+        cookie: [
+          {
+            key: 'cookie',
+            value: '_iidt,rGjGpiWkgQ,,;_iidt=7A03Gwg==;_vid_t=gEFRuIQlzYmv692/UL4GLA==',
+          },
+        ],
+      },
+    }
+    const host = getHost(req)
+
+    expect(host).toBe('anime.fpjs.sh')
+    expect(getDomainFromHostname(host)).toBe('fpjs.sh')
   })
 })

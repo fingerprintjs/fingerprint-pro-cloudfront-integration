@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Fingerprint Pro Lambda@Edge function for CloudFront integration
+Resources:
+  LambdaFunctionExecutionRole:
+    Metadata:
+      SamResourceId: LambdaFunctionExecutionRole
+    Properties:      
+      RoleName: !Join ['-', ['fingerprint-pro-lambda-role', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      AssumeRolePolicyDocument:
+        Statement:
+          Action: sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+            - edgelambda.amazonaws.com
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Type: AWS::IAM::Role
+
+  FingerprintProCloudfrontLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      Handler: index.handler
+      Runtime: nodejs16.x
+      CodeUri: s3://fpjs-dev-cloudfront-integration-lambdas/develop/lambda_v0.0.3.zip
+      MemorySize: 128
+      Timeout: 3
+      Role: !GetAtt LambdaFunctionExecutionRole.Arn
+
+  FingerprintProCDNCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: !Join [ '-', ['FingerprintProCDNCachePolicy', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+        MinTTL: 1
+        MaxTTL: 180
+        DefaultTTL: 180
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none            
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: whitelist
+            QueryStrings:
+              - version
+              - loaderVersion
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
+
+Outputs:
+  LambdaFunctionName:
+    Description: Fingerprint Pro Lambda function name
+    Value:
+      Ref: FingerprintProCloudfrontLambda
+    Export:
+      Name: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  CachePolicyName:
+    Description: Cache policy name
+    Value:
+      Ref: FingerprintProCDNCachePolicy
+    Export:
+      Name: !Join [ '-', ['FingerprintProCDNCachePolicy', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
