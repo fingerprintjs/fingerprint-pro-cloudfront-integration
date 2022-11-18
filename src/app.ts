@@ -13,12 +13,25 @@ import {
   getLoaderVersion,
 } from './utils'
 import { getDomainFromHostname } from './domain'
+import { CustomerVariables } from './utils/customer-variables/customer-variables'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   const request = event.Records[0].cf.request
 
+  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const customerVariables = new CustomerVariables([
+    // SecretManagerProvider(request)
+    // HeaderProvider(request)
+  ])
+
   const domain = getDomainFromHostname(getHost(request))
 
+  /**
+   * Later, we can move getAgentUri, getResultUri functions to separate file from headers.ts, and pass to them customerVariables rather than request.
+   * There they can call the CustomerVariables to get required values, e.g:
+   *  customerVariables.getVariable(CustomerVariableType.AgentDownloadPath)
+   * */
   if (request.uri === getAgentUri(request)) {
     const endpoint = `/v3/${getApiKey(request)}/loader_v${getLoaderVersion(request)}.js`
     return downloadAgent({
