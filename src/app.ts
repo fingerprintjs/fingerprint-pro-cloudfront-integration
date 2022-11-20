@@ -20,9 +20,9 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
   const domain = getDomainFromHostname(getHost(request))
 
   if (request.uri === getAgentUri(request)) {
-    const endpoint = `/v3/${getApiKey(request)}/loader_v${getLoaderVersion(request)}.js`
     return downloadAgent({
-      path: endpoint,
+      apiKey: getApiKey(request),
+      loaderVersion: getLoaderVersion(request),
       method: request.method,
       headers: filterRequestHeaders(request),
       domain: domain,
