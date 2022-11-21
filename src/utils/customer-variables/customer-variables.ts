@@ -28,12 +28,16 @@ export class CustomerVariables {
 
   private async getValueFromProviders(variable: CustomerVariableType) {
     for (const provider of this.providers) {
-      const result = await provider.getVariable(variable)
+      try {
+        const result = await provider.getVariable(variable)
 
-      if (result) {
-        console.info(`Resolved customer variable ${variable} with provider ${provider.name}`)
+        if (result) {
+          console.info(`Resolved customer variable ${variable} with provider ${provider.name}`)
 
-        return result
+          return result
+        }
+      } catch (error) {
+        console.error(`Error while resolving customer variable ${variable} with provider ${provider.name}`, error)
       }
     }
 
