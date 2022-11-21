@@ -14,25 +14,19 @@ import {
 } from './utils'
 import { getDomainFromHostname } from './domain'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
+import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   const request = event.Records[0].cf.request
 
-  // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const customerVariables = new CustomerVariables([
     // SecretManagerProvider(request)
-    // HeaderProvider(request)
+    new HeaderCustomerVariables(request),
   ])
 
   const domain = getDomainFromHostname(getHost(request))
 
-  /**
-   * Later, we can move getAgentUri, getResultUri functions to separate file from headers.ts, and pass to them customerVariables rather than request.
-   * There they can call the CustomerVariables to get required values, e.g:
-   *  customerVariables.getVariable(CustomerVariableType.AgentDownloadPath)
-   * */
-  if (request.uri === getAgentUri(request)) {
+  if (request.uri === (await getAgentUri(customerVariables))) {
     const endpoint = `/v3/${getApiKey(request)}/loader_v${getLoaderVersion(request)}.js`
     return downloadAgent({
       path: endpoint,
@@ -40,16 +34,16 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       headers: filterRequestHeaders(request),
       domain: domain,
     })
-  } else if (request.uri === getResultUri(request)) {
+  } else if (request.uri === (await getResultUri(customerVariables))) {
     return handleResult({
       region: getRegion(request),
       querystring: request.querystring,
       method: request.method,
-      headers: prepareHeadersForIngressAPI(request),
+      headers: await prepareHeadersForIngressAPI(request, customerVariables),
       body: request.body?.data || '',
       domain: domain,
     })
-  } else if (request.uri === getStatusUri(request)) {
+  } else if (request.uri === (await getStatusUri(customerVariables))) {
     return handleStatus()
   } else {
     return new Promise((resolve) =>
