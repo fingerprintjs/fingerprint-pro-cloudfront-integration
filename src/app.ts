@@ -15,12 +15,13 @@ import {
 import { getDomainFromHostname } from './domain'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
 import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
+import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   const request = event.Records[0].cf.request
 
   const customerVariables = new CustomerVariables([
-    // SecretManagerProvider(request)
+    new SecretsManagerVariables(request),
     new HeaderCustomerVariables(request),
   ])
 
