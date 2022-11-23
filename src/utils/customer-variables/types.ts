@@ -5,7 +5,7 @@ export enum CustomerVariableType {
   AgentDownloadPath = 'fpjs_agent_download_path',
 }
 
-export type CustomerVariableValue = string | null
+export type CustomerVariableValue = string | null | undefined
 
 export type CustomerVariablesRecord = Record<CustomerVariableType, CustomerVariableValue>
 

@@ -296,6 +296,63 @@ describe('customer variables selectors', () => {
         new HeaderCustomerVariables(request),
       ])
 
+    const req: CloudFrontRequest = {
+      clientIp: '1.1.1.1',
+      method: 'GET',
+      uri: 'fpjs/agent',
+      querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+      headers: {},
+      origin: {
+        custom: {
+          domainName: 'adewe.cloudfront.net',
+          keepaliveTimeout: 60,
+          path: '/',
+          port: 443,
+          protocol: 'https',
+          readTimeout: 60,
+          sslProtocols: ['TLSv2'],
+          customHeaders: {
+            fpjs_pre_shared_secret: [
+              {
+                key: 'fpjs_pre_shared_secret',
+                value: 'qwertyuio1356767',
+              },
+            ],
+            fpjs_agent_download_path: [
+              {
+                key: 'fpjs_agent_download_path',
+                value: 'greiodsfkljlds',
+              },
+            ],
+            fpjs_behavior_path: [
+              {
+                key: 'fpjs_behavior_path',
+                value: 'eifjdsnmzxcn',
+              },
+            ],
+            fpjs_get_result_path: [
+              {
+                key: 'fpjs_get_result_path',
+                value: 'eiwflsdkadlsjdsa',
+              },
+            ],
+            fpjs_secret_name: [
+              {
+                key: 'fpjs_secret_name',
+                value: 'my_secret',
+              },
+            ],
+            fpjs_secret_region: [
+              {
+                key: 'fpjs_secret_region',
+                value: 'eu-west-1',
+              },
+            ],
+          },
+        },
+      },
+    }
+
     beforeEach(() => {
       clearSecretsCache()
 
@@ -306,67 +363,21 @@ describe('customer variables selectors', () => {
     it('should fallback to headers if secrets manager value is empty', async () => {
       mockSecret.asUndefined()
 
-      const req: CloudFrontRequest = {
-        clientIp: '1.1.1.1',
-        method: 'GET',
-        uri: 'fpjs/agent',
-        querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-        headers: {},
-        origin: {
-          custom: {
-            domainName: 'adewe.cloudfront.net',
-            keepaliveTimeout: 60,
-            path: '/',
-            port: 443,
-            protocol: 'https',
-            readTimeout: 60,
-            sslProtocols: ['TLSv2'],
-            customHeaders: {
-              fpjs_pre_shared_secret: [
-                {
-                  key: 'fpjs_pre_shared_secret',
-                  value: 'qwertyuio1356767',
-                },
-              ],
-              fpjs_agent_download_path: [
-                {
-                  key: 'fpjs_agent_download_path',
-                  value: 'greiodsfkljlds',
-                },
-              ],
-              fpjs_behavior_path: [
-                {
-                  key: 'fpjs_behavior_path',
-                  value: 'eifjdsnmzxcn',
-                },
-              ],
-              fpjs_get_result_path: [
-                {
-                  key: 'fpjs_get_result_path',
-                  value: 'eiwflsdkadlsjdsa',
-                },
-              ],
-              fpjs_secret_name: [
-                {
-                  key: 'fpjs_secret_name',
-                  value: 'my_secret',
-                },
-              ],
-              fpjs_secret_region: [
-                {
-                  key: 'fpjs_secret_region',
-                  value: 'eu-west-1',
-                },
-              ],
-            },
-          },
-        },
-      }
-
       const result = await getBehaviorPath(getCustomerVariables(req))
 
       expect(result).toBe('eifjdsnmzxcn')
       expect(getSecretValue).toHaveBeenCalledTimes(1)
+    })
+
+    it('should fallback to headers if secrets manager constructor throws', async () => {
+      MockSecretsManager.mockImplementation(() => {
+        throw new Error('error')
+      })
+
+      const result = await getBehaviorPath(getCustomerVariables(req))
+
+      expect(result).toBe('eifjdsnmzxcn')
+      expect(getSecretValue).toHaveBeenCalledTimes(0)
     })
 
     it('should fallback to headers if secrets manager related headers are empty', async () => {

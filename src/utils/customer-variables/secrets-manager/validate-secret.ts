@@ -3,13 +3,12 @@ import { CustomerVariablesRecord, CustomerVariableType, CustomerVariableValue } 
 const allowedKeys = Object.values(CustomerVariableType)
 
 function assertIsCustomerVariableValue(value: unknown, key: string): asserts value is CustomerVariableValue {
-  if (typeof value !== 'string' && value !== null) {
+  if (typeof value !== 'string' && value !== null && value !== undefined) {
     throw new TypeError(`Secrets Manager secret contains an invalid value ${key}: ${value}`)
   }
 }
 
 // TODO Update notion documentation to contain correct keys
-// TODO Add tests
 export function validateSecret(obj: unknown): asserts obj is CustomerVariablesRecord {
   if (!obj || typeof obj !== 'object') {
     throw new TypeError('Secrets Manager secret is not an object')

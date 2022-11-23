@@ -11,7 +11,7 @@ export function getMockSecretsManager() {
 
   const MockSecretsManager = jest.fn(() => ({
     getSecretValue,
-  }))
+  })) as jest.Mock
 
   const mockSecret = {
     asString: (value: string) => {
