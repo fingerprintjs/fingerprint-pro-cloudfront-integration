@@ -3,6 +3,7 @@ import { SecretsManager } from 'aws-sdk'
 import { CloudFrontRequest } from 'aws-lambda'
 import { getHeaderValue } from '../../headers'
 import { retrieveSecret } from './retrieve-secret'
+import { NonNullableObject } from '../../types'
 
 interface SecretsInfo {
   secretName: string | null
@@ -12,7 +13,7 @@ interface SecretsInfo {
 export class SecretsManagerVariables implements CustomerVariableProvider {
   readonly name = 'SecretsManagerVariables'
 
-  private secretsInfo!: SecretsInfo
+  private secretsInfo?: SecretsInfo
 
   private readonly secretsManager?: SecretsManager
 
@@ -24,9 +25,9 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
   constructor(private readonly request: CloudFrontRequest, SecretsManagerImpl: typeof SecretsManager = SecretsManager) {
     this.readSecretsInfoFromHeaders()
 
-    if (this.hasValidSecretsInfo()) {
+    if (SecretsManagerVariables.isValidSecretInfo(this.secretsInfo)) {
       try {
-        this.secretsManager = new SecretsManagerImpl({ region: this.secretsInfo.secretRegion! })
+        this.secretsManager = new SecretsManagerImpl({ region: this.secretsInfo.secretRegion })
       } catch (error) {
         console.error('Failed to create secrets manager', {
           error,
@@ -68,7 +69,7 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
     }
   }
 
-  private hasValidSecretsInfo() {
-    return Boolean(this.secretsInfo?.secretRegion && this.secretsInfo?.secretName)
+  private static isValidSecretInfo(secretsInfo?: SecretsInfo): secretsInfo is NonNullableObject<SecretsInfo> {
+    return Boolean(secretsInfo?.secretRegion && secretsInfo?.secretName)
   }
 }
