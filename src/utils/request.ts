@@ -2,6 +2,11 @@ import { CloudFrontRequest } from 'aws-lambda'
 
 export const getApiKey = (request: CloudFrontRequest) => getQueryParameter(request, 'apiKey')
 
+export const getVersion = (request: CloudFrontRequest) => {
+  const version = getQueryParameter(request, 'version')
+  return version === undefined ? '3' : version
+}
+
 export const getLoaderVersion = (request: CloudFrontRequest) => getQueryParameter(request, 'loaderVersion')
 
 export const getRegion = (request: CloudFrontRequest) => {
