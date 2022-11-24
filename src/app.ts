@@ -45,7 +45,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       domain: domain,
     })
   } else if (request.uri === (await getStatusUri(customerVariables))) {
-    return handleStatus()
+    return handleStatus(customerVariables)
   } else {
     return new Promise((resolve) =>
       resolve({
