@@ -1,6 +1,7 @@
 import { CloudFrontResultResponse } from 'aws-lambda'
 import { CustomerVariables } from '../utils/customer-variables/customer-variables'
 import { CustomerVariableType, CustomerVariableValue } from '../utils/customer-variables/types'
+import { maybeObfuscateVariable } from '../utils/customer-variables/maybe-obfuscate-variable'
 
 interface EnvVarInfo {
   envVarName: string
@@ -11,11 +12,7 @@ interface EnvVarInfo {
 async function getEnvInfo(customerVariables: CustomerVariables) {
   const infoArray: EnvVarInfo[] = await Promise.all(
     Object.values(CustomerVariableType).map(async (variable) => {
-      let value = await customerVariables.getVariable(variable)
-
-      if (variable === CustomerVariableType.PreSharedSecret && value) {
-        value = '********'
-      }
+      const value = await maybeObfuscateVariable(customerVariables, variable)
 
       return {
         envVarName: variable,
