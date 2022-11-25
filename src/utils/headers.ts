@@ -82,3 +82,13 @@ export function getOriginForHeaders({ origin }: CloudFrontRequest) {
 
   return origin?.custom
 }
+
+export function getHeaderValue(request: CloudFrontRequest, name: string) {
+  const origin = getOriginForHeaders(request)
+  const headers = origin?.customHeaders
+
+  if (!headers?.[name]) {
+    return null
+  }
+  return headers[name][0].value
+}
