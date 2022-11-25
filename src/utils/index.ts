@@ -7,7 +7,7 @@ import {
   prepareHeadersForIngressAPI,
   getHost,
 } from './headers'
-import { getApiKey, getLoaderVersion, getRegion } from './request'
+import { getApiKey, getLoaderVersion, getVersion, getRegion } from './request'
 import {
   addTrafficMonitoringSearchParamsForVisitorIdRequest,
   addTrafficMonitoringSearchParamsForProCDN,
@@ -23,6 +23,7 @@ export {
   getHost,
   getApiKey,
   getLoaderVersion,
+  getVersion,
   getRegion,
   addTrafficMonitoringSearchParamsForVisitorIdRequest,
   addTrafficMonitoringSearchParamsForProCDN,

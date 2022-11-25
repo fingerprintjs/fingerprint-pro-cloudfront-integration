@@ -9,7 +9,7 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
     const data: any[] = []
 
     const url = new URL('https://__FPCDN__')
-    url.pathname = options.path
+    url.pathname = getEndpoint(options.apiKey, options.loaderVersion)
     addTrafficMonitoringSearchParamsForProCDN(url)
     const request = https.request(
       url,
@@ -53,4 +53,9 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
 
     request.end()
   })
+}
+
+function getEndpoint(apiKey: string | undefined, loaderVersion: string | undefined): string {
+  const lv: string = loaderVersion !== undefined && loaderVersion !== '' ? `/loader_v${loaderVersion}.js` : ''
+  return `/v3/${apiKey}${lv}`
 }
