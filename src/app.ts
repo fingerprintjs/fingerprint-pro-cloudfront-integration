@@ -9,6 +9,7 @@ import {
   prepareHeadersForIngressAPI,
   getHost,
   getRegion,
+  getVersion,
   getApiKey,
   getLoaderVersion,
 } from './utils'
@@ -28,9 +29,10 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
   const domain = getDomainFromHostname(getHost(request))
 
   if (request.uri === (await getAgentUri(customerVariables))) {
-    const endpoint = `/v3/${getApiKey(request)}/loader_v${getLoaderVersion(request)}.js`
     return downloadAgent({
-      path: endpoint,
+      apiKey: getApiKey(request),
+      version: getVersion(request),
+      loaderVersion: getLoaderVersion(request),
       method: request.method,
       headers: filterRequestHeaders(request),
       domain: domain,
