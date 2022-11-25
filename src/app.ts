@@ -14,13 +14,21 @@ import {
   getLoaderVersion,
 } from './utils'
 import { getDomainFromHostname } from './domain'
+import { CustomerVariables } from './utils/customer-variables/customer-variables'
+import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
+import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   const request = event.Records[0].cf.request
 
+  const customerVariables = new CustomerVariables([
+    new SecretsManagerVariables(request),
+    new HeaderCustomerVariables(request),
+  ])
+
   const domain = getDomainFromHostname(getHost(request))
 
-  if (request.uri === getAgentUri(request)) {
+  if (request.uri === (await getAgentUri(customerVariables))) {
     return downloadAgent({
       apiKey: getApiKey(request),
       version: getVersion(request),
@@ -29,16 +37,16 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       headers: filterRequestHeaders(request),
       domain: domain,
     })
-  } else if (request.uri === getResultUri(request)) {
+  } else if (request.uri === (await getResultUri(customerVariables))) {
     return handleResult({
       region: getRegion(request),
       querystring: request.querystring,
       method: request.method,
-      headers: prepareHeadersForIngressAPI(request),
+      headers: await prepareHeadersForIngressAPI(request, customerVariables),
       body: request.body?.data || '',
       domain: domain,
     })
-  } else if (request.uri === getStatusUri(request)) {
+  } else if (request.uri === (await getStatusUri(customerVariables))) {
     return handleStatus()
   } else {
     return new Promise((resolve) =>

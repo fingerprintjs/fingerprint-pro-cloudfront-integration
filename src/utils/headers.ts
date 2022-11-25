@@ -2,6 +2,8 @@ import { CloudFrontHeaders, CloudFrontRequest } from 'aws-lambda'
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http'
 import { updateCookie } from './cookie'
 import { updateCacheControlHeader } from './cache-control'
+import { CustomerVariables } from './customer-variables/customer-variables'
+import { getPreSharedSecret } from './customer-variables/selectors'
 
 const ALLOWED_RESPONSE_HEADERS = [
   'access-control-allow-credentials',
@@ -18,30 +20,17 @@ const ALLOWED_RESPONSE_HEADERS = [
 
 const BLACKLISTED_REQUEST_HEADERS = ['content-length', 'host', 'transfer-encoding', 'via']
 
-export function prepareHeadersForIngressAPI(request: CloudFrontRequest): OutgoingHttpHeaders {
+export async function prepareHeadersForIngressAPI(
+  request: CloudFrontRequest,
+  variables: CustomerVariables,
+): Promise<OutgoingHttpHeaders> {
   const headers = filterRequestHeaders(request)
 
   headers['fpjs-client-ip'] = request.clientIp
-  headers['fpjs-proxy-identification'] = getPreSharedSecret(request) || 'secret-is-not-defined'
+  headers['fpjs-proxy-identification'] = (await getPreSharedSecret(variables)) || 'secret-is-not-defined'
 
   return headers
 }
-
-export const getAgentUri = (request: CloudFrontRequest) =>
-  `/${getBehaviorPath(request)}/${getAgentDownloadPath(request)}`
-
-export const getResultUri = (request: CloudFrontRequest) => `/${getBehaviorPath(request)}/${getResultPath(request)}`
-
-export const getStatusUri = (request: CloudFrontRequest) => `/${getBehaviorPath(request)}/status`
-
-const getAgentDownloadPath = (request: CloudFrontRequest) =>
-  getCustomHeader(request, 'fpjs_agent_download_path') || 'agent'
-
-const getBehaviorPath = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_behavior_path') || 'fpjs'
-
-const getResultPath = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_get_result_path') || 'resultId'
-
-const getPreSharedSecret = (request: CloudFrontRequest) => getCustomHeader(request, 'fpjs_pre_shared_secret')
 
 export const getHost = (request: CloudFrontRequest) => request.headers['host'][0].value
 
@@ -86,7 +75,7 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
   return resultHeaders
 }
 
-function getOriginForHeaders({ origin }: CloudFrontRequest) {
+export function getOriginForHeaders({ origin }: CloudFrontRequest) {
   if (origin?.s3) {
     return origin.s3
   }
@@ -94,11 +83,12 @@ function getOriginForHeaders({ origin }: CloudFrontRequest) {
   return origin?.custom
 }
 
-function getCustomHeader(request: CloudFrontRequest, headerName: string): string | undefined {
+export function getHeaderValue(request: CloudFrontRequest, name: string) {
   const origin = getOriginForHeaders(request)
   const headers = origin?.customHeaders
-  if (headers === undefined || headers[headerName] === undefined) {
-    return undefined
+
+  if (!headers?.[name]) {
+    return null
   }
-  return headers[headerName][0].value
+  return headers[name][0].value
 }
