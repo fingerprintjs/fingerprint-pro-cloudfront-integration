@@ -37,7 +37,7 @@ jobs:
           node-version-file: '.node-version'
         
       - name: Set git settings
-        uses: fregante/setup-git-user@2e28d51939d2a84005a917d2f844090637f435f8 # commit hash = v1.1.0
+        uses: fregante/setup-git-user@v1
 
       - name: Install dependencies
         run: yarn install
@@ -62,7 +62,7 @@ jobs:
 
       - name: Get new version
         id: version      
-        uses: notiz-dev/github-action-json-property@2192e246737701f108a4571462b76c75e7376216 # commit hash = v0.1.0
+        uses: notiz-dev/github-action-json-property@release
         with:
           path: 'package.json'
           prop_path: 'version'
@@ -75,14 +75,14 @@ jobs:
           git push --tags "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
 
       - name: Create a Github release
-        uses: ncipollo/release-action@18990f60e0df5c7b33d19565c84c7505b326aeca # commit hash = v1.10.0
+        uses: ncipollo/release-action@v1
         with:
           tag: v${{steps.version.outputs.prop}}
           name: Release ${{steps.version.outputs.prop}}
 
       - name: Create Pull Request from develop to main
         id: create_pr
-        uses: devops-infra/action-pull-request@a671d0a772ef71131f970e6f02f1e11334f99eab # commit hash = v0.5.0
+        uses: devops-infra/action-pull-request@v0.5.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: develop
