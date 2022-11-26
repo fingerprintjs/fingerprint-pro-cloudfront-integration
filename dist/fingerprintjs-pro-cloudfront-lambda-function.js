@@ -1,5 +1,5 @@
 /**
- * FingerprintJS Pro Cloudfront Lambda function v0.0.1 - Copyright (c) FingerprintJS, Inc, 2022 (https://fingerprint.com)
+ * FingerprintJS Pro CloudFront Lambda function v0.0.2 - Copyright (c) FingerprintJS, Inc, 2022 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
 
@@ -8,6 +8,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var https = require('https');
+var awsSdk = require('aws-sdk');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -34,9 +35,11 @@ function updateCookie(cookieValue, domainName) {
     return updated.join('; ').trim();
 }
 
-function updateCacheControlHeader(headerValue, maxAge) {
-    headerValue = updateCacheControlAge(headerValue, 'max-age', maxAge);
-    headerValue = updateCacheControlAge(headerValue, 's-maxage', maxAge);
+const CACHE_MAX_AGE = 3600;
+const SHARED_CACHE_MAX_AGE = 60;
+function updateCacheControlHeader(headerValue) {
+    headerValue = updateCacheControlAge(headerValue, 'max-age', CACHE_MAX_AGE);
+    headerValue = updateCacheControlAge(headerValue, 's-maxage', SHARED_CACHE_MAX_AGE);
     return headerValue;
 }
 function updateCacheControlAge(headerValue, type, cacheMaxAge) {
@@ -53,6 +56,22 @@ function updateCacheControlAge(headerValue, type, cacheMaxAge) {
     return cacheControlDirectives.join(', ');
 }
 
+var CustomerVariableType;
+(function (CustomerVariableType) {
+    CustomerVariableType["BehaviourPath"] = "fpjs_behavior_path";
+    CustomerVariableType["GetResultPath"] = "fpjs_get_result_path";
+    CustomerVariableType["PreSharedSecret"] = "fpjs_pre_shared_secret";
+    CustomerVariableType["AgentDownloadPath"] = "fpjs_agent_download_path";
+})(CustomerVariableType || (CustomerVariableType = {}));
+
+const getAgentUri = async (variables) => `/${await getBehaviorPath(variables)}/${await getAgentDownloadPath(variables)}`;
+const getResultUri = async (variables) => `/${await getBehaviorPath(variables)}/${await getResultPath(variables)}`;
+const getStatusUri = async (variables) => `/${await getBehaviorPath(variables)}/status`;
+const getAgentDownloadPath = async (variables) => variables.getVariable(CustomerVariableType.AgentDownloadPath);
+const getBehaviorPath = async (variables) => variables.getVariable(CustomerVariableType.BehaviourPath);
+const getResultPath = async (variables) => variables.getVariable(CustomerVariableType.GetResultPath);
+const getPreSharedSecret = async (variables) => variables.getVariable(CustomerVariableType.PreSharedSecret);
+
 const ALLOWED_RESPONSE_HEADERS = [
     'access-control-allow-credentials',
     'access-control-allow-origin',
@@ -66,20 +85,12 @@ const ALLOWED_RESPONSE_HEADERS = [
     'vary',
 ];
 const BLACKLISTED_REQUEST_HEADERS = ['content-length', 'host', 'transfer-encoding', 'via'];
-const CACHE_MAX_AGE = 3600;
-function prepareHeadersForIngressAPI(request) {
+async function prepareHeadersForIngressAPI(request, variables) {
     const headers = filterRequestHeaders(request);
     headers['fpjs-client-ip'] = request.clientIp;
-    headers['fpjs-proxy-identification'] = getPreSharedSecret(request) || 'secret-is-not-defined';
+    headers['fpjs-proxy-identification'] = (await getPreSharedSecret(variables)) || 'secret-is-not-defined';
     return headers;
 }
-const getAgentUri = (request) => `/${getBehaviorPath(request)}/${getAgentDownloadPath(request)}`;
-const getResultUri = (request) => `/${getBehaviorPath(request)}/${getResultPath(request)}`;
-const getStatusUri = (request) => `/${getBehaviorPath(request)}/status`;
-const getAgentDownloadPath = (request) => getCustomHeader(request, 'fpjs_agent_download_path') || 'agent';
-const getBehaviorPath = (request) => getCustomHeader(request, 'fpjs_behavior_path') || 'fpjs';
-const getResultPath = (request) => getCustomHeader(request, 'fpjs_get_result_path') || 'resultId';
-const getPreSharedSecret = (request) => getCustomHeader(request, 'fpjs_pre_shared_secret');
 const getHost = (request) => request.headers['host'][0].value;
 function filterRequestHeaders(request) {
     return Object.entries(request.headers).reduce((result, [name, value]) => {
@@ -104,7 +115,7 @@ function updateResponseHeaders(headers, domain) {
                 value = updateCookie(value, domain);
             }
             else if (name === 'cache-control') {
-                value = updateCacheControlHeader(value, CACHE_MAX_AGE);
+                value = updateCacheControlHeader(value);
             }
             resultHeaders[name] = [
                 {
@@ -116,15 +127,26 @@ function updateResponseHeaders(headers, domain) {
     }
     return resultHeaders;
 }
-function getCustomHeader(request, headerName) {
-    const headers = request.origin?.custom?.customHeaders;
-    if (headers === undefined || headers[headerName] === undefined) {
-        return undefined;
+function getOriginForHeaders({ origin }) {
+    if (origin?.s3) {
+        return origin.s3;
     }
-    return headers[headerName][0].value;
+    return origin?.custom;
+}
+function getHeaderValue(request, name) {
+    const origin = getOriginForHeaders(request);
+    const headers = origin?.customHeaders;
+    if (!headers?.[name]) {
+        return null;
+    }
+    return headers[name][0].value;
 }
 
 const getApiKey = (request) => getQueryParameter(request, 'apiKey');
+const getVersion = (request) => {
+    const version = getQueryParameter(request, 'version');
+    return version === undefined ? '3' : version;
+};
 const getLoaderVersion = (request) => getQueryParameter(request, 'loaderVersion');
 const getRegion = (request) => {
     const value = getQueryParameter(request, 'region');
@@ -141,7 +163,7 @@ function getQueryParameter(request, key) {
     return undefined;
 }
 
-const LAMBDA_FUNC_VERSION = '0.0.1';
+const LAMBDA_FUNC_VERSION = '0.0.2';
 const PARAM_NAME = 'ii';
 function addTrafficMonitoringSearchParamsForProCDN(url) {
     url.searchParams.append(PARAM_NAME, getTrafficMonitoringValue('procdn'));
@@ -156,8 +178,8 @@ function getTrafficMonitoringValue(type) {
 function downloadAgent(options) {
     return new Promise((resolve) => {
         const data = [];
-        const url = new URL('https://procdn.fpjs.sh');
-        url.pathname = options.path;
+        const url = new URL('https://fpcdn.io');
+        url.pathname = getEndpoint(options.apiKey, options.loaderVersion);
         addTrafficMonitoringSearchParamsForProCDN(url);
         const request = https__default["default"].request(url, {
             method: options.method,
@@ -192,6 +214,10 @@ function downloadAgent(options) {
         });
         request.end();
     });
+}
+function getEndpoint(apiKey, loaderVersion) {
+    const lv = loaderVersion !== undefined && loaderVersion !== '' ? `/loader_v${loaderVersion}.js` : '';
+    return `/v3/${apiKey}${lv}`;
 }
 
 function handleResult(options) {
@@ -263,20 +289,38 @@ function generateRequestUniqueId() {
 }
 function getIngressAPIHost(region) {
     const prefix = region === 'us' ? '' : `${region}.`;
-    return `https://${prefix}apiv2.fpjs.sh%`;
+    return `https://${prefix}api.fpjs.io`;
 }
 
-function handleStatus() {
-    return new Promise((resolve) => {
-        //todo add content (version, internal settings verification)
-        const body = {
-            version: '0.0.1',
+const OBFUSCATED_VALUE = '********';
+async function maybeObfuscateVariable(customerVariables, variable) {
+    let value = await customerVariables.getVariable(variable);
+    if (variable === CustomerVariableType.PreSharedSecret && value) {
+        value = OBFUSCATED_VALUE;
+    }
+    return value;
+}
+
+async function getEnvInfo(customerVariables) {
+    const infoArray = await Promise.all(Object.values(CustomerVariableType).map(async (variable) => {
+        const value = await maybeObfuscateVariable(customerVariables, variable);
+        return {
+            envVarName: variable,
+            value,
+            isSet: Boolean(value),
         };
-        resolve({
-            status: '200',
-            body: JSON.stringify(body),
-        });
-    });
+    }));
+    return infoArray;
+}
+async function handleStatus(customerVariables) {
+    const body = {
+        version: '0.0.2',
+        envInfo: await getEnvInfo(customerVariables),
+    };
+    return {
+        status: '200',
+        body: JSON.stringify(body),
+    };
 }
 
 var domainSuffixList = [
@@ -9780,30 +9824,241 @@ function findETLDMatch(hostname) {
     return currentMatch;
 }
 
+const defaultCustomerVariables = {
+    [CustomerVariableType.BehaviourPath]: 'fpjs',
+    [CustomerVariableType.GetResultPath]: 'resultId',
+    [CustomerVariableType.PreSharedSecret]: null,
+    [CustomerVariableType.AgentDownloadPath]: 'agent',
+};
+function getDefaultCustomerVariable(variable) {
+    return defaultCustomerVariables[variable];
+}
+
+/**
+ * Allows access to customer defined variables using multiple providers.
+ * Variables will be resolved in order in which providers are set.
+ * */
+class CustomerVariables {
+    constructor(providers) {
+        this.providers = providers;
+    }
+    /**
+     * Attempts to resolve customer variable using providers.
+     * If no provider can resolve the variable, the default value is returned.
+     * */
+    async getVariable(variable) {
+        const providerResult = await this.getValueFromProviders(variable);
+        if (providerResult) {
+            return providerResult;
+        }
+        const defaultValue = getDefaultCustomerVariable(variable);
+        console.info(`Resolved customer variable ${variable} with default value ${defaultValue}`);
+        return defaultValue;
+    }
+    async getValueFromProviders(variable) {
+        for (const provider of this.providers) {
+            try {
+                const result = await provider.getVariable(variable);
+                if (result) {
+                    console.info(`Resolved customer variable ${variable} with provider ${provider.name}`);
+                    return result;
+                }
+            }
+            catch (error) {
+                console.error(`Error while resolving customer variable ${variable} with provider ${provider.name}`, error);
+            }
+        }
+        return null;
+    }
+}
+
+class HeaderCustomerVariables {
+    constructor(request) {
+        this.request = request;
+        this.name = 'HeaderCustomerVariables';
+    }
+    async getVariable(variable) {
+        return getHeaderValue(this.request, variable);
+    }
+}
+
+function arrayBufferToString(buffer) {
+    return Buffer.from(buffer).toString('utf8');
+}
+
+function normalizeSecret(secret) {
+    const entries = Object.entries(JSON.parse(secret));
+    return Object.fromEntries(entries.map(([key, value]) => [key.toLowerCase(), value]));
+}
+
+const allowedKeys = Object.values(CustomerVariableType);
+function assertIsCustomerVariableValue(value, key) {
+    if (typeof value !== 'string' && value !== null && value !== undefined) {
+        throw new TypeError(`Secrets Manager secret contains an invalid value ${key}: ${value}`);
+    }
+}
+// TODO Update notion documentation to contain correct keys
+function validateSecret(obj) {
+    if (!obj || typeof obj !== 'object') {
+        throw new TypeError('Secrets Manager secret is not an object');
+    }
+    const secret = obj;
+    for (const [key, value] of Object.entries(secret)) {
+        if (!allowedKeys.includes(key)) {
+            throw new TypeError(`Secrets Manager secret contains an invalid key: ${key}`);
+        }
+        assertIsCustomerVariableValue(value, key);
+    }
+}
+
+/**
+ * Special check for Blob in order to avoid doing "instanceof Blob" which breaks rollup build
+ * */
+function isBlob(value) {
+    return Boolean(value &&
+        typeof value === 'object' &&
+        // In our case we only care about .text() method
+        'text' in value &&
+        typeof value.text === 'function');
+}
+
+/**
+ * Global cache for customer variables fetched from Secrets Manager.
+ * */
+const cache = new Map();
+/**
+ * Retrieves a secret from Secrets Manager and caches it or returns it from cache if it's still valid.
+ * */
+async function retrieveSecret(secretsManager, key) {
+    if (cache.has(key)) {
+        const entry = cache.get(key);
+        return entry.value;
+    }
+    const result = await fetchSecret(secretsManager, key);
+    cache.set(key, {
+        value: result,
+    });
+    return result;
+}
+async function convertSecretToString(result) {
+    if (result.SecretBinary) {
+        if (result.SecretBinary instanceof Uint8Array) {
+            return arrayBufferToString(result.SecretBinary);
+        }
+        else if (isBlob(result.SecretBinary)) {
+            return await result.SecretBinary.text();
+        }
+        else {
+            return result.SecretBinary.toString();
+        }
+    }
+    else {
+        return result.SecretString || '';
+    }
+}
+async function fetchSecret(secretsManager, key) {
+    try {
+        const result = await secretsManager
+            .getSecretValue({
+            SecretId: key,
+        })
+            .promise();
+        const secretString = await convertSecretToString(result);
+        if (!secretString) {
+            return null;
+        }
+        const parsedSecret = normalizeSecret(secretString);
+        validateSecret(parsedSecret);
+        return parsedSecret;
+    }
+    catch (error) {
+        console.error(`Failed to fetch and parse secret ${key}`, error);
+        return null;
+    }
+}
+
+class SecretsManagerVariables {
+    constructor(request, SecretsManagerImpl = awsSdk.SecretsManager) {
+        this.request = request;
+        this.name = 'SecretsManagerVariables';
+        this.headers = {
+            secretName: 'fpjs_secret_name',
+            secretRegion: 'fpjs_secret_region',
+        };
+        this.readSecretsInfoFromHeaders();
+        if (SecretsManagerVariables.isValidSecretInfo(this.secretsInfo)) {
+            try {
+                this.secretsManager = new SecretsManagerImpl({ region: this.secretsInfo.secretRegion });
+            }
+            catch (error) {
+                console.error('Failed to create secrets manager', {
+                    error,
+                    secretsInfo: this.secretsInfo,
+                });
+            }
+        }
+    }
+    async getVariable(variable) {
+        const secretsObject = await this.retrieveSecrets();
+        return secretsObject?.[variable] ?? null;
+    }
+    async retrieveSecrets() {
+        if (!this.secretsManager) {
+            return null;
+        }
+        try {
+            return await retrieveSecret(this.secretsManager, this.secretsInfo.secretName);
+        }
+        catch (error) {
+            console.error('Error retrieving secret from secrets manager', {
+                error,
+                secretsInfo: this.secretsInfo,
+            });
+            return null;
+        }
+    }
+    readSecretsInfoFromHeaders() {
+        if (!this.secretsInfo) {
+            this.secretsInfo = {
+                secretName: getHeaderValue(this.request, this.headers.secretName),
+                secretRegion: getHeaderValue(this.request, this.headers.secretRegion),
+            };
+        }
+    }
+    static isValidSecretInfo(secretsInfo) {
+        return Boolean(secretsInfo?.secretRegion && secretsInfo?.secretName);
+    }
+}
+
 const handler = async (event) => {
     const request = event.Records[0].cf.request;
+    const customerVariables = new CustomerVariables([
+        new SecretsManagerVariables(request),
+        new HeaderCustomerVariables(request),
+    ]);
     const domain = getDomainFromHostname(getHost(request));
-    if (request.uri === getAgentUri(request)) {
-        const endpoint = `/v3/${getApiKey(request)}/loader_v${getLoaderVersion(request)}.js`;
+    if (request.uri === (await getAgentUri(customerVariables))) {
         return downloadAgent({
-            path: endpoint,
+            apiKey: getApiKey(request),
+            version: getVersion(request),
+            loaderVersion: getLoaderVersion(request),
             method: request.method,
             headers: filterRequestHeaders(request),
             domain: domain,
         });
     }
-    else if (request.uri === getResultUri(request)) {
+    else if (request.uri === (await getResultUri(customerVariables))) {
         return handleResult({
             region: getRegion(request),
             querystring: request.querystring,
             method: request.method,
-            headers: prepareHeadersForIngressAPI(request),
+            headers: await prepareHeadersForIngressAPI(request, customerVariables),
             body: request.body?.data || '',
             domain: domain,
         });
     }
-    else if (request.uri === getStatusUri(request)) {
-        return handleStatus();
+    else if (request.uri === (await getStatusUri(customerVariables))) {
+        return handleStatus(customerVariables);
     }
     else {
         return new Promise((resolve) => resolve({
