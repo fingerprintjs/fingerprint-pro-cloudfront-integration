@@ -9,35 +9,45 @@ import {
   prepareHeadersForIngressAPI,
   getHost,
   getRegion,
+  getVersion,
   getApiKey,
   getLoaderVersion,
 } from './utils'
 import { getDomainFromHostname } from './domain'
+import { CustomerVariables } from './utils/customer-variables/customer-variables'
+import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
+import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   const request = event.Records[0].cf.request
 
+  const customerVariables = new CustomerVariables([
+    new SecretsManagerVariables(request),
+    new HeaderCustomerVariables(request),
+  ])
+
   const domain = getDomainFromHostname(getHost(request))
 
-  if (request.uri === getAgentUri(request)) {
-    const endpoint = `/v3/${getApiKey(request)}/loader_v${getLoaderVersion(request)}.js`
+  if (request.uri === (await getAgentUri(customerVariables))) {
     return downloadAgent({
-      path: endpoint,
+      apiKey: getApiKey(request),
+      version: getVersion(request),
+      loaderVersion: getLoaderVersion(request),
       method: request.method,
       headers: filterRequestHeaders(request),
       domain: domain,
     })
-  } else if (request.uri === getResultUri(request)) {
+  } else if (request.uri === (await getResultUri(customerVariables))) {
     return handleResult({
       region: getRegion(request),
       querystring: request.querystring,
       method: request.method,
-      headers: prepareHeadersForIngressAPI(request),
+      headers: await prepareHeadersForIngressAPI(request, customerVariables),
       body: request.body?.data || '',
       domain: domain,
     })
-  } else if (request.uri === getStatusUri(request)) {
-    return handleStatus()
+  } else if (request.uri === (await getStatusUri(customerVariables))) {
+    return handleStatus(customerVariables)
   } else {
     return new Promise((resolve) =>
       resolve({
