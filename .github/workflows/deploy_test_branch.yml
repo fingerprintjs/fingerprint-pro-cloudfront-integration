@@ -22,7 +22,6 @@ jobs:
       - name: Get current date
         id: date
         run: echo "today=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_OUTPUT
-#        run: echo "::set-output name=today::$(date +'%Y-%m-%d-%H-%M-%S')"
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
