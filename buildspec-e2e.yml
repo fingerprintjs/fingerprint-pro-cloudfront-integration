@@ -7,7 +7,3 @@ phases:
   build:
     commands:
       - echo "Running tests..."
-artifacts:
-  files:
-    - "packaged.yaml"
-  discard-paths: yes
