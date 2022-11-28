@@ -1,0 +1,54 @@
+name: Deploy test branch
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy test branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.node-version'
+
+      - name: Get current date
+        id: date
+        run: echo "today=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_OUTPUT
+#        run: echo "::set-output name=today::$(date +'%Y-%m-%d-%H-%M-%S')"
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install dependencies
+        run: yarn install
+      - name: Build
+        run: yarn build
+
+      - name: Collect data
+        run: node .github/workflows/serialize_job_info.js
+
+      - name: Deploy
+        uses: s0/git-publish-subdir-action@92faf786f11dfa44fc366ac3eb274d193ca1af7e
+        env:
+          REPO: self
+          BRANCH: e2e-tests
+          FOLDER: dist
+          TARGET_DIR: ${{ steps.date.outputs.today }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MESSAGE: Deploy prepared in [${{ steps.date.outputs.today }}]
+
