@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: Fingerprint Pro Lambda@Edge function for CloudFront integration
-
 Parameters:
   SecretName:
     AllowedPattern: ^([a-zA-Z0-9])+$
@@ -9,7 +8,7 @@ Parameters:
     Type: String
   SecretRegion:
     Type: String
-  SecretAccountId
+  SecretAccountId:
     Type: String
 
 Resources:
@@ -19,25 +18,21 @@ Resources:
     Properties:      
       RoleName: !Join ['-', ['fingerprint-pro-lambda-role', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       AssumeRolePolicyDocument:
-        Statement:
-          Action: sts:AssumeRole
-          Effect: Allow
-          Principal:
-            Service:
-            - lambda.amazonaws.com
-            - edgelambda.amazonaws.com
         Version: '2012-10-17'
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Policies:
-        - PolicyName: AWSSecretsManagerReadOnlyAccess
-          PolicyDocument: '2012-10-17'
-          Statement:
-            Effect: Allow
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com  
+          - Effect: Allow
             Action:
               - secretsmanager:GetSecretValue
             Resource:
-              - !Sub arn:aws:secretsmanager:${SecretRegion}:${aws:accountId}:${SecretName}
+              - !Sub arn:aws:secretsmanager:${SecretRegion}:${SecretAccountId}:${SecretName}
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole      
     Type: AWS::IAM::Role
 
   FingerprintProCloudfrontLambda:
