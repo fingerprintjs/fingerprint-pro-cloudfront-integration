@@ -1,24 +1,13 @@
 version: 0.2
+
 phases:
   install:
     commands:
-      - ls -a
-      - curl -fsSL https://get.pulumi.com | sh
-      - export PATH=$PATH:$HOME/.pulumi/bin
-      - pulumi version
-      - yarn install && yarn install --cwd=infra && yarn install --cwd=website
-  pre_build:
-    commands:
-      - pwd
-      - pulumi version
-      - cd website && yarn build && cd ../
-      - cd infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../
-      - cd infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../
-      - cd infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../
+      - yarn install
   build:
     commands:
       - echo "Running tests..."
-    finally:
-      - echo "Cleaning up..."
-      - cd infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../
-      # TODO Remove directory used in tests from e2e-tests branch
+artifacts:
+  files:
+    - "packaged.yaml"
+  discard-paths: yes
