@@ -8,8 +8,6 @@ Parameters:
     Type: String
   SecretRegion:
     Type: String
-  SecretAccountId:
-    Type: String
 
 Resources:
   LambdaFunctionExecutionRole:
@@ -25,7 +23,7 @@ Resources:
           Principal:
             Service:
               - lambda.amazonaws.com
-              - edgelambda.amazonaws.com  
+              - edgelambda.amazonaws.com
       Policies:
       - PolicyName: LambdaExecutionPolicy
         PolicyDocument:
@@ -36,9 +34,18 @@ Resources:
               - logs:CreateLogGroup
               - logs:CreateLogStream
               - logs:PutLogEvents
-            Resource: arn:aws:logs:*:*:*   
+            Resource: arn:aws:logs:*:*:*
+      - PolicyName: AWSSecretAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: 
+              Fn::Sub: arn:aws:secretsmanager:${SecretRegion}:${AWS::AccountId}:secret:${SecretName}-??????
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole      
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Type: AWS::IAM::Role
 
   FingerprintProCloudfrontLambda:
