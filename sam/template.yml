@@ -7,7 +7,9 @@ Parameters:
     Description: AWS Secret Name
     Type: String
   SecretRegion:
-    Type: String
+    AllowedPattern: ^([a-z0-9\-])+$
+    Description: AWS Region where secret is store
+    Type: String    
 
 Resources:
   LambdaFunctionExecutionRole:
