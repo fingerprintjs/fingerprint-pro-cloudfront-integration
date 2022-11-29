@@ -8,7 +8,7 @@ Parameters:
     Type: String
   SecretRegion:
     AllowedPattern: ^([a-z0-9\-])+$
-    Description: AWS Region where secret is store
+    Description: AWS Region where secret is stored
     Type: String    
 
 Resources:
