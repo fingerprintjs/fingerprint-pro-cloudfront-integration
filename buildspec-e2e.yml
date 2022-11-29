@@ -4,7 +4,15 @@ phases:
   install:
     commands:
       - curl -fsSL https://get.pulumi.com | sh
+      - export PATH=$PATH:$HOME/.pulumi/bin
+      - pulumi version
       - yarn install
   build:
     commands:
+      - pulumi version
+      #- cd e2e/infra && npm run up
       - echo "Running tests..."
+  post_build:
+    commands:
+      - echo "Running post build..."
+      #- cd e2e/infra && npm run down
