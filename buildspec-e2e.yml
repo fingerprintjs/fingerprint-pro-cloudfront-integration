@@ -3,6 +3,7 @@ version: 0.2
 phases:
   install:
     commands:
+      - curl -fsSL https://get.pulumi.com | sh
       - yarn install
   build:
     commands:
