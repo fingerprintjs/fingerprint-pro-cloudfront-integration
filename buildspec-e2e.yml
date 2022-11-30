@@ -14,10 +14,10 @@ phases:
       - yarn build
       - cd e2e/website && yarn build && cd ../../
       - cd e2e/infra/lambda && pulumi stack init e2e && pulumi stack select e2e && pulumi config set org fpjs && cd ../../../
-      - cd e2e/infra && yarn lambda:up && cd ../../
+      - cd e2e/infra && yarn lambda:up
       - echo "Running tests..."
     finally:
-      - cd e2e/infra && yarn lambda:down && cd ../../
+      - yarn lambda:down && cd ../../
   post_build:
     commands:
       - echo "Running post build..."
