@@ -1,0 +1,3 @@
+name: e2e
+runtime: nodejs
+description: E2E infra for CloudFront lambda

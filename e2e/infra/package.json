@@ -1,0 +1,19 @@
+{
+  "name": "e2e",
+  "main": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "up": "pulumi up --stack e2e --yes",
+    "destroy": "pulumi destroy --stack e2e --yes",
+    "export": "pulumi stack export --file stack.json"
+  },
+  "devDependencies": {
+    "@types/node": "^14"
+  },
+  "dependencies": {
+    "@fingerprintjs/fingerprintjs-pro": "^3.8.1",
+    "@pulumi/pulumi": "^3.0.0",
+    "@pulumi/aws": "^5.0.0",
+    "@pulumi/awsx": "^0.40.0"
+  }
+}
