@@ -17,7 +17,7 @@ phases:
       - cd e2e/infra && yarn lambda:up
       - echo "Running tests..."
     finally:
-      - yarn lambda:down && cd ../../
+      - yarn lambda:destroy && cd ../../
   post_build:
     commands:
       - echo "Running post build..."
