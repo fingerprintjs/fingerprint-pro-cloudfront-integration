@@ -7,7 +7,7 @@ const org = config.require('org')
 
 console.debug('Org: ', org)
 
-const lambdaRole = new aws.iam.Role(resource('lambda-role'), {
+/*const lambdaRole = new aws.iam.Role(resource('lambda-role'), {
   assumeRolePolicy: {
     Version: '2012-10-17',
     Statement: [
@@ -20,12 +20,12 @@ const lambdaRole = new aws.iam.Role(resource('lambda-role'), {
       },
     ],
   },
-})
+})*/
 
 const lambdaFunction = new aws.lambda.Function(resource('lambda'), {
   runtime: 'nodejs16.x',
   code: new pulumi.asset.FileArchive('../../../dist'),
-  role: lambdaRole.arn,
+  role: 'arn:aws:iam::708050157146:role/fpjs-dev-cloudfront-lambda-e2e-role',
   handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
   publish: true,
   tags: {
