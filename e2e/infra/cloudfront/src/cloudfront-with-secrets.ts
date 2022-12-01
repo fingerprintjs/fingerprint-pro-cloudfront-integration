@@ -8,7 +8,7 @@ import { lambdaCachePolicy, lambdaOriginPolicy } from './lambda'
 const { lambdaArn } = getStackOutput<{ lambdaArn: string }>(path.resolve(__dirname, '../../lambda'))
 const region = aws.config.requireRegion()
 
-const secretName = resource('secret')
+const secretName = resource(`secret-${Date.now()}`)
 const secret = new aws.secretsmanager.Secret(secretName, {
   name: secretName,
 })
