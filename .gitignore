@@ -104,3 +104,6 @@ dist
 
 # IDE
 .idea
+
+# Pulumi
+.pulumi

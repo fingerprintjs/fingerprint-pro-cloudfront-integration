@@ -6,18 +6,20 @@ phases:
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
-      - pulumi login --local
       - yarn install && yarn install --cwd=e2e/infra && yarn install --cwd=e2e/website
-  build:
+  pre_build:
     commands:
       - pulumi version
       - yarn build
       - cd e2e/website && yarn build && cd ../../
-      - cd e2e/infra/lambda && pulumi stack init e2e && pulumi stack select e2e && pulumi config set org fpjs && cd ../../../
-      - cd e2e/infra && yarn lambda:up
+      - cd e2e/infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../../
+      - cd e2e/infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../../
+      - cd e2e/infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../../
+  build:
+    commands:
       - echo "Running tests..."
     finally:
-      - yarn lambda:destroy && cd ../../
+      - yarn cloudfront:destroy && yarn lambda:destroy && cd ../../
   post_build:
     commands:
       - echo "Running post build..."
