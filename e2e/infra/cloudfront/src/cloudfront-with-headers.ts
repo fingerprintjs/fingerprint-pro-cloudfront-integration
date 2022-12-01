@@ -49,7 +49,7 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
     defaultTtl: 3600,
     maxTtl: 86400,
   },
-  comment: 'With headers',
+  comment: 'CloudFront for lambda e2e tests with customer variables stored in headers',
   orderedCacheBehaviors: [
     {
       pathPattern: 'fpjs/*',
