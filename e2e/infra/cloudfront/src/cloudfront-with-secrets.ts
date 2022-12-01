@@ -5,22 +5,10 @@ import { resource } from '../../utils/resource'
 import { s3OriginId, websiteBucket } from './s3'
 import { lambdaCachePolicy, lambdaOriginPolicy } from './lambda'
 
-const { lambdaArn } = getStackOutput<{ lambdaArn: string }>(path.resolve(__dirname, '../../lambda'))
+const { lambdaArn, secretName } = getStackOutput<{ lambdaArn: string; secretName: string }>(
+  path.resolve(__dirname, '../../lambda'),
+)
 const region = aws.config.requireRegion()
-
-const secretName = resource(`secret-${Date.now()}`)
-const secret = new aws.secretsmanager.Secret(secretName, {
-  name: secretName,
-})
-new aws.secretsmanager.SecretVersion(secretName, {
-  secretId: secret.id,
-  secretString: JSON.stringify({
-    fpjs_behavior_path: process.env.FPJS_BEHAVIOR_PATH ?? 'fpjs',
-    fpjs_get_result_path: process.env.FPJS_GET_RESULT_PATH ?? 'visitorId',
-    fpjs_pre_shared_secret: process.env.FPJS_PRE_SHARED_SECRET ?? '',
-    fpjs_agent_download_path: process.env.FPJS_AGENT_DOWNLOAD_PATH ?? 'agent',
-  }),
-})
 
 const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-secrets'), {
   origins: [
@@ -30,7 +18,7 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
       customHeaders: [
         {
           name: 'FPJS_SECRET_NAME',
-          value: secret.name,
+          value: secretName,
         },
         {
           name: 'FPJS_SECRET_REGION',
@@ -39,7 +27,7 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
       ],
     },
   ],
-  comment: 'With secrets',
+  comment: 'CloudFront for lambda e2e tests with customer variables stored in Secrets Manager',
   enabled: true,
   defaultRootObject: 'index.html',
   defaultCacheBehavior: {
