@@ -19,7 +19,8 @@ phases:
     commands:
       - echo "Running tests..."
     finally:
-      - cd/e2e/infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../../
+      - echo "Cleaning up..."
+      #- cd/e2e/infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../../
   post_build:
     commands:
       - echo "Running post build..."
