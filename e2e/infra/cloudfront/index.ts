@@ -2,19 +2,12 @@ import * as aws from '@pulumi/aws'
 import * as pulumi from '@pulumi/pulumi'
 import { resource } from './../utils/resource'
 import * as path from 'path'
+import { getStackOutput } from '../utils/getStackOutput'
 
-const stack = pulumi.getStack()
-const config = new pulumi.Config()
-const org = config.require('org')
-
-console.debug('Org: ', org)
-
-const stackRef = new pulumi.StackReference(`${org}/lambda/${stack}`)
-const lambdaArn = stackRef.getOutput('lambdaArn')
+const { lambdaArn } = getStackOutput<{ lambdaArn: string }>(path.resolve(__dirname, '../lambda'))
 
 console.log('Lambda arn:', lambdaArn)
 
-// TODO Test how long it takes before distribution is ready to use
 // TODO Create two distributions - one with headers and one with secrets manager
 // TODO Split into smaller files
 
