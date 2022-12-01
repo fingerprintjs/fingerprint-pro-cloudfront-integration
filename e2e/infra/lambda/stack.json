@@ -2,7 +2,7 @@
     "version": 3,
     "deployment": {
         "manifest": {
-            "time": "2022-12-01T13:13:34.592684+02:00",
+            "time": "2022-12-01T14:07:40.02677+02:00",
             "magic": "f8eb167f4b3bc25fd3244297279244af7fa62ccea5d573ecc726bd0cfc38766f",
             "version": "v3.48.0"
         },
@@ -18,14 +18,14 @@
                 "custom": false,
                 "type": "pulumi:pulumi:Stack",
                 "outputs": {
-                    "lambdaArn": "arn:aws:lambda:us-east-1:086627185220:function:fpjs-dev-e2e-cloudfront-lambda-fbed0b3:1",
+                    "lambdaArn": "arn:aws:lambda:us-east-1:086627185220:function:fpjs-dev-e2e-cloudfront-lambda-9ca3a3f:1",
                     "lambdaVersion": "1"
                 }
             },
             {
                 "urn": "urn:pulumi:e2e::lambda::pulumi:providers:aws::default_5_21_1",
                 "custom": true,
-                "id": "9a20b312-d546-4e60-9b11-55b8bff270ba",
+                "id": "51a058a0-9cfd-4e9a-a850-c4aae81e3a93",
                 "type": "pulumi:providers:aws",
                 "inputs": {
                     "region": "us-east-1",
@@ -39,7 +39,7 @@
             {
                 "urn": "urn:pulumi:e2e::lambda::aws:iam/role:Role::fpjs-dev-e2e-cloudfront-lambda-role",
                 "custom": true,
-                "id": "fpjs-dev-e2e-cloudfront-lambda-role-df4d846",
+                "id": "fpjs-dev-e2e-cloudfront-lambda-role-2ef07ab",
                 "type": "aws:iam/role:Role",
                 "inputs": {
                     "__defaults": [
@@ -51,28 +51,28 @@
                     "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":[\"lambda.amazonaws.com\",\"edgelambda.amazonaws.com\"]}}],\"Version\":\"2012-10-17\"}",
                     "forceDetachPolicies": false,
                     "maxSessionDuration": 3600,
-                    "name": "fpjs-dev-e2e-cloudfront-lambda-role-df4d846",
+                    "name": "fpjs-dev-e2e-cloudfront-lambda-role-2ef07ab",
                     "path": "/"
                 },
                 "outputs": {
-                    "arn": "arn:aws:iam::086627185220:role/fpjs-dev-e2e-cloudfront-lambda-role-df4d846",
+                    "arn": "arn:aws:iam::086627185220:role/fpjs-dev-e2e-cloudfront-lambda-role-2ef07ab",
                     "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":[\"lambda.amazonaws.com\",\"edgelambda.amazonaws.com\"]}}],\"Version\":\"2012-10-17\"}",
-                    "createDate": "2022-12-01T11:13:11Z",
+                    "createDate": "2022-12-01T12:07:18Z",
                     "description": "",
                     "forceDetachPolicies": false,
-                    "id": "fpjs-dev-e2e-cloudfront-lambda-role-df4d846",
+                    "id": "fpjs-dev-e2e-cloudfront-lambda-role-2ef07ab",
                     "inlinePolicies": [],
                     "managedPolicyArns": [],
                     "maxSessionDuration": 3600,
-                    "name": "fpjs-dev-e2e-cloudfront-lambda-role-df4d846",
+                    "name": "fpjs-dev-e2e-cloudfront-lambda-role-2ef07ab",
                     "namePrefix": "",
                     "path": "/",
                     "tags": {},
                     "tagsAll": {},
-                    "uniqueId": "AROARIK3B6JCO4LUILHLG"
+                    "uniqueId": "AROARIK3B6JCOBGOPPXO4"
                 },
                 "parent": "urn:pulumi:e2e::lambda::pulumi:pulumi:Stack::lambda-e2e",
-                "provider": "urn:pulumi:e2e::lambda::pulumi:providers:aws::default_5_21_1::9a20b312-d546-4e60-9b11-55b8bff270ba",
+                "provider": "urn:pulumi:e2e::lambda::pulumi:providers:aws::default_5_21_1::51a058a0-9cfd-4e9a-a850-c4aae81e3a93",
                 "propertyDependencies": {
                     "assumeRolePolicy": null
                 }
@@ -80,7 +80,7 @@
             {
                 "urn": "urn:pulumi:e2e::lambda::aws:lambda/function:Function::fpjs-dev-e2e-cloudfront-lambda",
                 "custom": true,
-                "id": "fpjs-dev-e2e-cloudfront-lambda-fbed0b3",
+                "id": "fpjs-dev-e2e-cloudfront-lambda-9ca3a3f",
                 "type": "aws:lambda/function:Function",
                 "inputs": {
                     "__defaults": [
@@ -97,11 +97,11 @@
                     },
                     "handler": "fingerprintjs-pro-cloudfront-lambda-function.handler",
                     "memorySize": 128,
-                    "name": "fpjs-dev-e2e-cloudfront-lambda-fbed0b3",
+                    "name": "fpjs-dev-e2e-cloudfront-lambda-9ca3a3f",
                     "packageType": "Zip",
                     "publish": true,
                     "reservedConcurrentExecutions": -1,
-                    "role": "arn:aws:iam::086627185220:role/fpjs-dev-e2e-cloudfront-lambda-role-df4d846",
+                    "role": "arn:aws:iam::086627185220:role/fpjs-dev-e2e-cloudfront-lambda-role-2ef07ab",
                     "runtime": "nodejs16.x",
                     "tags": {
                         "__defaults": [],
@@ -114,7 +114,7 @@
                     "architectures": [
                         "x86_64"
                     ],
-                    "arn": "arn:aws:lambda:us-east-1:086627185220:function:fpjs-dev-e2e-cloudfront-lambda-fbed0b3",
+                    "arn": "arn:aws:lambda:us-east-1:086627185220:function:fpjs-dev-e2e-cloudfront-lambda-9ca3a3f",
                     "code": {
                         "4dabf18193072939515e22adb298388d": "0def7320c3a5731c473e5ecbe6d01bc7",
                         "hash": "70d3357f63ce72f9b6065da7675eddc14cc3b88d486e0203bdacacc30e7065f8",
@@ -129,21 +129,21 @@
                     },
                     "fileSystemConfig": null,
                     "handler": "fingerprintjs-pro-cloudfront-lambda-function.handler",
-                    "id": "fpjs-dev-e2e-cloudfront-lambda-fbed0b3",
+                    "id": "fpjs-dev-e2e-cloudfront-lambda-9ca3a3f",
                     "imageConfig": null,
                     "imageUri": "",
-                    "invokeArn": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:086627185220:function:fpjs-dev-e2e-cloudfront-lambda-fbed0b3/invocations",
+                    "invokeArn": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:086627185220:function:fpjs-dev-e2e-cloudfront-lambda-9ca3a3f/invocations",
                     "kmsKeyArn": "",
-                    "lastModified": "2022-12-01T11:13:24.771+0000",
+                    "lastModified": "2022-12-01T12:07:30.950+0000",
                     "layers": [],
                     "memorySize": 128,
-                    "name": "fpjs-dev-e2e-cloudfront-lambda-fbed0b3",
+                    "name": "fpjs-dev-e2e-cloudfront-lambda-9ca3a3f",
                     "packageType": "Zip",
                     "publish": true,
-                    "qualifiedArn": "arn:aws:lambda:us-east-1:086627185220:function:fpjs-dev-e2e-cloudfront-lambda-fbed0b3:1",
-                    "qualifiedInvokeArn": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:086627185220:function:fpjs-dev-e2e-cloudfront-lambda-fbed0b3:1/invocations",
+                    "qualifiedArn": "arn:aws:lambda:us-east-1:086627185220:function:fpjs-dev-e2e-cloudfront-lambda-9ca3a3f:1",
+                    "qualifiedInvokeArn": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:086627185220:function:fpjs-dev-e2e-cloudfront-lambda-9ca3a3f:1/invocations",
                     "reservedConcurrentExecutions": -1,
-                    "role": "arn:aws:iam::086627185220:role/fpjs-dev-e2e-cloudfront-lambda-role-df4d846",
+                    "role": "arn:aws:iam::086627185220:role/fpjs-dev-e2e-cloudfront-lambda-role-2ef07ab",
                     "runtime": "nodejs16.x",
                     "signingJobArn": "",
                     "signingProfileVersionArn": "",
@@ -166,7 +166,7 @@
                 "dependencies": [
                     "urn:pulumi:e2e::lambda::aws:iam/role:Role::fpjs-dev-e2e-cloudfront-lambda-role"
                 ],
-                "provider": "urn:pulumi:e2e::lambda::pulumi:providers:aws::default_5_21_1::9a20b312-d546-4e60-9b11-55b8bff270ba",
+                "provider": "urn:pulumi:e2e::lambda::pulumi:providers:aws::default_5_21_1::51a058a0-9cfd-4e9a-a850-c4aae81e3a93",
                 "propertyDependencies": {
                     "code": null,
                     "handler": null,
@@ -181,31 +181,31 @@
             {
                 "urn": "urn:pulumi:e2e::lambda::aws:lambda/permission:Permission::fpjs-dev-e2e-cloudfront-lambda-permission",
                 "custom": true,
-                "id": "fpjs-dev-e2e-cloudfront-lambda-permission-e6b881c",
+                "id": "fpjs-dev-e2e-cloudfront-lambda-permission-34568e3",
                 "type": "aws:lambda/permission:Permission",
                 "inputs": {
                     "__defaults": [
                         "statementId"
                     ],
                     "action": "lambda:GetFunction",
-                    "function": "fpjs-dev-e2e-cloudfront-lambda-fbed0b3",
+                    "function": "fpjs-dev-e2e-cloudfront-lambda-9ca3a3f",
                     "principal": "edgelambda.amazonaws.com",
-                    "statementId": "fpjs-dev-e2e-cloudfront-lambda-permission-e6b881c"
+                    "statementId": "fpjs-dev-e2e-cloudfront-lambda-permission-34568e3"
                 },
                 "outputs": {
                     "action": "lambda:GetFunction",
-                    "function": "fpjs-dev-e2e-cloudfront-lambda-fbed0b3",
-                    "id": "fpjs-dev-e2e-cloudfront-lambda-permission-e6b881c",
+                    "function": "fpjs-dev-e2e-cloudfront-lambda-9ca3a3f",
+                    "id": "fpjs-dev-e2e-cloudfront-lambda-permission-34568e3",
                     "principal": "edgelambda.amazonaws.com",
                     "qualifier": "",
-                    "statementId": "fpjs-dev-e2e-cloudfront-lambda-permission-e6b881c",
+                    "statementId": "fpjs-dev-e2e-cloudfront-lambda-permission-34568e3",
                     "statementIdPrefix": ""
                 },
                 "parent": "urn:pulumi:e2e::lambda::pulumi:pulumi:Stack::lambda-e2e",
                 "dependencies": [
                     "urn:pulumi:e2e::lambda::aws:lambda/function:Function::fpjs-dev-e2e-cloudfront-lambda"
                 ],
-                "provider": "urn:pulumi:e2e::lambda::pulumi:providers:aws::default_5_21_1::9a20b312-d546-4e60-9b11-55b8bff270ba",
+                "provider": "urn:pulumi:e2e::lambda::pulumi:providers:aws::default_5_21_1::51a058a0-9cfd-4e9a-a850-c4aae81e3a93",
                 "propertyDependencies": {
                     "action": null,
                     "function": [
