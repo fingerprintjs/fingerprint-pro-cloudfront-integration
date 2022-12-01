@@ -6,32 +6,40 @@ import { s3OriginId, websiteBucket } from './s3'
 import { lambdaCachePolicy, lambdaOriginPolicy } from './lambda'
 
 const { lambdaArn } = getStackOutput<{ lambdaArn: string }>(path.resolve(__dirname, '../../lambda'))
+const region = aws.config.requireRegion()
 
-const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-headers'), {
+const secretName = resource('secret')
+const secret = new aws.secretsmanager.Secret(secretName, {
+  name: secretName,
+})
+new aws.secretsmanager.SecretVersion(secretName, {
+  secretId: secret.id,
+  secretString: JSON.stringify({
+    fpjs_behavior_path: process.env.FPJS_BEHAVIOR_PATH ?? 'fpjs',
+    fpjs_get_result_path: process.env.FPJS_GET_RESULT_PATH ?? 'visitorId',
+    fpjs_pre_shared_secret: process.env.FPJS_PRE_SHARED_SECRET ?? '',
+    fpjs_agent_download_path: process.env.FPJS_AGENT_DOWNLOAD_PATH ?? 'agent',
+  }),
+})
+
+const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-secrets'), {
   origins: [
     {
       domainName: websiteBucket.bucketRegionalDomainName,
       originId: s3OriginId,
       customHeaders: [
         {
-          name: 'FPJS_GET_RESULT_PATH',
-          value: process.env.FPJS_GET_RESULT_PATH ?? 'visitorId',
+          name: 'FPJS_SECRET_NAME',
+          value: secret.name,
         },
         {
-          name: 'FPJS_PRE_SHARED_SECRET',
-          value: process.env.FPJS_PRE_SHARED_SECRET ?? '',
-        },
-        {
-          name: 'FPJS_AGENT_DOWNLOAD_PATH',
-          value: process.env.FPJS_AGENT_DOWNLOAD_PATH ?? 'agent',
-        },
-        {
-          name: 'FPJS_BEHAVIOR_PATH',
-          value: process.env.FPJS_BEHAVIOR_PATH ?? 'fpjs',
+          name: 'FPJS_SECRET_REGION',
+          value: region,
         },
       ],
     },
   ],
+  comment: 'With secrets',
   enabled: true,
   defaultRootObject: 'index.html',
   defaultCacheBehavior: {
@@ -49,7 +57,6 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
     defaultTtl: 3600,
     maxTtl: 86400,
   },
-  comment: 'With headers',
   orderedCacheBehaviors: [
     {
       pathPattern: 'fpjs/*',
@@ -78,4 +85,4 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
   },
 })
 
-export const cloudfrontWithHeadersUrl = cloudfrontDistro.domainName
+export const cloudfrontWithSecretsUrl = cloudfrontDistro.domainName
