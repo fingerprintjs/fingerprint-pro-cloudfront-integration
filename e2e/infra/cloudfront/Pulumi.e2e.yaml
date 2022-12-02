@@ -1,4 +1,3 @@
-encryptionsalt: v1:7kPRrMGOpbI=:v1:fkrQk++MZcem4cZV:C701Oj2h0aLMnONI3RKd5PAaxWi/Ww==
 config:
   aws:region: us-east-1
   cloudfront:org: fpjs

@@ -16,15 +16,24 @@ new aws.secretsmanager.SecretVersion(secretName, {
   }),
 })
 
-const lambdaRole = new aws.iam.Role(resource('lambda-role'), {
-  assumeRolePolicy: {
+const secretPolicy = new aws.iam.Policy(resource('secret-policy'), {
+  policy: {
     Version: '2012-10-17',
     Statement: [
       {
         Action: 'secretsmanager:GetSecretValue',
         Effect: 'Allow',
-        Resource: secret.arn,
+        Resource: [secret.arn],
       },
+    ],
+  },
+})
+
+const lambdaRole = new aws.iam.Role(resource('lambda-role'), {
+  managedPolicyArns: [secretPolicy.arn],
+  assumeRolePolicy: {
+    Version: '2012-10-17',
+    Statement: [
       {
         Action: 'sts:AssumeRole',
         Effect: 'Allow',
