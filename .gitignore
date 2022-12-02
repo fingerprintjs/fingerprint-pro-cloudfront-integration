@@ -107,3 +107,4 @@ dist
 
 # Pulumi
 .pulumi
+stack.json
