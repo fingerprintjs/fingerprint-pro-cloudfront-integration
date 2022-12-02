@@ -45,16 +45,22 @@ const lambdaRole = new aws.iam.Role(resource('lambda-role'), {
   },
 })
 
-const lambdaFunction = new aws.lambda.Function(resource('lambda'), {
-  runtime: 'nodejs16.x',
-  code: new pulumi.asset.FileArchive('../../../dist'),
-  role: lambdaRole.arn,
-  handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
-  publish: true,
-  tags: {
-    tag: 'cloudfront-lambda-e2e',
+const lambdaFunction = new aws.lambda.Function(
+  resource('lambda'),
+  {
+    runtime: 'nodejs16.x',
+    code: new pulumi.asset.FileArchive('../../../dist'),
+    role: lambdaRole.arn,
+    handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
+    publish: true,
+    tags: {
+      tag: 'cloudfront-lambda-e2e',
+    },
   },
-})
+  {
+    retainOnDelete: true,
+  },
+)
 
 new aws.lambda.Permission(resource('lambda-permission'), {
   action: 'lambda:GetFunction',
