@@ -1,4 +1,5 @@
 import './src/s3'
-import './src/cloudfront-with-headers'
-import './src/cloudfront-with-secrets'
 import './src/lambda'
+
+export { cloudfrontWithHeadersUrl } from './src/cloudfront-with-headers'
+export { cloudfrontWithSecretsUrl } from './src/cloudfront-with-secrets'
