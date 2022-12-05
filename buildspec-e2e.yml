@@ -5,19 +5,34 @@ phases:
     commands:
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
+      - git log -1 --pretty=%B
       - pulumi version
-      - yarn install && yarn install --cwd=e2e/infra && yarn install --cwd=e2e/website
+      - |
+        COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+
+        # Extract date from COMMIT_MESSAGE stored inside square brackets
+        DATE=$(echo $COMMIT_MESSAGE | grep -o '\[[^]]*\]' | sed 's/[][]//g')
+
+        # Check if folder named with DATE exists
+        if [ -d "$DATE" ]; then
+          cd $DATE
+          exit 0
+        else
+          echo "Folder $DATE does not exist"
+          exit 1
+        fi
+      - yarn install --cwd=infra && yarn install --cwd=website
   pre_build:
     commands:
       - pulumi version
       - yarn build
-      - cd e2e/website && yarn build && cd ../../
-      - cd e2e/infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../../
-      - cd e2e/infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../../
-      - cd e2e/infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../../
+      - cd website && yarn build && cd ../
+      - cd infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../
+      - cd infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../
+      - cd infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../
   build:
     commands:
       - echo "Running tests..."
     finally:
       - echo "Cleaning up..."
-      - cd e2e/infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../../
+      - cd infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../
