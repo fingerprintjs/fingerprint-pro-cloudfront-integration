@@ -41,12 +41,15 @@ jobs:
         env:
           GITHUB_REAL_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
 
+      - name: Prepare e2e directory
+        run: cp -r dist e2e
+
       - name: Deploy
         uses: s0/git-publish-subdir-action@92faf786f11dfa44fc366ac3eb274d193ca1af7e
         env:
           REPO: self
           BRANCH: e2e-tests
-          FOLDER: dist
+          FOLDER: e2e
           TARGET_DIR: ${{ steps.date.outputs.today }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MESSAGE: Deploy prepared in [${{ steps.date.outputs.today }}]
