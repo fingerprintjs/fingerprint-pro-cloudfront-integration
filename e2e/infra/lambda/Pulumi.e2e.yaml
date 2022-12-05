@@ -1,4 +1,3 @@
-encryptionsalt: v1:z/Pi88EzCs8=:v1:gB9mJuM/TABsml6M:VgEAFqVOHYmngGIqlHjrFwxM9Ug5Mg==
 config:
   aws:region: us-east-1
   lambda:org: fpjs
