@@ -5,7 +5,6 @@ phases:
       - ls -a
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
-      - git log -1 --pretty=%B
       - pulumi version
       - yarn install && yarn install --cwd=infra && yarn install --cwd=website
   pre_build:
