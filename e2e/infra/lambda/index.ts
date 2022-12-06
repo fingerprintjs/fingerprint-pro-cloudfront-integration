@@ -30,21 +30,27 @@ const secretPolicy = new aws.iam.Policy(resource('secret-policy'), {
   },
 })
 
-const lambdaRole = new aws.iam.Role(resource('lambda-role'), {
-  managedPolicyArns: [secretPolicy.arn],
-  assumeRolePolicy: {
-    Version: '2012-10-17',
-    Statement: [
-      {
-        Action: 'sts:AssumeRole',
-        Effect: 'Allow',
-        Principal: {
-          Service: ['lambda.amazonaws.com', 'edgelambda.amazonaws.com'],
+const lambdaRole = new aws.iam.Role(
+  resource('lambda-role'),
+  {
+    managedPolicyArns: [secretPolicy.arn],
+    assumeRolePolicy: {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Action: 'sts:AssumeRole',
+          Effect: 'Allow',
+          Principal: {
+            Service: ['lambda.amazonaws.com', 'edgelambda.amazonaws.com'],
+          },
         },
-      },
-    ],
+      ],
+    },
   },
-})
+  {
+    dependsOn: [secretPolicy],
+  },
+)
 
 const lambdaCodePaths = ['../../../dist', '../../dist']
 const lambdaCodePath = lambdaCodePaths.find((lambdaPath) => fs.existsSync(lambdaPath))
