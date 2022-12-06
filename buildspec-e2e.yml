@@ -1,0 +1,41 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - |
+        COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+
+        # Extract date from COMMIT_MESSAGE stored inside square brackets
+        DATE=$(echo $COMMIT_MESSAGE | grep -o '\[[^]]*\]' | sed 's/[][]//g')
+
+        # Check if folder named with DATE exists
+        if [ -d "$DATE" ]; then
+          echo "Folder $DATE found"
+          echo "$DATE" > cwd.txt
+          exit 0
+        else
+          echo "Folder $DATE does not exist"
+          exit 1
+        fi
+      - cd "$(head -1 cwd.txt)"
+      - pwd
+      - ls -a
+      - curl -fsSL https://get.pulumi.com | sh
+      - export PATH=$PATH:$HOME/.pulumi/bin
+      - git log -1 --pretty=%B
+      - pulumi version
+      - yarn install && yarn install --cwd=infra && yarn install --cwd=website
+  pre_build:
+    commands:
+      - pwd
+      - pulumi version
+      - cd website && yarn build && cd ../
+      - cd infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../
+      - cd infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../
+      - cd infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../
+  build:
+    commands:
+      - echo "Running tests..."
+    finally:
+      - echo "Cleaning up..."
+      - cd infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../
