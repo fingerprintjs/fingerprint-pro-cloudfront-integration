@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - yarn install && yarn global add ts-node
+      - yarn install
   build:
     commands:
-      - ts-node e2e/scripts/cleanup-lambdas.ts
+      - node e2e/scripts/cleanup-lambdas.mjs

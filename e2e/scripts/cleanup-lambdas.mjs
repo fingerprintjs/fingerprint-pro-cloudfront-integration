@@ -1,4 +1,4 @@
-import { Lambda } from 'aws-sdk'
+import SDK from 'aws-sdk'
 
 async function main() {
   //const lambda = new Lambda()
@@ -18,9 +18,9 @@ async function main() {
 const LAMBDA_PREFIX = 'fpjs-dev-e2e-cloudfront'
 
 async function* listLambdas() {
-  const lambda = new Lambda()
+  const lambda = new SDK.Lambda()
 
-  let nextMarker: string | undefined
+  let nextMarker
 
   do {
     const response = await lambda.listFunctions({ Marker: nextMarker }).promise()
