@@ -1,12 +1,11 @@
 import SDK from 'aws-sdk'
 
-async function main() {
-  //const lambda = new Lambda()
+const lambda = new SDK.Lambda()
 
+async function main() {
   for await (const lambdaFunction of listLambdas()) {
     try {
-      // TODO Uncomment after testing it on AWS side
-      //await lambda.deleteFunction({ FunctionName: lambdaFunction.FunctionName }).promise()
+      await lambda.deleteFunction({ FunctionName: lambdaFunction.FunctionName }).promise()
 
       console.info(`Deleted Lambda function ${lambdaFunction.FunctionName}`)
     } catch (error) {
@@ -18,8 +17,6 @@ async function main() {
 const LAMBDA_PREFIX = 'fpjs-dev-e2e-cloudfront'
 
 async function* listLambdas() {
-  const lambda = new SDK.Lambda()
-
   let nextMarker
 
   do {
