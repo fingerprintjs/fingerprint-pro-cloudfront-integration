@@ -14,6 +14,9 @@ jobs:
           fetch-depth: 0
           ref: e2e-tests
 
+      - name: Set git settings
+        uses: fregante/setup-git-user@2e28d51939d2a84005a917d2f844090637f435f8
+
       - name: Cleanup old artifacts
         shell: bash
         run: |
