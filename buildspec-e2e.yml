@@ -1,4 +1,7 @@
 version: 0.2
+env:
+  secrets-manager:
+    GITHUB_TOKEN: "fpjs-dev-cloudfront-secrets:GITHUB_TOKEN"
 phases:
   install:
     commands:
