@@ -5,7 +5,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  deploy-test-branch:
     name: Deploy test branch
     runs-on: ubuntu-latest
     steps:
@@ -40,6 +40,8 @@ jobs:
 
       - name: Collect meta
         run: node .github/workflows/serialize_job_info.js
+        env:
+          GITHUB_REAL_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
 
       - name: Deploy
         uses: s0/git-publish-subdir-action@92faf786f11dfa44fc366ac3eb274d193ca1af7e
