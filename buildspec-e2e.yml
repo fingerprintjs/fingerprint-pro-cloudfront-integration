@@ -1,31 +1,16 @@
 version: 0.2
-
 phases:
   install:
     commands:
+      - ls -a
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
-      - git log -1 --pretty=%B
       - pulumi version
-      - |
-        COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-
-        # Extract date from COMMIT_MESSAGE stored inside square brackets
-        DATE=$(echo $COMMIT_MESSAGE | grep -o '\[[^]]*\]' | sed 's/[][]//g')
-
-        # Check if folder named with DATE exists
-        if [ -d "$DATE" ]; then
-          cd $DATE
-          exit 0
-        else
-          echo "Folder $DATE does not exist"
-          exit 1
-        fi
-      - yarn install --cwd=infra && yarn install --cwd=website
+      - yarn install && yarn install --cwd=infra && yarn install --cwd=website
   pre_build:
     commands:
+      - pwd
       - pulumi version
-      - yarn build
       - cd website && yarn build && cd ../
       - cd infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../
       - cd infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../
@@ -36,3 +21,4 @@ phases:
     finally:
       - echo "Cleaning up..."
       - cd infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../
+      # TODO Remove directory used in tests from e2e-tests branch
