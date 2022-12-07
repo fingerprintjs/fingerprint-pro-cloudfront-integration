@@ -24,15 +24,16 @@ jobs:
               normalized_date="${BASH_REMATCH[1]} ${BASH_REMATCH[2]}:${BASH_REMATCH[3]}:${BASH_REMATCH[4]}"
               folder_date=`date -d "$normalized_date" +%s`
               diff=$(($now - $folder_date))
-              if [ $diff -gt 84600 ]; then
-                echo "to delete: $name"
+              if [ $diff -gt 169200 ]; then
+                rm -rf ./${name}
+                echo "deleted: $name"
               fi
             fi
           done
 
-#      - name: commit changes
-#        run: |
-#          git add .
-#          git status
-#          git commit -m "chore: cleanup old e2e tasks"
-#          git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+      - name: commit changes
+        run: |
+          git add .
+          git status
+          git commit -m "chore: cleanup old e2e tasks"
+          git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
