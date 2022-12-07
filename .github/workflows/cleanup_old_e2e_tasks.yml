@@ -2,7 +2,8 @@ name: Cleanup old e2e tasks
 
 on:
   workflow_dispatch:
-  pull_request: # remove before merge
+  schedule:
+    - cron: '0 4 * * *'
 
 jobs:
   run-cleanup-old-e2e-tasks:
@@ -27,7 +28,7 @@ jobs:
               normalized_date="${BASH_REMATCH[1]} ${BASH_REMATCH[2]}:${BASH_REMATCH[3]}:${BASH_REMATCH[4]}"
               folder_date=`date -d "$normalized_date" +%s`
               diff=$(($now - $folder_date))
-              if [ $diff -gt 169200 ]; then
+              if [ $diff -gt 84600 ]; then
                 rm -rf ./${name}
                 echo "deleted: $name"
               fi
