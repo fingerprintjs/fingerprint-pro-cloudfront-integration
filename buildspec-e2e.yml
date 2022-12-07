@@ -32,6 +32,7 @@ phases:
     commands:
       - echo "Running tests..."
     finally:
+      - echo $CODEBUILD_BUILD_SUCCEEDING
       - echo $COMMIT_SHA
       - export STATUS=$(sh ./scripts/get-codebuild-status.sh)
       - echo $STATUS
