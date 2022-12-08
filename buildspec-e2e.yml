@@ -31,6 +31,7 @@ phases:
       - cd infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../
   build:
     commands:
+      - ls -a
       - cd tests && yarn test
     finally:
       - cd ../
