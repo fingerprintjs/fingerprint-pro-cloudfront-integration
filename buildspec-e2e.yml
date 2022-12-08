@@ -43,6 +43,6 @@ phases:
           -H "Authorization: Bearer $GITHUB_TOKEN"\
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_SHA \
-          -d '{"state":"$STATUS","target_url":"https://example.com/build/status","description":"E2E tests finished","context":"e2e"}'
+          -d "{\"state\":\"$STATUS\",\"target_url\":\"https://example.com/build/status\",\"description\":\"E2E tests finished\",\"context\":\"e2e\"}"
       - cd infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../
       # TODO Remove directory used in tests from e2e-tests branch
