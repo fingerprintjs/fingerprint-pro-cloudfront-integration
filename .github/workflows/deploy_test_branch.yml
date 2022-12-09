@@ -35,6 +35,9 @@ jobs:
         run: yarn install
       - name: Build
         run: yarn build
+        env:
+          FPCDN: ${{ secrets.FPCDN }}
+          INGRESS_API: ${{ secrets.INGRESS_API }}
 
       - name: Collect meta
         run: node .github/workflows/serialize_job_info.js
