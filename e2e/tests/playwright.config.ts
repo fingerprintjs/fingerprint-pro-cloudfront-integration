@@ -1,11 +1,14 @@
 import type { PlaywrightTestConfig } from '@playwright/test'
 import { devices } from '@playwright/test'
+import { getCloudfrontUrls } from './src/cloudfront'
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
 // require('dotenv').config();
+
+const cloudfrontUrls = Object.entries(getCloudfrontUrls())
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -43,14 +46,13 @@ const config: PlaywrightTestConfig = {
   },
 
   /* Configure projects for major browsers */
-  projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-      },
+  projects: cloudfrontUrls.map(([name, url]) => ({
+    name: `chromium-${name}`,
+    use: {
+      ...devices['Desktop Chrome'],
+      baseURL: url,
     },
-  ],
+  })),
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
   // outputDir: 'test-results/',
