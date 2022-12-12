@@ -23,7 +23,7 @@ import {
 
 const REGION = 'us-east-1'
 
-export async function handler(event: any) {
+export async function handler(event: any, ctx: any) {
   console.info(JSON.stringify(event))
   
   const job = event['CodePipeline.job']
@@ -41,7 +41,8 @@ export async function handler(event: any) {
 
   const latestFunctionArn = await getLambdaLatestVersionArn(lambdaFunctionName)
   if (!latestFunctionArn) {
-    publishJobFailure(job, 'No lambda versions')
+    publishJobFailure(ctx, job, 'No lambda versions')
+    return
   }
 
   const cloudFrontClient = new CloudFrontClient({ region: REGION })
@@ -53,35 +54,38 @@ export async function handler(event: any) {
   const cfConfig: GetDistributionConfigCommandOutput = await cloudFrontClient.send(getConfigCommand)
 
   if (!cfConfig.ETag || !cfConfig.DistributionConfig) {
-    publishJobFailure(job, 'CloudFront distribution not found')
+    publishJobFailure(ctx, job, 'CloudFront distribution not found')
+    return
   }
 
-  const cacheBehaviors = cfConfig.DistributionConfig?.CacheBehaviors
+  const cacheBehaviors = cfConfig.DistributionConfig.CacheBehaviors
   const fpCbs = cacheBehaviors?.Items?.filter((it) => it.TargetOriginId === 'fpcdn.io')
   if (!fpCbs || fpCbs?.length === 0) {
-    publishJobFailure(job, 'Cache behavior not found')
+    publishJobFailure(ctx, job, 'Cache behavior not found')
+    return
   }
-  const cacheBehavior = fpCbs!![0]
+  const cacheBehavior = fpCbs[0]
   const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
     (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(lambdaFunctionName),
   )
   if (!lambdas || lambdas?.length === 0) {
-    publishJobFailure(job, 'Lambda function association not found')
+    publishJobFailure(ctx, job, 'Lambda function association not found')
+    return
   }
-  const lambda = lambdas!![0]
+  const lambda = lambdas[0]
   lambda.LambdaFunctionARN = latestFunctionArn
 
   const updateParams: UpdateDistributionCommandInput = {
     DistributionConfig: cfConfig.DistributionConfig,
     Id: cloudFrontDistrId,
-    IfMatch: cfConfig.ETag!!,
+    IfMatch: cfConfig.ETag,
   }
 
   const updateConfigCommand = new UpdateDistributionCommand(updateParams)
   const updateCFResult = await cloudFrontClient.send(updateConfigCommand)
   console.info(`CloudFront update has finished, ${JSON.stringify(updateCFResult)}`)
 
-  publishJobSuccess(job)
+  publishJobSuccess(ctx, job)
 }
 
 async function getLambdaLatestVersionArn(functionName: string): Promise<string | undefined> {
@@ -109,16 +113,21 @@ function getCodePipelineClient(): CodePipelineClient {
   return client
 }
 
-async function publishJobSuccess(job: any) {
+async function publishJobSuccess(ctx: any, job: any) {
   const params: PutJobSuccessResultCommandInput = {
     jobId: job.id,
   }
-  const command = new PutJobSuccessResultCommand(params)
-  const result = await getCodePipelineClient().send(command)  
-  console.info(`Job successfully finished with ${result}`)
+  try {
+    const command = new PutJobSuccessResultCommand(params)
+    const result = await getCodePipelineClient().send(command)  
+    console.info(`Job successfully finished with ${result}`)
+    ctx.succeed()
+  } catch (err) {
+    ctx.fail(err)
+  }
 }
 
-async function publishJobFailure(job: any, message: string) {
+async function publishJobFailure(ctx: any, job: any, message: string) {
   const params: PutJobFailureResultCommandInput = {
     jobId: job.id,
     failureDetails: {
@@ -126,7 +135,12 @@ async function publishJobFailure(job: any, message: string) {
       type: FailureType.ConfigurationError,
     },
   }
-  const command = new PutJobFailureResultCommand(params)
-  const result = await getCodePipelineClient().send(command)
-  console.info(`Job failed with ${result}`)
+  try {
+    const command = new PutJobFailureResultCommand(params)
+    const result = await getCodePipelineClient().send(command)
+    console.info(`Job failed with ${result}`)  
+    ctx.fail(message)
+  } catch (err) {
+    ctx.fail(err)
+  }
 }
