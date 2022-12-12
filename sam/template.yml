@@ -93,7 +93,7 @@ Resources:
               !Join
                 - ''
                 - - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:'
-                  - 'fingerprint-pro-cloudfront-lambda'
+                  - 'fingerprint-pro-cloudfront-lambda-'
                   - !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]
       - PolicyName: CloudFrontUpdate
         PolicyDocument:
