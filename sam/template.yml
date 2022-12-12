@@ -282,7 +282,7 @@ Resources:
     Properties:
       FunctionName: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       CodeUri: s3://fpjs-dev-cloudfront-integration-lambdas/develop/lambda_latest.zip
       MemorySize: 128
       Timeout: 3
@@ -293,7 +293,7 @@ Resources:
     Properties:
       FunctionName: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       CodeUri: s3://fpjs-dev-cloudfront-integration-lambdas/develop/mgmt-lambda.zip
       MemorySize: 128
       Timeout: 3
