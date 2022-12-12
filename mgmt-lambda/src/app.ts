@@ -45,6 +45,12 @@ export async function handler(event: any, ctx: any) {
     return
   }
 
+  if (latestFunctionArn.length === 1) {
+    console.info('No updates yet')
+    publishJobSuccess(ctx, job)
+    return
+  }
+
   const cloudFrontClient = new CloudFrontClient({ region: REGION })
 
   const configParams = {
