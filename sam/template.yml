@@ -283,7 +283,7 @@ Resources:
       FunctionName: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: index.handler
       Runtime: nodejs18.x
-      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/develop/lambda_latest.zip
+      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip
       MemorySize: 128
       Timeout: 3
       Role: !GetAtt FpIntLambdaFunctionExecutionRole.Arn
