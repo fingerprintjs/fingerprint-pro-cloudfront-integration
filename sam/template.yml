@@ -378,7 +378,7 @@ Resources:
               Configuration:
                 PollForSourceChanges: false
                 S3Bucket: fingerprint-pro-cloudfront-integration-lambda-function
-                S3ObjectKey: release/latest.zip
+                S3ObjectKey: release/lambda_latest.zip
               OutputArtifacts:
                 - 
                   Name: SourceArtifact 
