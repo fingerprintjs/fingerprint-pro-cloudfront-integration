@@ -24,18 +24,31 @@ async function getAndPrintData() {
 
   try {
     const response = await getVisitorData()
-    const { visitorId, confidence } = response
+    const { confidence } = response
 
     console.log('Got response', response)
 
     const totalTime = Date.now() - startTime
     output.innerHTML = ''
-    addOutputSection({ output, header: 'Visitor identifier:', content: visitorId, size: 'giant' })
-    addOutputSection({ output, header: 'Time took to get the identifier:', content: `${totalTime}ms`, size: 'big' })
+    addOutputSection({
+      output,
+      header: 'Response',
+      content: JSON.stringify(response, null, ' '),
+      size: 'big',
+      id: 'response',
+    })
+    addOutputSection({
+      output,
+      header: 'Time took to get the identifier:',
+      content: `${totalTime}ms`,
+      size: 'big',
+      id: 'time',
+    })
     addOutputSection({
       output,
       header: 'Confidence score:',
       content: String(confidence.score),
+      id: 'confidence',
       comment: confidence.comment
         ? {
             html: confidence.comment.replace(
@@ -46,28 +59,21 @@ async function getAndPrintData() {
         : '',
       size: 'big',
     })
-    addOutputSection({ output, header: 'User agent:', content: navigator.userAgent })
-
-    initializeDebugButtons(`Visitor identifier: \`${visitorId}\`
-Time took to get the identifier: ${totalTime}ms
-Confidence: ${JSON.stringify(confidence)}
-User agent: \`${navigator.userAgent}\`
-\`\`\`
-\`\`\``)
+    addOutputSection({ output, header: 'User agent:', content: navigator.userAgent, id: 'userAgent' })
   } catch (error) {
     const totalTime = Date.now() - startTime
     const errorData = error instanceof Error ? error.message : JSON.stringify(error)
     output.innerHTML = ''
-    addOutputSection({ output, header: 'Unexpected error:', content: JSON.stringify(errorData, null, 2) })
-    addOutputSection({ output, header: 'Time passed before the error:', content: `${totalTime}ms`, size: 'big' })
-    addOutputSection({ output, header: 'User agent:', content: navigator.userAgent })
+    addOutputSection({ output, header: 'Unexpected error:', content: JSON.stringify(errorData, null, 2), id: 'error' })
+    addOutputSection({
+      output,
+      header: 'Time passed before the error:',
+      content: `${totalTime}ms`,
+      size: 'big',
+      id: 'error_time',
+    })
+    addOutputSection({ output, header: 'User agent:', content: navigator.userAgent, id: 'userAgent' })
 
-    initializeDebugButtons(`Unexpected error:\n
-\`\`\`
-${JSON.stringify(errorData, null, 2)}
-\`\`\`
-Time passed before the error: ${totalTime}ms
-User agent: \`${navigator.userAgent}\``)
     throw error
   }
 }
@@ -90,56 +96,39 @@ function addOutputSection({
   content,
   comment,
   size,
+  id,
 }: {
   output: Node
   header: Text
+  id: string
   content: Text
   comment?: Text
   size?: 'big' | 'giant'
 }) {
+  const container = document.createElement('div')
+  container.classList.add('outputSection')
+  container.id = id
+
   const headerElement = document.createElement('div')
   headerElement.appendChild(textToDOM(header))
   headerElement.classList.add('heading')
-  output.appendChild(headerElement)
+  container.appendChild(headerElement)
 
   const contentElement = document.createElement('pre')
   contentElement.appendChild(textToDOM(content))
   if (size) {
     contentElement.classList.add(size)
   }
-  output.appendChild(contentElement)
+  container.appendChild(contentElement)
 
   if (comment) {
     const commentElement = document.createElement('div')
     commentElement.appendChild(textToDOM(comment))
     commentElement.classList.add('comment')
-    output.appendChild(commentElement)
+    container.appendChild(commentElement)
   }
-}
 
-function initializeDebugButtons(debugText: string) {
-  const copyButton = document.querySelector('#debugCopy')
-  if (copyButton instanceof HTMLButtonElement) {
-    copyButton.disabled = false
-    copyButton.addEventListener('click', (event) => {
-      event.preventDefault()
-      copy(debugText)
-    })
-  }
-}
-
-function copy(text: string) {
-  const textarea = document.createElement('textarea')
-  textarea.value = text
-  document.body.appendChild(textarea)
-  textarea.focus()
-  textarea.select()
-  try {
-    document.execCommand('copy')
-  } catch {
-    // Do nothing in case of a copying error
-  }
-  document.body.removeChild(textarea)
+  output.appendChild(container)
 }
 
 function textToDOM(text: Text): Node {

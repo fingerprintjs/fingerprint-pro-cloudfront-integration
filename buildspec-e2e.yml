@@ -19,7 +19,8 @@ phases:
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
-      - yarn install && yarn install --cwd=infra && yarn install --cwd=website
+      - yarn install && yarn install --cwd=infra && yarn install --cwd=website && yarn install --cwd=tests
+      - npx playwright install --with-deps
   pre_build:
     commands:
       - pwd
@@ -30,8 +31,10 @@ phases:
       - cd infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../
   build:
     commands:
-      - echo "Running tests..."
+      - ls -a
+      - cd tests && yarn test
     finally:
+      - cd ../
       - echo $CODEBUILD_BUILD_SUCCEEDING
       - echo $COMMIT_SHA
       - export STATUS=$(sh ./scripts/get-codebuild-status.sh)
