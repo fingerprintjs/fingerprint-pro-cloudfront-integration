@@ -134,6 +134,7 @@ async function publishJobSuccess(ctx: any, job: any) {
 }
 
 async function publishJobFailure(ctx: any, job: any, message: string) {
+  console.info(`Publishing failure status with message=${message}`)
   const params: PutJobFailureResultCommandInput = {
     jobId: job.id,
     failureDetails: {
