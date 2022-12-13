@@ -132,68 +132,66 @@ Resources:
             Service:
               - codepipeline.amazonaws.com
       Policies:
-      - PolicyName: CodepipelinePolicy
+      - PolicyName: S3DistributionAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - s3:*
+            Resource: "*"     
+      - PolicyName: Builds
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:BatchGetBuildBatches
+              - codebuild:StartBuildBatch
+            Resource: "*"
+      - PolicyName: Devices
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - devicefarm:ListProjects
+              - devicefarm:ListDevicePools
+              - devicefarm:GetRun
+              - devicefarm:GetUpload
+              - devicefarm:CreateUpload
+              - devicefarm:ScheduleRun
+            Resource: "*"
+      - PolicyName: ECR
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - ecr:DescribeImages
+            Resource: "*"
+      - PolicyName: States
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - states:DescribeExecution
+              - states:DescribeStateMachine
+              - states:StartExecution
+            Resource: "*"
+      - PolicyName: Deployments
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
           - Effect: Allow
             Action:
               - appconfig:StartDeployment
-              - opsworks:DescribeStacks
-              - devicefarm:GetRun
-              - states:DescribeStateMachine
-              - cloudformation:CreateChangeSet
-              - codebuild:BatchGetBuilds
-              - devicefarm:ScheduleRun
-              - servicecatalog:ListProvisioningArtifacts
-              - devicefarm:ListDevicePools              
-              - cloudformation:UpdateStack
-              - servicecatalog:DescribeProvisioningArtifact
-              - cloudformation:DescribeChangeSet
-              - cloudformation:ExecuteChangeSet
-              - devicefarm:ListProjects
-              - cloudformation:*
-              - opsworks:DescribeDeployments
-              - devicefarm:CreateUpload
-              - cloudformation:DescribeStacks
-              - codecommit:GetUploadArchiveStatus
-              - codecommit:GetRepository
-              - cloudwatch:*
-              - states:DescribeExecution
-              - opsworks:DescribeInstances
-              - ecr:DescribeImages
-              - ecs:*
-              - ec2:*
-              - codebuild:StartBuild
-              - cloudformation:ValidateTemplate
-              - opsworks:DescribeApps
-              - opsworks:UpdateStack
-              - codebuild:BatchGetBuildBatches
-              - codedeploy:CreateDeployment
-              - codedeploy:GetApplicationRevision
-              - codedeploy:GetDeploymentConfig                
-              - servicecatalog:CreateProvisioningArtifact
-              - cloudformation:DeleteChangeSet
-              - codecommit:GetCommit
-              - servicecatalog:DeleteProvisioningArtifact
-              - codedeploy:GetApplication"
-              - cloudformation:SetStackPolicy
-              - codecommit:UploadArchive
-              - s3:*
-              - appconfig:GetDeployment
-              - codecommit:CancelUploadArchive
-              - devicefarm:GetUpload
               - appconfig:StopDeployment
-              - opsworks:UpdateApp
-              - opsworks:CreateDeployment
-              - cloudformation:CreateStack
-              - codecommit:GetBranch
-              - codebuild:StartBuildBatch
-              - servicecatalog:UpdateProduct
-              - codedeploy:GetDeployment
-              - opsworks:DescribeCommands
-              - states:StartExecution
-            Resource: "*"
+              - appconfig:GetDeployment
+            Resource: "*"      
       - PolicyName: InvokeLambda
         PolicyDocument:
           Version: '2012-10-17'
