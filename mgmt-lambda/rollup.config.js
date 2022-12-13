@@ -1,19 +1,15 @@
 import typescript from '@rollup/plugin-typescript'
 import jsonPlugin from '@rollup/plugin-json'
 import external from 'rollup-plugin-peer-deps-external'
-import licensePlugin from 'rollup-plugin-license'
 import dtsPlugin from 'rollup-plugin-dts'
-import replace from '@rollup/plugin-replace'
-import { join } from 'path'
 const dotenv = require('dotenv')
 dotenv.config()
 
 const { dependencies = {} } = require('./package.json')
-const packageJson = require('./package.json')
 
 const inputFile = 'src/app.ts'
 const outputDirectory = 'dist'
-const artifactName = 'fingerprintjs-pro-cloudfront-lambda-function'
+const artifactName = 'fingerprintjs-pro-cloudfront-mgmt-lambda-function'
 
 const commonInput = {
   input: inputFile,
@@ -21,17 +17,11 @@ const commonInput = {
     jsonPlugin(),
     typescript(),
     external(),
-    replace({
-      __FPCDN__: process.env.FPCDN,
-      __INGRESS_API__: process.env.INGRESS_API,
-      __lambda_func_version__: packageJson.version,
-      preventAssignment: true,
-    }),  
   ],
 }
 
 const commonOutput = {
-  name: 'fingerprintjs-pro-cloudfront-lambda-function',
+  name: 'fingerprintjs-pro-cloudfront-mgmt-lambda-function',
   exports: 'named',
 }
 
