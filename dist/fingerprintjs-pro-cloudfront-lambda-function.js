@@ -1,5 +1,5 @@
 /**
- * FingerprintJS Pro CloudFront Lambda function v0.0.2 - Copyright (c) FingerprintJS, Inc, 2022 (https://fingerprint.com)
+ * FingerprintJS Pro CloudFront Lambda function v0.0.3 - Copyright (c) FingerprintJS, Inc, 2022 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
 
@@ -163,7 +163,7 @@ function getQueryParameter(request, key) {
     return undefined;
 }
 
-const LAMBDA_FUNC_VERSION = '0.0.2';
+const LAMBDA_FUNC_VERSION = '0.0.3';
 const PARAM_NAME = 'ii';
 function addTrafficMonitoringSearchParamsForProCDN(url) {
     url.searchParams.append(PARAM_NAME, getTrafficMonitoringValue('procdn'));
@@ -179,7 +179,7 @@ function downloadAgent(options) {
     return new Promise((resolve) => {
         const data = [];
         const url = new URL('https://fpcdn.io');
-        url.pathname = getEndpoint(options.apiKey, options.loaderVersion);
+        url.pathname = getEndpoint(options.apiKey, options.version, options.loaderVersion);
         addTrafficMonitoringSearchParamsForProCDN(url);
         const request = https__default["default"].request(url, {
             method: options.method,
@@ -215,9 +215,9 @@ function downloadAgent(options) {
         request.end();
     });
 }
-function getEndpoint(apiKey, loaderVersion) {
+function getEndpoint(apiKey, version, loaderVersion) {
     const lv = loaderVersion !== undefined && loaderVersion !== '' ? `/loader_v${loaderVersion}.js` : '';
-    return `/v3/${apiKey}${lv}`;
+    return `/v${version}/${apiKey}${lv}`;
 }
 
 function handleResult(options) {
@@ -314,7 +314,7 @@ async function getEnvInfo(customerVariables) {
 }
 async function handleStatus(customerVariables) {
     const body = {
-        version: '0.0.2',
+        version: '0.0.3',
         envInfo: await getEnvInfo(customerVariables),
     };
     return {

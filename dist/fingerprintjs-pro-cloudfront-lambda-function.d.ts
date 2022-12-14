@@ -1,5 +1,5 @@
 /**
- * FingerprintJS Pro CloudFront Lambda function v0.0.2 - Copyright (c) FingerprintJS, Inc, 2022 (https://fingerprint.com)
+ * FingerprintJS Pro CloudFront Lambda function v0.0.3 - Copyright (c) FingerprintJS, Inc, 2022 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
 

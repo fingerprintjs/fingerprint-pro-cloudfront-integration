@@ -1,0 +1,5 @@
+name: lambda
+description: A minimal TypeScript Pulumi program
+runtime: nodejs
+backend:
+  url: file://.

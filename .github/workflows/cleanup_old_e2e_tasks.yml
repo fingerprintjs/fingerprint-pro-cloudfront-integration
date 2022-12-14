@@ -1,0 +1,43 @@
+name: Cleanup old e2e tasks
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * *'
+
+jobs:
+  run-cleanup-old-e2e-tasks:
+    runs-on: ubuntu-20.04
+    name: Clean old tasks
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: e2e-tests
+
+      - name: Set git settings
+        uses: fregante/setup-git-user@2e28d51939d2a84005a917d2f844090637f435f8
+
+      - name: Cleanup old artifacts
+        shell: bash
+        run: |
+          now=`date +%s`
+          re='([0-9]{4}-[0-9]{2}-[0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2})'
+          for name in *; do
+            if [ -d "$name" ] && [ ! -L "$name" ] && [[ $name =~ $re ]]; then
+              normalized_date="${BASH_REMATCH[1]} ${BASH_REMATCH[2]}:${BASH_REMATCH[3]}:${BASH_REMATCH[4]}"
+              folder_date=`date -d "$normalized_date" +%s`
+              diff=$(($now - $folder_date))
+              if [ $diff -gt 84600 ]; then
+                rm -rf ./${name}
+                echo "deleted: $name"
+              fi
+            fi
+          done
+
+      - name: commit changes
+        run: |
+          git add .
+          git status
+          git commit -m "chore: cleanup old e2e tasks"
+          git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
