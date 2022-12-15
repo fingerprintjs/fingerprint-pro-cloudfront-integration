@@ -279,7 +279,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-      Handler: index.handler
+      Handler: fingerprintjs-pro-cloudfront-lambda-function.handler
       Runtime: nodejs16.x
       CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip
       MemorySize: 128
@@ -348,9 +348,7 @@ Resources:
           phases:
             post_build:
               commands:
-                - ls -lah
-                - cp fingerprintjs-pro-cloudfront-lambda-function.js index.js
-                - zip -r lambda.zip index.js
+                - zip -r lambda.zip fingerprintjs-pro-cloudfront-lambda-function.js
                 - echo $LAMBDA_FUNCTION_NAME
                 - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://lambda.zip --publish
 
