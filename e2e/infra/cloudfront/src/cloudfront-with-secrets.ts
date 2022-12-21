@@ -29,6 +29,7 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
   ],
   comment: 'CloudFront for lambda e2e tests with customer variables stored in Secrets Manager',
   enabled: true,
+  priceClass: 'PriceClass_100',
   defaultRootObject: 'index.html',
   defaultCacheBehavior: {
     allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
