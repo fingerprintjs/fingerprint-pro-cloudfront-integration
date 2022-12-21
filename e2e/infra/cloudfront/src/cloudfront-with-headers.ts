@@ -33,6 +33,7 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
     },
   ],
   enabled: true,
+  priceClass: 'PriceClass_100',
   defaultRootObject: 'index.html',
   defaultCacheBehavior: {
     allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
