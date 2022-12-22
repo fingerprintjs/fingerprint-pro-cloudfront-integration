@@ -68,7 +68,7 @@ describe('test fpjs-headers preparation', () => {
     }
     const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req))
     expect(headers['fpjs-client-ip']).toBe('1.1.1.1')
-    expect(headers['fpjs-proxy-identification']).toBe('secret-is-not-defined')
+    expect(headers.hasOwnProperty('fpjs-proxy-identification')).toBeFalsy()
   })
 })
 

@@ -27,7 +27,10 @@ export async function prepareHeadersForIngressAPI(
   const headers = filterRequestHeaders(request)
 
   headers['fpjs-client-ip'] = request.clientIp
-  headers['fpjs-proxy-identification'] = (await getPreSharedSecret(variables)) || 'secret-is-not-defined'
+  const preSharedSecret = await getPreSharedSecret(variables)
+  if (preSharedSecret) {
+    headers['fpjs-proxy-identification'] = preSharedSecret
+  }
 
   return headers
 }
