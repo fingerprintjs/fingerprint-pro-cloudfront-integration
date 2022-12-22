@@ -2,9 +2,9 @@ export function adjustCookies(cookies: string[], domainName: string): string {
   const newCookies: string[] = []
   cookies.forEach((it) => {
     const parts: string[] = it.split(';')
-    
+
     parts.map((v: string) => {
-      const s = v.trim()      
+      const s = v.trim()
       const ind = s.indexOf('=')
       if (ind !== -1) {
         const key = s.substring(0, ind)
@@ -22,7 +22,7 @@ export function adjustCookies(cookies: string[], domainName: string): string {
   return newCookies.join('; ').trim()
 }
 
-export function filterCookie(cookie: string, filterPredicate: (key: string) => boolean): string {  
+export function filterCookie(cookie: string, filterPredicate: (key: string) => boolean): string {
   const newCookie: string[] = []
   const parts = cookie.split(';')
 
@@ -35,7 +35,7 @@ export function filterCookie(cookie: string, filterPredicate: (key: string) => b
       if (filterPredicate(key)) {
         newCookie.push(`${key}=${value}`)
       }
-    }    
+    }
   })
 
   return newCookie.join('; ').trim()

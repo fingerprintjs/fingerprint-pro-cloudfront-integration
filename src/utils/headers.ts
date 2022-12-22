@@ -64,7 +64,7 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
         {
           key: name,
           value: headerValue.toString(),
-        }
+        },
       ]
     }
   }
@@ -73,8 +73,8 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
     resultHeaders[COOKIE_HEADER_NAME] = [
       {
         key: COOKIE_HEADER_NAME,
-        value: adjustCookies(headers[COOKIE_HEADER_NAME], domain)
-      }
+        value: adjustCookies(headers[COOKIE_HEADER_NAME], domain),
+      },
     ]
   }
 
@@ -82,8 +82,8 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
     resultHeaders[CACHE_CONTROL_HEADER_NAME] = [
       {
         key: CACHE_CONTROL_HEADER_NAME,
-        value: updateCacheControlHeader(headers[CACHE_CONTROL_HEADER_NAME])
-      }
+        value: updateCacheControlHeader(headers[CACHE_CONTROL_HEADER_NAME]),
+      },
     ]
   }
 
