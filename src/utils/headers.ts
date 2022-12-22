@@ -1,6 +1,6 @@
 import { CloudFrontHeaders, CloudFrontRequest } from 'aws-lambda'
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http'
-import { adjustCookies } from './cookie'
+import { adjustCookies, filterCookie } from './cookie'
 import { updateCacheControlHeader } from './cache-control'
 import { CustomerVariables } from './customer-variables/customer-variables'
 import { getPreSharedSecret } from './customer-variables/selectors'
@@ -45,6 +45,7 @@ export function filterRequestHeaders(request: CloudFrontRequest): OutgoingHttpHe
       let headerValue = value[0].value
       if (headerName === 'cookie') {
         headerValue = headerValue.split(/; */).join('; ')
+        headerValue = filterCookie(headerValue, (key) => key === '_iidt')
       }
 
       result[headerName] = headerValue

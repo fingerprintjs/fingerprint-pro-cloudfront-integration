@@ -113,7 +113,7 @@ describe('filterRequestHeaders', () => {
         cookie: [
           {
             key: 'cookie',
-            value: '_iidt,rGjGpiWkgQ,,;_iidt=7A03Gwg==;_vid_t=gEFRuIQlzYmv692/UL4GLA==',
+            value: '_iidt=7A03Gwg; _vid_t=gEFRuIQlzYmv692/UL4GLA==',
           },
         ],
       },
@@ -125,7 +125,7 @@ describe('filterRequestHeaders', () => {
     expect(headers.hasOwnProperty('transfer-encoding')).toBe(false)
     expect(headers.hasOwnProperty('via')).toBe(false)
     expect(headers['content-type']).toBe('application/json')
-    expect(headers['cookie']).toBe('_iidt,rGjGpiWkgQ,,; _iidt=7A03Gwg==; _vid_t=gEFRuIQlzYmv692/UL4GLA==')
+    expect(headers['cookie']).toBe('_iidt=7A03Gwg')
   })
 })
 
