@@ -20,7 +20,7 @@ phases:
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
       - yarn install && yarn install --cwd=infra && yarn install --cwd=website && yarn install --cwd=tests
-      - npx playwright install --with-deps
+      - cd tests && npx playwright install --with-deps && cd ..
   pre_build:
     commands:
       - pwd
