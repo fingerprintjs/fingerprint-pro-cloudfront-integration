@@ -5,9 +5,14 @@ import fetch from 'node-fetch'
 
 const stackPath = path.resolve(__dirname, '../../infra/cloudfront')
 
-interface CloudfrontUrls {
+export interface CloudfrontUrls {
   cloudfrontWithHeadersUrl: string
   cloudfrontWithSecretsUrl: string
+}
+
+export const urlTypeCustomerVariableSourceMap: Record<keyof CloudfrontUrls, string> = {
+  cloudfrontWithHeadersUrl: 'HeaderCustomerVariables',
+  cloudfrontWithSecretsUrl: 'SecretsManagerVariables',
 }
 
 let cachedOutput: CloudfrontUrls | undefined

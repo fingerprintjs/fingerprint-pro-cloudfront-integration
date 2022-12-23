@@ -1,13 +1,14 @@
-import { expect, test } from '@playwright/test'
+import { expect } from '@playwright/test'
 import { waitForCloudfront } from '../cloudfront'
 import { isRequestIdValid } from '../utils/areVisitorIdAndRequestIdValid'
+import { cloudfrontTest } from '../cloudfrontTest'
 
-test.describe('visitorId', () => {
-  test.beforeEach(async () => {
+cloudfrontTest.describe('visitorId', () => {
+  cloudfrontTest.beforeEach(async () => {
     await waitForCloudfront()
   })
 
-  test(`should show correct visitorId`, async ({ page }) => {
+  cloudfrontTest(`should show correct visitorId`, async ({ page }) => {
     await page.goto('/', {
       waitUntil: 'networkidle',
     })
