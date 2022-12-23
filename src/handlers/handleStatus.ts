@@ -3,10 +3,11 @@ import { CustomerVariables } from '../utils/customer-variables/customer-variable
 import { CustomerVariableType, CustomerVariableValue } from '../utils/customer-variables/types'
 import { maybeObfuscateVariable } from '../utils/customer-variables/maybe-obfuscate-variable'
 
-interface EnvVarInfo {
+export interface EnvVarInfo {
   envVarName: string
   value: CustomerVariableValue
   isSet: boolean
+  resolvedBy: string | null
 }
 
 async function getEnvInfo(customerVariables: CustomerVariables) {
@@ -16,8 +17,9 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
 
       return {
         envVarName: variable,
-        value,
+        value: value.value,
         isSet: Boolean(value),
+        resolvedBy: value.resolvedBy,
       }
     }),
   )
