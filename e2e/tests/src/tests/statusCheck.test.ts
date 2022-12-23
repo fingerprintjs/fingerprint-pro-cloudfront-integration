@@ -6,7 +6,11 @@ import { cloudfrontTest } from '../cloudfrontTest'
 cloudfrontTest.describe('Status check', () => {
   cloudfrontTest(
     'should return correct status info',
-    async ({ page, customerVariableSource: expectedCustomerVariableSource }) => {
+    async ({ page, customerVariableSource: expectedCustomerVariableSource, urlType }) => {
+      if (urlType === 'cloudfrontWithoutVariables') {
+        cloudfrontTest.skip()
+      }
+
       await page.goto('/fpjs/status', {
         waitUntil: 'networkidle',
       })

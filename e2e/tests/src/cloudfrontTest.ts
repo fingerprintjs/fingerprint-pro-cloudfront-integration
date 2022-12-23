@@ -4,7 +4,7 @@ import { extractUrlTypeFromProjectName } from './project'
 
 export const cloudfrontTest = test.extend<{
   urlType: keyof CloudfrontUrls
-  customerVariableSource: string
+  customerVariableSource: string | null
 }>({
   urlType: async ({}, use, testInfo) => {
     const urlType = extractUrlTypeFromProjectName(testInfo.project.name)

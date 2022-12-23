@@ -8,11 +8,13 @@ const stackPath = path.resolve(__dirname, '../../infra/cloudfront')
 export interface CloudfrontUrls {
   cloudfrontWithHeadersUrl: string
   cloudfrontWithSecretsUrl: string
+  cloudfrontWithoutVariables: string
 }
 
-export const urlTypeCustomerVariableSourceMap: Record<keyof CloudfrontUrls, string> = {
+export const urlTypeCustomerVariableSourceMap: Record<keyof CloudfrontUrls, string | null> = {
   cloudfrontWithHeadersUrl: 'HeaderCustomerVariables',
   cloudfrontWithSecretsUrl: 'SecretsManagerVariables',
+  cloudfrontWithoutVariables: null,
 }
 
 let cachedOutput: CloudfrontUrls | undefined
@@ -24,6 +26,7 @@ export function getCloudfrontUrls() {
     cachedOutput = {
       cloudfrontWithHeadersUrl: `https://${output.cloudfrontWithHeadersUrl}`,
       cloudfrontWithSecretsUrl: `https://${output.cloudfrontWithSecretsUrl}`,
+      cloudfrontWithoutVariables: `https://${output.cloudfrontWithoutVariables}`,
     }
   }
 
