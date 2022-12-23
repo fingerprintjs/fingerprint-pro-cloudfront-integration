@@ -1,6 +1,7 @@
 import type { PlaywrightTestConfig } from '@playwright/test'
 import { devices } from '@playwright/test'
-import { getCloudfrontUrls } from './src/cloudfront'
+import { CloudfrontUrls, getCloudfrontUrls } from './src/cloudfront'
+import { getProjectName } from './src/project'
 
 /**
  * Read environment variables from file.
@@ -47,7 +48,7 @@ const config: PlaywrightTestConfig = {
 
   /* Configure projects for major browsers */
   projects: cloudfrontUrls.map(([name, url]) => ({
-    name: `chromium-${name}`,
+    name: getProjectName('chromium', name as keyof CloudfrontUrls),
     use: {
       ...devices['Desktop Chrome'],
       baseURL: url,

@@ -10,6 +10,11 @@ export interface EnvVarInfo {
   resolvedBy: string | null
 }
 
+export interface StatusInfo {
+  version: string
+  envInfo: EnvVarInfo[]
+}
+
 async function getEnvInfo(customerVariables: CustomerVariables) {
   const infoArray: EnvVarInfo[] = await Promise.all(
     Object.values(CustomerVariableType).map(async (variable) => {
@@ -28,7 +33,7 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
 }
 
 export async function handleStatus(customerVariables: CustomerVariables): Promise<CloudFrontResultResponse> {
-  const body = {
+  const body: StatusInfo = {
     version: '__lambda_func_version__',
     envInfo: await getEnvInfo(customerVariables),
   }
