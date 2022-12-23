@@ -15,21 +15,25 @@ describe('Handle status', () => {
           {
             "envVarName": "fpjs_behavior_path",
             "isSet": true,
+            "resolvedBy": "test provider",
             "value": "behaviour",
           },
           {
             "envVarName": "fpjs_get_result_path",
             "isSet": true,
+            "resolvedBy": "test provider",
             "value": "result",
           },
           {
             "envVarName": "fpjs_pre_shared_secret",
             "isSet": true,
+            "resolvedBy": "test provider",
             "value": "********",
           },
           {
             "envVarName": "fpjs_agent_download_path",
             "isSet": true,
+            "resolvedBy": "test provider",
             "value": "download",
           },
         ],
@@ -51,21 +55,25 @@ describe('Handle status', () => {
           {
             "envVarName": "fpjs_behavior_path",
             "isSet": true,
+            "resolvedBy": "test provider",
             "value": "behaviour",
           },
           {
             "envVarName": "fpjs_get_result_path",
             "isSet": true,
+            "resolvedBy": "test provider",
             "value": "result",
           },
           {
             "envVarName": "fpjs_pre_shared_secret",
-            "isSet": false,
+            "isSet": true,
+            "resolvedBy": null,
             "value": null,
           },
           {
             "envVarName": "fpjs_agent_download_path",
             "isSet": true,
+            "resolvedBy": "test provider",
             "value": "download",
           },
         ],
@@ -87,21 +95,25 @@ describe('Handle status', () => {
           {
             "envVarName": "fpjs_behavior_path",
             "isSet": true,
+            "resolvedBy": null,
             "value": "fpjs",
           },
           {
             "envVarName": "fpjs_get_result_path",
             "isSet": true,
+            "resolvedBy": "test provider",
             "value": "result",
           },
           {
             "envVarName": "fpjs_pre_shared_secret",
             "isSet": true,
+            "resolvedBy": "test provider",
             "value": "********",
           },
           {
             "envVarName": "fpjs_agent_download_path",
             "isSet": true,
+            "resolvedBy": "test provider",
             "value": "download",
           },
         ],
