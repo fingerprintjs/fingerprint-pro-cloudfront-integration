@@ -1,6 +1,6 @@
 import { CloudFrontHeaders, CloudFrontRequest } from 'aws-lambda'
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http'
-import { updateCookie } from './cookie'
+import { adjustCookies, filterCookie } from './cookie'
 import { updateCacheControlHeader } from './cache-control'
 import { CustomerVariables } from './customer-variables/customer-variables'
 import { getPreSharedSecret } from './customer-variables/selectors'
@@ -9,14 +9,15 @@ const ALLOWED_RESPONSE_HEADERS = [
   'access-control-allow-credentials',
   'access-control-allow-origin',
   'access-control-expose-headers',
-  'cache-control',
   'content-encoding',
   'content-type',
   'cross-origin-resource-policy',
   'etag',
-  'set-cookie',
   'vary',
 ]
+
+const COOKIE_HEADER_NAME = 'set-cookie'
+const CACHE_CONTROL_HEADER_NAME = 'cache-control'
 
 const BLACKLISTED_REQUEST_HEADERS = ['content-length', 'host', 'transfer-encoding', 'via']
 
@@ -27,7 +28,10 @@ export async function prepareHeadersForIngressAPI(
   const headers = filterRequestHeaders(request)
 
   headers['fpjs-client-ip'] = request.clientIp
-  headers['fpjs-proxy-identification'] = (await getPreSharedSecret(variables)) || 'secret-is-not-defined'
+  const preSharedSecret = await getPreSharedSecret(variables)
+  if (preSharedSecret) {
+    headers['fpjs-proxy-identification'] = preSharedSecret
+  }
 
   return headers
 }
@@ -41,6 +45,7 @@ export function filterRequestHeaders(request: CloudFrontRequest): OutgoingHttpHe
       let headerValue = value[0].value
       if (headerName === 'cookie') {
         headerValue = headerValue.split(/; */).join('; ')
+        headerValue = filterCookie(headerValue, (key) => key === '_iidt')
       }
 
       result[headerName] = headerValue
@@ -54,22 +59,32 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
 
   for (const name of ALLOWED_RESPONSE_HEADERS) {
     const headerValue = headers[name]
-
-    if (headerValue !== undefined) {
-      let value = Array.isArray(headerValue) ? headerValue.join('; ') : headerValue
-      if (name === 'set-cookie') {
-        value = updateCookie(value, domain)
-      } else if (name === 'cache-control') {
-        value = updateCacheControlHeader(value)
-      }
-
+    if (headerValue) {
       resultHeaders[name] = [
         {
           key: name,
-          value: value,
+          value: headerValue.toString(),
         },
       ]
     }
+  }
+
+  if (headers[COOKIE_HEADER_NAME] !== undefined) {
+    resultHeaders[COOKIE_HEADER_NAME] = [
+      {
+        key: COOKIE_HEADER_NAME,
+        value: adjustCookies(headers[COOKIE_HEADER_NAME], domain),
+      },
+    ]
+  }
+
+  if (headers[CACHE_CONTROL_HEADER_NAME] !== undefined) {
+    resultHeaders[CACHE_CONTROL_HEADER_NAME] = [
+      {
+        key: CACHE_CONTROL_HEADER_NAME,
+        value: updateCacheControlHeader(headers[CACHE_CONTROL_HEADER_NAME]),
+      },
+    ]
   }
 
   return resultHeaders
