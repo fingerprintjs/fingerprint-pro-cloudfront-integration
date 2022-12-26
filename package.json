@@ -17,7 +17,8 @@
     "dist"
   ],
   "dependencies": {
-    "aws-sdk": "^2.1234.0"
+    "aws-sdk": "^2.1234.0",
+    "punycode": "^2.1.1"
   },
   "devDependencies": {
     "@rollup/plugin-json": "^4.1.0",
@@ -26,6 +27,7 @@
     "@types/aws-lambda": "^8.10.107",
     "@types/jest": "^29.2.0",
     "@types/node": "^18.11.9",
+    "@types/punycode": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
     "dotenv": "^16.0.3",
