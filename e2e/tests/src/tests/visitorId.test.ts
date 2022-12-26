@@ -3,7 +3,6 @@ import { waitForCloudfront } from '../cloudfront'
 import { isRequestIdValid } from '../utils/areVisitorIdAndRequestIdValid'
 import { cloudfrontTest } from '../cloudfrontTest'
 import { trackRequests } from '../utils/playwright'
-import { version } from '../../../../package.json'
 
 async function checkResponse(page: Page) {
   const response = await page.waitForSelector('#response pre').then((element) => element.textContent())
@@ -74,6 +73,7 @@ cloudfrontTest.describe('visitorId', () => {
 
     const apiRequestUrl = new URL(apiRequest.url())
     expect(apiRequestUrl.hostname).toBe(rootUrl.hostname)
-    expect(apiRequestUrl.searchParams.get('ii')).toEqual(`fingerprintjs-pro-cloudfront/${version}/procdn`)
+    expect(apiRequestUrl.searchParams.get('ii')).toContain(`fingerprintjs-pro-cloudfront/`)
+    expect(apiRequestUrl.searchParams.get('ii')).toContain(`/procdn`)
   })
 })

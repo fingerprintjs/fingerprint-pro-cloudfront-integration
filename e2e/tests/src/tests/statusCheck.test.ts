@@ -1,6 +1,5 @@
 import { expect } from '@playwright/test'
 import { StatusInfo } from '../../../../src/handlers/handleStatus'
-import { OBFUSCATED_VALUE } from '../../../../src/utils/customer-variables/maybe-obfuscate-variable'
 import { cloudfrontTest } from '../cloudfrontTest'
 
 cloudfrontTest.describe('Status check', () => {
@@ -30,7 +29,7 @@ cloudfrontTest.describe('Status check', () => {
         expect(typeof env.envVarName).toBe('string')
 
         if (env.envVarName === 'fpjs_pre_shared_secret') {
-          expect(env.value).toBe(OBFUSCATED_VALUE)
+          expect(env.value).toBe('********')
         }
       })
     },
