@@ -25,6 +25,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
 
         response.on('end', () => {
           const payload = Buffer.concat(data)
+
           resolve({
             status: response.statusCode ? response.statusCode.toString() : '500',
             statusDescription: response.statusMessage,
