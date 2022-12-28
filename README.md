@@ -20,7 +20,7 @@
   <img src="https://img.shields.io/discord/852099967190433792?style=logo&label=Discord&logo=Discord&logoColor=white" alt="Discord server">
 </a>
 
-# fingerprint-pro-cloudfront-integration
+# Fingerprint Pro CloudFront Integration
 
 Fingerprint Pro CloudFront Integration is responsible for proxying identification and agent-download requests that are performed on your AWS infrastructure.
 
