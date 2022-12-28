@@ -1,15 +1,119 @@
 import { getInMemoryCustomerVariables } from '../utils/customer-variables/in-memory-customer-variables'
-import { handleStatus } from '../../src/handlers'
 import { CustomerVariableType } from '../../src/utils/customer-variables/types'
+import { getStatusInfo, handleStatus } from '../../src/handlers/handleStatus'
 
 describe('Handle status', () => {
-  it('returns correct response with all variables set', async () => {
+  it('returns correct status info in html if all variables are set', async () => {
     const { customerVariables } = getInMemoryCustomerVariables()
 
     const result = await handleStatus(customerVariables)
-    const body = JSON.parse(result.body ?? '')
 
-    expect(body).toMatchInlineSnapshot(`
+    expect(result.headers).toEqual({
+      'content-type': [{ key: 'Content-Type', value: 'text/html' }],
+    })
+
+    expect(result.body).toMatchInlineSnapshot(`
+      "
+          <html lang="en-US">
+            <head>
+              <title>CloudFront integration status</title>
+              <meta charset="utf-8">
+              <style>
+                body, .env-info {
+                  display: flex;
+                }
+                
+                body {
+                  flex-direction: column;
+                  align-items: center;
+                }
+                
+                body > * {
+                  margin-bottom: 1em;
+                }
+              </style>
+            </head>
+            <body>
+              <h1>CloudFront integration status</h1>
+              <div>
+                Lambda function version: __lambda_func_version__
+              </div>
+              
+            <div>
+              ✅ All environment variables are set
+            </div>
+          
+                <span>
+                  Please reach out our support via <a href="mailto:support@fingerprint.com">support@fingerprint.com</a> if you have any issues
+                </span>
+            </body>
+          </html>
+        "
+    `)
+  })
+
+  it('returns correct status info in html if some variables are missing', async () => {
+    const { customerVariables, variables } = getInMemoryCustomerVariables()
+
+    variables.fpjs_pre_shared_secret = null
+
+    const result = await handleStatus(customerVariables)
+
+    expect(result.headers).toEqual({
+      'content-type': [{ key: 'Content-Type', value: 'text/html' }],
+    })
+
+    expect(result.body).toMatchInlineSnapshot(`
+      "
+          <html lang="en-US">
+            <head>
+              <title>CloudFront integration status</title>
+              <meta charset="utf-8">
+              <style>
+                body, .env-info {
+                  display: flex;
+                }
+                
+                body {
+                  flex-direction: column;
+                  align-items: center;
+                }
+                
+                body > * {
+                  margin-bottom: 1em;
+                }
+              </style>
+            </head>
+            <body>
+              <h1>CloudFront integration status</h1>
+              <div>
+                Lambda function version: __lambda_func_version__
+              </div>
+              
+          <div class="env-info">
+            
+              <div class="env-info-item">
+                  ⚠️ <strong>fpjs_pre_shared_secret </strong> is not defined
+              </div>
+          </div>
+        
+                <span>
+                  Please reach out our support via <a href="mailto:support@fingerprint.com">support@fingerprint.com</a> if you have any issues
+                </span>
+            </body>
+          </html>
+        "
+    `)
+  })
+})
+
+describe('Get status info', () => {
+  it('returns correct status info', async () => {
+    const { customerVariables } = getInMemoryCustomerVariables()
+
+    const result = await getStatusInfo(customerVariables)
+
+    expect(result).toMatchInlineSnapshot(`
       {
         "envInfo": [
           {
@@ -46,10 +150,9 @@ describe('Handle status', () => {
     const { customerVariables, variables } = getInMemoryCustomerVariables()
     variables[CustomerVariableType.PreSharedSecret] = null
 
-    const result = await handleStatus(customerVariables)
-    const body = JSON.parse(result.body ?? '')
+    const result = await getStatusInfo(customerVariables)
 
-    expect(body).toMatchInlineSnapshot(`
+    expect(result).toMatchInlineSnapshot(`
       {
         "envInfo": [
           {
@@ -86,10 +189,9 @@ describe('Handle status', () => {
     const { customerVariables, variables } = getInMemoryCustomerVariables()
     variables[CustomerVariableType.BehaviourPath] = null
 
-    const result = await handleStatus(customerVariables)
-    const body = JSON.parse(result.body ?? '')
+    const result = await getStatusInfo(customerVariables)
 
-    expect(body).toMatchInlineSnapshot(`
+    expect(result).toMatchInlineSnapshot(`
       {
         "envInfo": [
           {

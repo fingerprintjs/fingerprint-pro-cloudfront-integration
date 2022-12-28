@@ -32,14 +32,83 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
   return infoArray
 }
 
-export async function handleStatus(customerVariables: CustomerVariables): Promise<CloudFrontResultResponse> {
-  const body: StatusInfo = {
+function renderEnvInfo(envInfo: EnvVarInfo[]) {
+  const isAlSet = envInfo.every((info) => info.isSet)
+
+  if (isAlSet) {
+    return `
+      <div>
+        ✅ All environment variables are set
+      </div>
+    `
+  }
+
+  const children = envInfo
+    .filter((info) => !info.isSet)
+    .map(
+      (info) => `
+        <div class="env-info-item">
+            ⚠️ <strong>${info.envVarName} </strong> is not defined
+        </div>`,
+    )
+
+  return `
+    <div class="env-info">
+      ${children.join('')}
+    </div>
+  `
+}
+
+function renderHtml({ version, envInfo }: StatusInfo) {
+  return `
+    <html lang="en-US">
+      <head>
+        <title>CloudFront integration status</title>
+        <meta charset="utf-8">
+        <style>
+          body, .env-info {
+            display: flex;
+          }
+          
+          body {
+            flex-direction: column;
+            align-items: center;
+          }
+          
+          body > * {
+            margin-bottom: 1em;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>CloudFront integration status</h1>
+        <div>
+          Lambda function version: ${version}
+        </div>
+        ${renderEnvInfo(envInfo)}
+          <span>
+            Please reach out our support via <a href="mailto:support@fingerprint.com">support@fingerprint.com</a> if you have any issues
+          </span>
+      </body>
+    </html>
+  `
+}
+
+export async function getStatusInfo(customerVariables: CustomerVariables): Promise<StatusInfo> {
+  return {
     version: '__lambda_func_version__',
     envInfo: await getEnvInfo(customerVariables),
   }
+}
+
+export async function handleStatus(customerVariables: CustomerVariables): Promise<CloudFrontResultResponse> {
+  const body = await getStatusInfo(customerVariables)
 
   return {
     status: '200',
-    body: JSON.stringify(body),
+    body: renderHtml(body),
+    headers: {
+      'content-type': [{ key: 'Content-Type', value: 'text/html' }],
+    },
   }
 }
