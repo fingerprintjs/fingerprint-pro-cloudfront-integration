@@ -7,6 +7,7 @@ export interface EnvVarInfo {
   envVarName: string
   value: CustomerVariableValue
   isSet: boolean
+  // If null, the variable was resolved with the default value, otherwise it was resolved by the provider with the given name
   resolvedBy: string | null
 }
 
@@ -33,7 +34,7 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
 }
 
 function renderEnvInfo(envInfo: EnvVarInfo[]) {
-  const isAlSet = envInfo.every((info) => info.isSet)
+  const isAlSet = envInfo.every((info) => info.isSet && info.resolvedBy)
 
   if (isAlSet) {
     return `
@@ -44,11 +45,11 @@ function renderEnvInfo(envInfo: EnvVarInfo[]) {
   }
 
   const children = envInfo
-    .filter((info) => !info.isSet)
+    .filter((info) => !info.isSet || !info.resolvedBy)
     .map(
       (info) => `
         <div class="env-info-item">
-            ⚠️ <strong>${info.envVarName} </strong> is not defined
+            ⚠️ <strong>${info.envVarName} </strong> is not defined${info.isSet ? ' and uses default value' : ''}
         </div>`,
     )
 
@@ -106,7 +107,7 @@ export async function handleStatus(customerVariables: CustomerVariables): Promis
 
   return {
     status: '200',
-    body: renderHtml(body),
+    body: renderHtml(body).trim(),
     headers: {
       'content-type': [{ key: 'Content-Type', value: 'text/html' }],
     },
