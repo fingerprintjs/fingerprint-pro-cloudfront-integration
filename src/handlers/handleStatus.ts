@@ -23,7 +23,7 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
       return {
         envVarName: variable,
         value: value.value,
-        isSet: Boolean(value),
+        isSet: Boolean(value.value),
         resolvedBy: value.resolvedBy,
       }
     }),
