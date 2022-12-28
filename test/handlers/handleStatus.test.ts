@@ -66,7 +66,7 @@ describe('Handle status', () => {
           },
           {
             "envVarName": "fpjs_pre_shared_secret",
-            "isSet": true,
+            "isSet": false,
             "resolvedBy": null,
             "value": null,
           },
