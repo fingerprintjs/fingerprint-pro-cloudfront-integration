@@ -1,37 +1,19 @@
 import { expect } from '@playwright/test'
-import { StatusInfo } from '../../../../src/handlers/handleStatus'
 import { cloudfrontTest } from '../cloudfrontTest'
 
 cloudfrontTest.describe('Status check', () => {
-  cloudfrontTest(
-    'should return correct status info',
-    async ({ page, customerVariableSource: expectedCustomerVariableSource, urlType }) => {
-      if (urlType === 'cloudfrontWithoutVariables') {
-        cloudfrontTest.skip()
-      }
+  cloudfrontTest('should return correct status info', async ({ page, urlType }) => {
+    await page.goto('/fpjs/status', {
+      waitUntil: 'networkidle',
+    })
 
-      await page.goto('/fpjs/status', {
-        waitUntil: 'networkidle',
-      })
+    if (urlType === 'cloudfrontWithoutVariables') {
+      // Assert that there are warnings for every missing variable (should be 4 of them)
+      const envItems = await page.$$('.env-info-item')
 
-      const json = (await page.evaluate(() => {
-        return JSON.parse(document.body.textContent ?? '')
-      })) as StatusInfo
-
-      expect(json).toBeTruthy()
-      expect(typeof json.version).toBe('string')
-      expect(json.envInfo).toBeTruthy()
-
-      json.envInfo.forEach((env) => {
-        expect(env.isSet).toBe(true)
-        expect(env.value).toBeTruthy()
-        expect(env.resolvedBy).toBe(expectedCustomerVariableSource)
-        expect(typeof env.envVarName).toBe('string')
-
-        if (env.envVarName === 'fpjs_pre_shared_secret') {
-          expect(env.value).toBe('********')
-        }
-      })
-    },
-  )
+      expect(envItems).toHaveLength(4)
+    } else {
+      await expect(page.waitForSelector('text="✅ All environment variables are set"')).resolves.not.toThrow()
+    }
+  })
 })
