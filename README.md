@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/github/v/release/fingerprintjs/fingerprint-pro-cloudfront-integration" alt="Current NPM version">
 </a>
 <a href="https://fingerprintjs.github.io/fingerprint-pro-cloudfront-integration">
-  <img src="https://fingerprintjs.github.io/fingerprint-pro-cloudfront-integration/badges.csv" alt="coverage">
+  <img src="https://fingerprintjs.github.io/fingerprint-pro-cloudfront-integration/badges.svg" alt="coverage">
 </a>
 <a href="https://opensource.org/licenses/MIT">
   <img src="https://img.shields.io/:license-mit-blue.svg" alt="MIT license">
