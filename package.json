@@ -16,7 +16,8 @@
   "files": [
     "dist"
   ],
-  "dependencies": {    
+  "dependencies": {
+    "aws-sdk": "^2.1234.0",
     "punycode": "^2.1.1"
   },
   "devDependencies": {
@@ -31,7 +32,6 @@
     "@types/punycode": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
-    "aws-sdk": "^2.1234.0",
     "dotenv": "^16.0.3",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",

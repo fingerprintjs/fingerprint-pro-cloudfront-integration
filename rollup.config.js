@@ -9,7 +9,6 @@ import commonjs from '@rollup/plugin-commonjs'
 const dotenv = require('dotenv')
 dotenv.config()
 
-const { dependencies = {} } = require('./package.json')
 const packageJson = require('./package.json')
 
 const inputFile = 'src/app.ts'
@@ -29,11 +28,12 @@ const commonInput = {
   treeshake: {
     moduleSideEffects: false,
   },
-  plugins: [
+  external: ['aws-sdk', 'https'],
+  plugins: [    
     jsonPlugin(),
-    typescript(),
+    typescript(),    
     nodeResolve({ preferBuiltins: false }),
-    commonjs(),
+    commonjs({ include: /node_modules/ }),
     replace({
       __FPCDN__: process.env.FPCDN,
       __INGRESS_API__: process.env.INGRESS_API,
