@@ -25,15 +25,12 @@ const commonBanner = licensePlugin({
 
 const commonInput = {
   input: inputFile,
-  treeshake: {
-    moduleSideEffects: false,
-  },
   external: ['aws-sdk', 'https'],
   plugins: [    
     jsonPlugin(),
     typescript(),    
     nodeResolve({ preferBuiltins: false }),
-    commonjs({ include: /node_modules/ }),
+    commonjs(),
     replace({
       __FPCDN__: process.env.FPCDN,
       __INGRESS_API__: process.env.INGRESS_API,
