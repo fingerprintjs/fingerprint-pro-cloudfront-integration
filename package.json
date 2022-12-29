@@ -21,7 +21,9 @@
     "punycode": "^2.1.1"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-replace": "^5.0.1",
     "@rollup/plugin-typescript": "^9.0.2",
     "@types/aws-lambda": "^8.10.107",
@@ -40,7 +42,6 @@
     "rollup": "^2.70.1",
     "rollup-plugin-dts": "^5.0.0",
     "rollup-plugin-license": "^2.8.1",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
     "ts-jest": "^29.0.3",
     "tslib": "^2.4.1",
     "typescript": "^4.9.3",
