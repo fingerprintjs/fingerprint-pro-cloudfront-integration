@@ -12,6 +12,7 @@ import {
   getVersion,
   getApiKey,
   getLoaderVersion,
+  removeTrailingSlashes,
 } from './utils'
 import { getEffectiveTLDPlusOne } from './domain'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
@@ -28,7 +29,8 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
 
   const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request))
 
-  if (request.uri === (await getAgentUri(customerVariables))) {
+  const pathname = removeTrailingSlashes(request.uri)
+  if (pathname === (await getAgentUri(customerVariables))) {
     return downloadAgent({
       apiKey: getApiKey(request),
       version: getVersion(request),
@@ -37,7 +39,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       headers: filterRequestHeaders(request),
       domain: eTLDPlusOneDomain,
     })
-  } else if (request.uri === (await getResultUri(customerVariables))) {
+  } else if (pathname === (await getResultUri(customerVariables))) {
     return handleResult({
       region: getRegion(request),
       querystring: request.querystring,
@@ -46,7 +48,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       body: request.body?.data || '',
       domain: eTLDPlusOneDomain,
     })
-  } else if (request.uri === (await getStatusUri(customerVariables))) {
+  } else if (pathname === (await getStatusUri(customerVariables))) {
     return handleStatus(customerVariables)
   } else {
     return new Promise((resolve) =>
