@@ -5,6 +5,7 @@ import {
   addTrafficMonitoringSearchParamsForProCDN,
 } from './traffic'
 import { getAgentUri, getResultUri, getStatusUri } from './customer-variables/selectors'
+import { removeTrailingSlashes } from './routing'
 
 export {
   getAgentUri,
@@ -20,4 +21,5 @@ export {
   getRegion,
   addTrafficMonitoringSearchParamsForVisitorIdRequest,
   addTrafficMonitoringSearchParamsForProCDN,
+  removeTrailingSlashes,
 }
