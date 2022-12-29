@@ -8,7 +8,7 @@
   </a>
 <p align="center">
 <a href="https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration">
-  <img src="https://img.shields.io/github/v/release/fingerprintjs/fingerprint-pro-cloudfront-integration" alt="Current NPM version">
+  <img src="https://img.shields.io/github/v/release/fingerprintjs/fingerprint-pro-cloudfront-integration" alt="Current version">
 </a>
 <a href="https://fingerprintjs.github.io/fingerprint-pro-cloudfront-integration">
   <img src="https://fingerprintjs.github.io/fingerprint-pro-cloudfront-integration/badges.svg" alt="coverage">
