@@ -1,5 +1,5 @@
 /**
- * FingerprintJS Pro CloudFront Lambda function v0.0.3 - Copyright (c) FingerprintJS, Inc, 2022 (https://fingerprint.com)
+ * FingerprintJS Pro CloudFront Lambda function v0.0.4 - Copyright (c) FingerprintJS, Inc, 2022 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
 
@@ -14,25 +14,43 @@ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'defau
 
 var https__default = /*#__PURE__*/_interopDefaultLegacy(https);
 
-function updateCookie(cookieValue, domainName) {
-    const parts = cookieValue.split(';');
-    const updated = parts.map((it) => {
-        const s = it.trim();
-        const kv = s.split('=');
-        if (kv.length === 1) {
-            return s;
-        }
-        else {
-            if (kv[0].toLowerCase() === 'domain') {
-                kv[1] = domainName;
-                return `${kv[0]}=${kv[1]}`;
+function adjustCookies(cookies, domainName) {
+    const newCookies = [];
+    cookies.forEach((it) => {
+        const parts = it.split(';');
+        parts.map((v) => {
+            const s = v.trim();
+            const ind = s.indexOf('=');
+            if (ind !== -1) {
+                const key = s.substring(0, ind);
+                let value = s.substring(ind + 1);
+                if (key.toLowerCase() === 'domain') {
+                    value = domainName;
+                }
+                newCookies.push(`${key}=${value}`);
             }
             else {
-                return s;
+                newCookies.push(s);
+            }
+        });
+    });
+    return newCookies.join('; ').trim();
+}
+function filterCookie(cookie, filterPredicate) {
+    const newCookie = [];
+    const parts = cookie.split(';');
+    parts.forEach((it) => {
+        const s = it.trim();
+        const ind = s.indexOf('=');
+        if (ind !== -1) {
+            const key = s.substring(0, ind);
+            const value = s.substring(ind + 1);
+            if (filterPredicate(key)) {
+                newCookie.push(`${key}=${value}`);
             }
         }
     });
-    return updated.join('; ').trim();
+    return newCookie.join('; ').trim();
 }
 
 const CACHE_MAX_AGE = 3600;
@@ -64,31 +82,35 @@ var CustomerVariableType;
     CustomerVariableType["AgentDownloadPath"] = "fpjs_agent_download_path";
 })(CustomerVariableType || (CustomerVariableType = {}));
 
+const extractVariable = (result) => result.value;
 const getAgentUri = async (variables) => `/${await getBehaviorPath(variables)}/${await getAgentDownloadPath(variables)}`;
 const getResultUri = async (variables) => `/${await getBehaviorPath(variables)}/${await getResultPath(variables)}`;
 const getStatusUri = async (variables) => `/${await getBehaviorPath(variables)}/status`;
-const getAgentDownloadPath = async (variables) => variables.getVariable(CustomerVariableType.AgentDownloadPath);
-const getBehaviorPath = async (variables) => variables.getVariable(CustomerVariableType.BehaviourPath);
-const getResultPath = async (variables) => variables.getVariable(CustomerVariableType.GetResultPath);
-const getPreSharedSecret = async (variables) => variables.getVariable(CustomerVariableType.PreSharedSecret);
+const getAgentDownloadPath = async (variables) => variables.getVariable(CustomerVariableType.AgentDownloadPath).then(extractVariable);
+const getBehaviorPath = async (variables) => variables.getVariable(CustomerVariableType.BehaviourPath).then(extractVariable);
+const getResultPath = async (variables) => variables.getVariable(CustomerVariableType.GetResultPath).then(extractVariable);
+const getPreSharedSecret = async (variables) => variables.getVariable(CustomerVariableType.PreSharedSecret).then(extractVariable);
 
 const ALLOWED_RESPONSE_HEADERS = [
     'access-control-allow-credentials',
     'access-control-allow-origin',
     'access-control-expose-headers',
-    'cache-control',
     'content-encoding',
     'content-type',
     'cross-origin-resource-policy',
     'etag',
-    'set-cookie',
     'vary',
 ];
+const COOKIE_HEADER_NAME = 'set-cookie';
+const CACHE_CONTROL_HEADER_NAME = 'cache-control';
 const BLACKLISTED_REQUEST_HEADERS = ['content-length', 'host', 'transfer-encoding', 'via'];
 async function prepareHeadersForIngressAPI(request, variables) {
     const headers = filterRequestHeaders(request);
     headers['fpjs-client-ip'] = request.clientIp;
-    headers['fpjs-proxy-identification'] = (await getPreSharedSecret(variables)) || 'secret-is-not-defined';
+    const preSharedSecret = await getPreSharedSecret(variables);
+    if (preSharedSecret) {
+        headers['fpjs-proxy-identification'] = preSharedSecret;
+    }
     return headers;
 }
 const getHost = (request) => request.headers['host'][0].value;
@@ -99,6 +121,7 @@ function filterRequestHeaders(request) {
             let headerValue = value[0].value;
             if (headerName === 'cookie') {
                 headerValue = headerValue.split(/; */).join('; ');
+                headerValue = filterCookie(headerValue, (key) => key === '_iidt');
             }
             result[headerName] = headerValue;
         }
@@ -109,21 +132,30 @@ function updateResponseHeaders(headers, domain) {
     const resultHeaders = {};
     for (const name of ALLOWED_RESPONSE_HEADERS) {
         const headerValue = headers[name];
-        if (headerValue !== undefined) {
-            let value = Array.isArray(headerValue) ? headerValue.join('; ') : headerValue;
-            if (name === 'set-cookie') {
-                value = updateCookie(value, domain);
-            }
-            else if (name === 'cache-control') {
-                value = updateCacheControlHeader(value);
-            }
+        if (headerValue) {
             resultHeaders[name] = [
                 {
                     key: name,
-                    value: value,
+                    value: headerValue.toString(),
                 },
             ];
         }
+    }
+    if (headers[COOKIE_HEADER_NAME] !== undefined) {
+        resultHeaders[COOKIE_HEADER_NAME] = [
+            {
+                key: COOKIE_HEADER_NAME,
+                value: adjustCookies(headers[COOKIE_HEADER_NAME], domain),
+            },
+        ];
+    }
+    if (headers[CACHE_CONTROL_HEADER_NAME] !== undefined) {
+        resultHeaders[CACHE_CONTROL_HEADER_NAME] = [
+            {
+                key: CACHE_CONTROL_HEADER_NAME,
+                value: updateCacheControlHeader(headers[CACHE_CONTROL_HEADER_NAME]),
+            },
+        ];
     }
     return resultHeaders;
 }
@@ -154,16 +186,18 @@ const getRegion = (request) => {
 };
 function getQueryParameter(request, key) {
     const params = request.querystring.split('&');
+    console.info(`Attempting to extract ${key} from ${params}. Query string: ${request.querystring}`);
     for (let i = 0; i < params.length; i++) {
         const kv = params[i].split('=');
         if (kv[0] === key) {
+            console.info(`Found ${key} in ${params}: ${kv[1]}`);
             return kv[1];
         }
     }
     return undefined;
 }
 
-const LAMBDA_FUNC_VERSION = '0.0.3';
+const LAMBDA_FUNC_VERSION = '0.0.4';
 const PARAM_NAME = 'ii';
 function addTrafficMonitoringSearchParamsForProCDN(url) {
     url.searchParams.append(PARAM_NAME, getTrafficMonitoringValue('procdn'));
@@ -173,6 +207,10 @@ function addTrafficMonitoringSearchParamsForVisitorIdRequest(url) {
 }
 function getTrafficMonitoringValue(type) {
     return `fingerprintjs-pro-cloudfront/${LAMBDA_FUNC_VERSION}/${type}`;
+}
+
+function removeTrailingSlashes(str) {
+    return str.replace(/\/+$/, '');
 }
 
 function downloadAgent(options) {
@@ -222,6 +260,7 @@ function getEndpoint(apiKey, version, loaderVersion) {
 
 function handleResult(options) {
     return new Promise((resolve) => {
+        console.info('Handling result:', options);
         const data = [];
         const url = new URL(getIngressAPIHost(options.region));
         options.querystring.split('&').forEach((it) => {
@@ -229,6 +268,7 @@ function handleResult(options) {
             url.searchParams.append(kv[0], kv[1]);
         });
         addTrafficMonitoringSearchParamsForVisitorIdRequest(url);
+        console.info('Performing request', url.toString());
         const request = https__default["default"].request(url, {
             method: options.method,
             headers: options.headers,
@@ -236,6 +276,7 @@ function handleResult(options) {
             response.on('data', (chunk) => data.push(chunk));
             response.on('end', () => {
                 const payload = Buffer.concat(data);
+                console.info('Response from Ingress API', response.statusCode, payload.toString('utf-8'));
                 resolve({
                     status: response.statusCode ? response.statusCode.toString() : '500',
                     statusDescription: response.statusMessage,
@@ -294,11 +335,11 @@ function getIngressAPIHost(region) {
 
 const OBFUSCATED_VALUE = '********';
 async function maybeObfuscateVariable(customerVariables, variable) {
-    let value = await customerVariables.getVariable(variable);
-    if (variable === CustomerVariableType.PreSharedSecret && value) {
-        value = OBFUSCATED_VALUE;
+    const result = await customerVariables.getVariable(variable);
+    if (variable === CustomerVariableType.PreSharedSecret && result.value) {
+        result.value = OBFUSCATED_VALUE;
     }
-    return value;
+    return result;
 }
 
 async function getEnvInfo(customerVariables) {
@@ -306,20 +347,82 @@ async function getEnvInfo(customerVariables) {
         const value = await maybeObfuscateVariable(customerVariables, variable);
         return {
             envVarName: variable,
-            value,
-            isSet: Boolean(value),
+            value: value.value,
+            isSet: Boolean(value.value),
+            resolvedBy: value.resolvedBy,
         };
     }));
     return infoArray;
 }
-async function handleStatus(customerVariables) {
-    const body = {
-        version: '0.0.3',
+function renderEnvInfo(envInfo) {
+    const isAlSet = envInfo.every((info) => info.isSet && info.resolvedBy);
+    if (isAlSet) {
+        return `
+      <div>
+        ✅ All environment variables are set
+      </div>
+    `;
+    }
+    const children = envInfo
+        .filter((info) => !info.isSet || !info.resolvedBy)
+        .map((info) => `
+        <div class="env-info-item">
+            ⚠️ <strong>${info.envVarName} </strong> is not defined${info.isSet ? ' and uses default value' : ''}
+        </div>`);
+    return `
+    <div class="env-info">
+      ${children.join('')}
+    </div>
+  `;
+}
+function renderHtml({ version, envInfo }) {
+    return `
+    <html lang="en-US">
+      <head>
+        <title>CloudFront integration status</title>
+        <meta charset="utf-8">
+        <style>
+          body, .env-info {
+            display: flex;
+          }
+          
+          body {
+            flex-direction: column;
+            align-items: center;
+          }
+          
+          body > * {
+            margin-bottom: 1em;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>CloudFront integration status</h1>
+        <div>
+          Lambda function version: ${version}
+        </div>
+        ${renderEnvInfo(envInfo)}
+          <span>
+            Please reach out our support via <a href="mailto:support@fingerprint.com">support@fingerprint.com</a> if you have any issues
+          </span>
+      </body>
+    </html>
+  `;
+}
+async function getStatusInfo(customerVariables) {
+    return {
+        version: '0.0.4',
         envInfo: await getEnvInfo(customerVariables),
     };
+}
+async function handleStatus(customerVariables) {
+    const body = await getStatusInfo(customerVariables);
     return {
         status: '200',
-        body: JSON.stringify(body),
+        body: renderHtml(body).trim(),
+        headers: {
+            'content-type': [{ key: 'Content-Type', value: 'text/html' }],
+        },
     };
 }
 
@@ -9790,38 +9893,396 @@ var domainSuffixList = [
 	"enterprisecloud.nu"
 ];
 
-function getDomainFromHostname(hostname) {
-    if (!hostname) {
-        return hostname;
-    }
-    const matchingETLD = findETLDMatch(hostname);
-    if (!matchingETLD) {
-        return hostname;
-    }
-    const lengthDiff = hostname.length - matchingETLD.length;
-    const partBeforeSuffix = hostname.substring(0, lengthDiff - 1);
-    const lastDotIndex = partBeforeSuffix.lastIndexOf('.');
-    if (lastDotIndex === -1) {
-        return hostname;
-    }
-    return hostname.substring(lastDotIndex + 1);
+/** Highest positive signed 32-bit float value */
+const maxInt = 2147483647; // aka. 0x7FFFFFFF or 2^31-1
+
+/** Bootstring parameters */
+const base = 36;
+const tMin = 1;
+const tMax = 26;
+const skew = 38;
+const damp = 700;
+const initialBias = 72;
+const initialN = 128; // 0x80
+const delimiter = '-'; // '\x2D'
+const regexNonASCII = /[^\0-\x7E]/; // non-ASCII chars
+const regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g; // RFC 3490 separators
+
+/** Error messages */
+const errors = {
+	'overflow': 'Overflow: input needs wider integers to process',
+	'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
+	'invalid-input': 'Invalid input'
+};
+
+/** Convenience shortcuts */
+const baseMinusTMin = base - tMin;
+const floor = Math.floor;
+const stringFromCharCode = String.fromCharCode;
+
+/*--------------------------------------------------------------------------*/
+
+/**
+ * A generic error utility function.
+ * @private
+ * @param {String} type The error type.
+ * @returns {Error} Throws a `RangeError` with the applicable error message.
+ */
+function error(type) {
+	throw new RangeError(errors[type]);
 }
-function findETLDMatch(hostname) {
-    let currentMatch = null;
-    for (const domainSuffix of domainSuffixList) {
-        const lengthDiff = hostname.length - domainSuffix.length;
-        if (lengthDiff < 0) {
+
+/**
+ * A generic `Array#map` utility function.
+ * @private
+ * @param {Array} array The array to iterate over.
+ * @param {Function} callback The function that gets called for every array
+ * item.
+ * @returns {Array} A new array of values returned by the callback function.
+ */
+function map(array, fn) {
+	const result = [];
+	let length = array.length;
+	while (length--) {
+		result[length] = fn(array[length]);
+	}
+	return result;
+}
+
+/**
+ * A simple `Array#map`-like wrapper to work with domain name strings or email
+ * addresses.
+ * @private
+ * @param {String} domain The domain name or email address.
+ * @param {Function} callback The function that gets called for every
+ * character.
+ * @returns {Array} A new string of characters returned by the callback
+ * function.
+ */
+function mapDomain(string, fn) {
+	const parts = string.split('@');
+	let result = '';
+	if (parts.length > 1) {
+		// In email addresses, only the domain name should be punycoded. Leave
+		// the local part (i.e. everything up to `@`) intact.
+		result = parts[0] + '@';
+		string = parts[1];
+	}
+	// Avoid `split(regex)` for IE8 compatibility. See #17.
+	string = string.replace(regexSeparators, '\x2E');
+	const labels = string.split('.');
+	const encoded = map(labels, fn).join('.');
+	return result + encoded;
+}
+
+/**
+ * Creates an array containing the numeric code points of each Unicode
+ * character in the string. While JavaScript uses UCS-2 internally,
+ * this function will convert a pair of surrogate halves (each of which
+ * UCS-2 exposes as separate characters) into a single code point,
+ * matching UTF-16.
+ * @see `punycode.ucs2.encode`
+ * @see <https://mathiasbynens.be/notes/javascript-encoding>
+ * @memberOf punycode.ucs2
+ * @name decode
+ * @param {String} string The Unicode input string (UCS-2).
+ * @returns {Array} The new array of code points.
+ */
+function ucs2decode(string) {
+	const output = [];
+	let counter = 0;
+	const length = string.length;
+	while (counter < length) {
+		const value = string.charCodeAt(counter++);
+		if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+			// It's a high surrogate, and there is a next character.
+			const extra = string.charCodeAt(counter++);
+			if ((extra & 0xFC00) == 0xDC00) { // Low surrogate.
+				output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+			} else {
+				// It's an unmatched surrogate; only append this code unit, in case the
+				// next code unit is the high surrogate of a surrogate pair.
+				output.push(value);
+				counter--;
+			}
+		} else {
+			output.push(value);
+		}
+	}
+	return output;
+}
+
+/**
+ * Converts a digit/integer into a basic code point.
+ * @see `basicToDigit()`
+ * @private
+ * @param {Number} digit The numeric value of a basic code point.
+ * @returns {Number} The basic code point whose value (when used for
+ * representing integers) is `digit`, which needs to be in the range
+ * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
+ * used; else, the lowercase form is used. The behavior is undefined
+ * if `flag` is non-zero and `digit` has no uppercase form.
+ */
+const digitToBasic = function(digit, flag) {
+	//  0..25 map to ASCII a..z or A..Z
+	// 26..35 map to ASCII 0..9
+	return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+};
+
+/**
+ * Bias adaptation function as per section 3.4 of RFC 3492.
+ * https://tools.ietf.org/html/rfc3492#section-3.4
+ * @private
+ */
+const adapt = function(delta, numPoints, firstTime) {
+	let k = 0;
+	delta = firstTime ? floor(delta / damp) : delta >> 1;
+	delta += floor(delta / numPoints);
+	for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base) {
+		delta = floor(delta / baseMinusTMin);
+	}
+	return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
+};
+
+/**
+ * Converts a string of Unicode symbols (e.g. a domain name label) to a
+ * Punycode string of ASCII-only symbols.
+ * @memberOf punycode
+ * @param {String} input The string of Unicode symbols.
+ * @returns {String} The resulting Punycode string of ASCII-only symbols.
+ */
+const encode = function(input) {
+	const output = [];
+
+	// Convert the input in UCS-2 to an array of Unicode code points.
+	input = ucs2decode(input);
+
+	// Cache the length.
+	let inputLength = input.length;
+
+	// Initialize the state.
+	let n = initialN;
+	let delta = 0;
+	let bias = initialBias;
+
+	// Handle the basic code points.
+	for (const currentValue of input) {
+		if (currentValue < 0x80) {
+			output.push(stringFromCharCode(currentValue));
+		}
+	}
+
+	let basicLength = output.length;
+	let handledCPCount = basicLength;
+
+	// `handledCPCount` is the number of code points that have been handled;
+	// `basicLength` is the number of basic code points.
+
+	// Finish the basic string with a delimiter unless it's empty.
+	if (basicLength) {
+		output.push(delimiter);
+	}
+
+	// Main encoding loop:
+	while (handledCPCount < inputLength) {
+
+		// All non-basic code points < n have been handled already. Find the next
+		// larger one:
+		let m = maxInt;
+		for (const currentValue of input) {
+			if (currentValue >= n && currentValue < m) {
+				m = currentValue;
+			}
+		}
+
+		// Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
+		// but guard against overflow.
+		const handledCPCountPlusOne = handledCPCount + 1;
+		if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
+			error('overflow');
+		}
+
+		delta += (m - n) * handledCPCountPlusOne;
+		n = m;
+
+		for (const currentValue of input) {
+			if (currentValue < n && ++delta > maxInt) {
+				error('overflow');
+			}
+			if (currentValue == n) {
+				// Represent delta as a generalized variable-length integer.
+				let q = delta;
+				for (let k = base; /* no condition */; k += base) {
+					const t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+					if (q < t) {
+						break;
+					}
+					const qMinusT = q - t;
+					const baseMinusT = base - t;
+					output.push(
+						stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
+					);
+					q = floor(qMinusT / baseMinusT);
+				}
+
+				output.push(stringFromCharCode(digitToBasic(q, 0)));
+				bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+				delta = 0;
+				++handledCPCount;
+			}
+		}
+
+		++delta;
+		++n;
+
+	}
+	return output.join('');
+};
+
+/**
+ * Converts a Unicode string representing a domain name or an email address to
+ * Punycode. Only the non-ASCII parts of the domain name will be converted,
+ * i.e. it doesn't matter if you call it with a domain that's already in
+ * ASCII.
+ * @memberOf punycode
+ * @param {String} input The domain name or email address to convert, as a
+ * Unicode string.
+ * @returns {String} The Punycode representation of the given domain name or
+ * email address.
+ */
+const toASCII = function(input) {
+	return mapDomain(input, function(string) {
+		return regexNonASCII.test(string)
+			? 'xn--' + encode(string)
+			: string;
+	});
+};
+
+function endsWith(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+function findRule(domain) {
+    const punyDomain = toASCII(domain);
+    let foundRule = null;
+    let foundRulePunySuffix = null;
+    for (const rule of domainSuffixList) {
+        const suffix = rule.replace(/^(\*\.|!)/, '');
+        const rulePunySuffix = toASCII(suffix);
+        if (foundRulePunySuffix != null && foundRulePunySuffix.length > rulePunySuffix.length) {
             continue;
         }
-        const endsWithSuffix = hostname.substring(lengthDiff).toLowerCase() === domainSuffix.toLowerCase();
-        if (!endsWithSuffix) {
-            continue;
-        }
-        if (currentMatch == null || currentMatch.length < domainSuffix.length) {
-            currentMatch = domainSuffix;
+        if (endsWith(punyDomain, '.' + rulePunySuffix) || punyDomain === rulePunySuffix) {
+            const wildcard = rule.charAt(0) === '*';
+            const exception = rule.charAt(0) === '!';
+            foundRule = { rule, suffix, wildcard, exception };
+            foundRulePunySuffix = rulePunySuffix;
         }
     }
-    return currentMatch;
+    return foundRule;
+}
+const errorCodes = {
+    DOMAIN_TOO_SHORT: 'Domain name too short.',
+    DOMAIN_TOO_LONG: 'Domain name too long. It should be no more than 255 chars.',
+    LABEL_STARTS_WITH_DASH: 'Domain name label can not start with a dash.',
+    LABEL_ENDS_WITH_DASH: 'Domain name label can not end with a dash.',
+    LABEL_TOO_LONG: 'Domain name label should be at most 63 chars long.',
+    LABEL_TOO_SHORT: 'Domain name label should be at least 1 character long.',
+    LABEL_INVALID_CHARS: 'Domain name label can only contain alphanumeric characters or dashes.',
+};
+function validate(input) {
+    const ascii = toASCII(input);
+    const labels = ascii.split('.');
+    let label;
+    for (let i = 0; i < labels.length; ++i) {
+        label = labels[i];
+        if (!label.length) {
+            return 'LABEL_TOO_SHORT';
+        }
+    }
+    return null;
+}
+function parsePunycode(domain, parsed) {
+    if (!/xn--/.test(domain)) {
+        return parsed;
+    }
+    if (parsed.domain) {
+        parsed.domain = toASCII(parsed.domain);
+    }
+    if (parsed.subdomain) {
+        parsed.subdomain = toASCII(parsed.subdomain);
+    }
+    return parsed;
+}
+function parse(domain) {
+    const domainSanitized = domain.toLowerCase();
+    const validationErrorCode = validate(domain);
+    if (validationErrorCode) {
+        throw new Error(JSON.stringify({
+            input: domain,
+            error: {
+                message: errorCodes[validationErrorCode],
+                code: validationErrorCode,
+            },
+        }));
+    }
+    const parsed = {
+        input: domain,
+        tld: null,
+        sld: null,
+        domain: null,
+        subdomain: null,
+        listed: false,
+    };
+    const domainParts = domainSanitized.split('.');
+    const rule = findRule(domainSanitized);
+    if (!rule) {
+        if (domainParts.length < 2) {
+            return parsed;
+        }
+        parsed.tld = domainParts.pop();
+        parsed.sld = domainParts.pop();
+        parsed.domain = `${parsed.sld}.${parsed.tld}`;
+        if (domainParts.length) {
+            parsed.subdomain = domainParts.pop();
+        }
+        return parsePunycode(domain, parsed);
+    }
+    parsed.listed = true;
+    const tldParts = rule.suffix.split('.');
+    const privateParts = domainParts.slice(0, domainParts.length - tldParts.length);
+    if (rule.exception) {
+        privateParts.push(tldParts.shift());
+    }
+    parsed.tld = tldParts.join('.');
+    if (!privateParts.length) {
+        return parsePunycode(domainSanitized, parsed);
+    }
+    if (rule.wildcard) {
+        parsed.tld = `${privateParts.pop()}.${parsed.tld}`;
+    }
+    if (!privateParts.length) {
+        return parsePunycode(domainSanitized, parsed);
+    }
+    parsed.sld = privateParts.pop();
+    parsed.domain = `${parsed.sld}.${parsed.tld}`;
+    if (privateParts.length) {
+        parsed.subdomain = privateParts.join('.');
+    }
+    return parsePunycode(domainSanitized, parsed);
+}
+function get(domain) {
+    if (!domain) {
+        return null;
+    }
+    return parse(domain).domain;
+}
+function getEffectiveTLDPlusOne(hostname) {
+    try {
+        return get(hostname) || '';
+    }
+    catch (e) {
+        return '';
+    }
 }
 
 const defaultCustomerVariables = {
@@ -9853,7 +10314,10 @@ class CustomerVariables {
         }
         const defaultValue = getDefaultCustomerVariable(variable);
         console.info(`Resolved customer variable ${variable} with default value ${defaultValue}`);
-        return defaultValue;
+        return {
+            value: defaultValue,
+            resolvedBy: null,
+        };
     }
     async getValueFromProviders(variable) {
         for (const provider of this.providers) {
@@ -9861,7 +10325,10 @@ class CustomerVariables {
                 const result = await provider.getVariable(variable);
                 if (result) {
                     console.info(`Resolved customer variable ${variable} with provider ${provider.name}`);
-                    return result;
+                    return {
+                        value: result,
+                        resolvedBy: provider.name,
+                    };
                 }
             }
             catch (error) {
@@ -10036,28 +10503,29 @@ const handler = async (event) => {
         new SecretsManagerVariables(request),
         new HeaderCustomerVariables(request),
     ]);
-    const domain = getDomainFromHostname(getHost(request));
-    if (request.uri === (await getAgentUri(customerVariables))) {
+    const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request));
+    const pathname = removeTrailingSlashes(request.uri);
+    if (pathname === (await getAgentUri(customerVariables))) {
         return downloadAgent({
             apiKey: getApiKey(request),
             version: getVersion(request),
             loaderVersion: getLoaderVersion(request),
             method: request.method,
             headers: filterRequestHeaders(request),
-            domain: domain,
+            domain: eTLDPlusOneDomain,
         });
     }
-    else if (request.uri === (await getResultUri(customerVariables))) {
+    else if (pathname === (await getResultUri(customerVariables))) {
         return handleResult({
             region: getRegion(request),
             querystring: request.querystring,
             method: request.method,
             headers: await prepareHeadersForIngressAPI(request, customerVariables),
             body: request.body?.data || '',
-            domain: domain,
+            domain: eTLDPlusOneDomain,
         });
     }
-    else if (request.uri === (await getStatusUri(customerVariables))) {
+    else if (pathname === (await getStatusUri(customerVariables))) {
         return handleStatus(customerVariables);
     }
     else {
