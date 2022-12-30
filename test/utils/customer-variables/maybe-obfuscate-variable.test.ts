@@ -11,7 +11,7 @@ describe('maybe obfuscate variable', () => {
   it('should obfuscate pre shared secret', async () => {
     const result = await maybeObfuscateVariable(customerVariables, CustomerVariableType.PreSharedSecret)
 
-    expect(result).toBe(OBFUSCATED_VALUE)
+    expect(result.value).toBe(OBFUSCATED_VALUE)
   })
 
   it.each([
@@ -21,6 +21,6 @@ describe('maybe obfuscate variable', () => {
   ])('should not obfuscate other variables', async (variable) => {
     const result = await maybeObfuscateVariable(customerVariables, variable)
 
-    expect(result).toBe(variables[variable])
+    expect(result.value).toBe(variables[variable])
   })
 })

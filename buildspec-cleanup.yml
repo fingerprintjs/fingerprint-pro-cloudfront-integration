@@ -6,4 +6,4 @@ phases:
       - yarn install
   build:
     commands:
-      - node e2e/scripts/cleanup-lambdas.mjs
+      - node e2e/scripts/cleanup.mjs

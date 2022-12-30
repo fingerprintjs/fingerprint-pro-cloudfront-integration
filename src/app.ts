@@ -12,8 +12,9 @@ import {
   getVersion,
   getApiKey,
   getLoaderVersion,
+  removeTrailingSlashes,
 } from './utils'
-import { getDomainFromHostname } from './domain'
+import { getEffectiveTLDPlusOne } from './domain'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
 import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
 import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
@@ -26,27 +27,28 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
     new HeaderCustomerVariables(request),
   ])
 
-  const domain = getDomainFromHostname(getHost(request))
+  const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request))
 
-  if (request.uri === (await getAgentUri(customerVariables))) {
+  const pathname = removeTrailingSlashes(request.uri)
+  if (pathname === (await getAgentUri(customerVariables))) {
     return downloadAgent({
       apiKey: getApiKey(request),
       version: getVersion(request),
       loaderVersion: getLoaderVersion(request),
       method: request.method,
       headers: filterRequestHeaders(request),
-      domain: domain,
+      domain: eTLDPlusOneDomain,
     })
-  } else if (request.uri === (await getResultUri(customerVariables))) {
+  } else if (pathname === (await getResultUri(customerVariables))) {
     return handleResult({
       region: getRegion(request),
       querystring: request.querystring,
       method: request.method,
       headers: await prepareHeadersForIngressAPI(request, customerVariables),
       body: request.body?.data || '',
-      domain: domain,
+      domain: eTLDPlusOneDomain,
     })
-  } else if (request.uri === (await getStatusUri(customerVariables))) {
+  } else if (pathname === (await getStatusUri(customerVariables))) {
     return handleStatus(customerVariables)
   } else {
     return new Promise((resolve) =>

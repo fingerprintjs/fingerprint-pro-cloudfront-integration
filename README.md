@@ -7,10 +7,10 @@
    </picture>
   </a>
 <p align="center">
-<a href="https://github.com/fingerprintjs/fingerprintjs-pro-cloudfront-lambda-function">
-  <img src="https://img.shields.io/github/v/release/fingerprintjs/fingerprintjs-pro-cloudfront-lambda-function" alt="Current NPM version">
+<a href="https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration">
+  <img src="https://img.shields.io/github/v/release/fingerprintjs/fingerprint-pro-cloudfront-integration" alt="Current version">
 </a>
-<a href="https://fingerprintjs.github.io/fingerprintjs-pro-cloudfront-lambda-function">
+<a href="https://fingerprintjs.github.io/fingerprint-pro-cloudfront-integration">
   <img src="https://fingerprintjs.github.io/fingerprint-pro-cloudfront-integration/badges.svg" alt="coverage">
 </a>
 <a href="https://opensource.org/licenses/MIT">
@@ -20,4 +20,14 @@
   <img src="https://img.shields.io/discord/852099967190433792?style=logo&label=Discord&logo=Discord&logoColor=white" alt="Discord server">
 </a>
 
-# fingerprintjs-pro-cloudfront-lambda-function
+# Fingerprint Pro CloudFront Integration
+
+Fingerprint Pro CloudFront Integration is responsible for proxying identification and agent-download requests that are performed on your AWS infrastructure.
+
+
+## Setup process
+The process consists of two steps. One needs to set up Serveless application creation with our support at [support@fingerprint.com](mailto:support@fingerprint.com). Afterwards, the Fingerprint Pro JS agent on the site needs to be configured to communicate with the Lambda@Edge function.
+
+
+## License
+This project is licensed under the MIT license. See the [LICENSE](https://github.com/fingerprintjs/fingerprintjs-pro-cloudflare-worker/blob/main/LICENSE) file for more info.

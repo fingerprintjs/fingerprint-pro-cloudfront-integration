@@ -1,3 +1,4 @@
 import { getDomainFromHostname } from './utils'
+import { getEffectiveTLDPlusOne } from './tld'
 
-export { getDomainFromHostname }
+export { getDomainFromHostname, getEffectiveTLDPlusOne }

@@ -6,6 +6,8 @@ import { updateResponseHeaders, addTrafficMonitoringSearchParamsForVisitorIdRequ
 
 export function handleResult(options: ResultOptions): Promise<CloudFrontResultResponse> {
   return new Promise((resolve) => {
+    console.info('Handling result:', options)
+
     const data: any[] = []
 
     const url = new URL(getIngressAPIHost(options.region))
@@ -14,6 +16,9 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
       url.searchParams.append(kv[0], kv[1])
     })
     addTrafficMonitoringSearchParamsForVisitorIdRequest(url)
+
+    console.info('Performing request', url.toString())
+
     const request = https.request(
       url,
       {
@@ -25,6 +30,9 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
 
         response.on('end', () => {
           const payload = Buffer.concat(data)
+
+          console.info('Response from Ingress API', response.statusCode, payload.toString('utf-8'))
+
           resolve({
             status: response.statusCode ? response.statusCode.toString() : '500',
             statusDescription: response.statusMessage,

@@ -1,6 +1,6 @@
 {
   "name": "@fingerprintjs/fingerprint-pro-cloudfront-lambda-function",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Fingerprint Pro CloudFront lambda@edge function",
   "author": "FingerprintJS, Inc (https://fingerprint.com)",
   "license": "MIT",
@@ -17,15 +17,19 @@
     "dist"
   ],
   "dependencies": {
-    "aws-sdk": "^2.1234.0"
+    "aws-sdk": "^2.1234.0",
+    "punycode": "^2.1.1"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-replace": "^5.0.1",
     "@rollup/plugin-typescript": "^9.0.2",
     "@types/aws-lambda": "^8.10.107",
     "@types/jest": "^29.2.0",
     "@types/node": "^18.11.9",
+    "@types/punycode": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
     "dotenv": "^16.0.3",
@@ -38,7 +42,6 @@
     "rollup": "^2.70.1",
     "rollup-plugin-dts": "^5.0.0",
     "rollup-plugin-license": "^2.8.1",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
     "ts-jest": "^29.0.3",
     "tslib": "^2.4.1",
     "typescript": "^4.9.3",

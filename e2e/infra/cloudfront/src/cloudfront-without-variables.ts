@@ -7,29 +7,11 @@ import { lambdaCachePolicy, lambdaOriginPolicy } from './lambda'
 
 const { lambdaArn } = getStackOutput<{ lambdaArn: string }>(path.resolve(__dirname, '../../lambda'))
 
-const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-headers'), {
+const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-without-variables'), {
   origins: [
     {
       domainName: websiteBucket.bucketRegionalDomainName,
       originId: s3OriginId,
-      customHeaders: [
-        {
-          name: 'FPJS_GET_RESULT_PATH',
-          value: process.env.FPJS_GET_RESULT_PATH ?? 'visitorId',
-        },
-        {
-          name: 'FPJS_PRE_SHARED_SECRET',
-          value: process.env.FPJS_PRE_SHARED_SECRET ?? '',
-        },
-        {
-          name: 'FPJS_AGENT_DOWNLOAD_PATH',
-          value: process.env.FPJS_AGENT_DOWNLOAD_PATH ?? 'agent',
-        },
-        {
-          name: 'FPJS_BEHAVIOR_PATH',
-          value: process.env.FPJS_BEHAVIOR_PATH ?? 'fpjs',
-        },
-      ],
     },
   ],
   enabled: true,
@@ -50,7 +32,7 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
     defaultTtl: 3600,
     maxTtl: 86400,
   },
-  comment: 'CloudFront for lambda e2e tests with customer variables stored in headers',
+  comment: 'CloudFront for lambda e2e tests without configured customer variables',
   orderedCacheBehaviors: [
     {
       pathPattern: 'fpjs/*',
@@ -79,4 +61,4 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
   },
 })
 
-export const cloudfrontWithHeadersUrl = cloudfrontDistro.domainName
+export const cloudfrontWithoutVariables = cloudfrontDistro.domainName
