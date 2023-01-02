@@ -95,6 +95,7 @@ Resources:
                 - - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:'
                   - 'fingerprint-pro-cloudfront-lambda-'
                   - !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]
+                  - ':*'
       - PolicyName: CloudFrontUpdate
         PolicyDocument:
           Version: '2012-10-17'
@@ -205,8 +206,7 @@ Resources:
                 - ''
                 - - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:'
                   - 'fingerprint-pro-mgmt-lambda-'
-                  - !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]    
-                  - ':*'
+                  - !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]
 
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
@@ -373,7 +373,7 @@ Resources:
                 Version: 1
               RunOrder: 1
               Configuration:
-                PollForSourceChanges: false
+                PollForSourceChanges: true
                 S3Bucket: fingerprint-pro-cloudfront-integration-lambda-function
                 S3ObjectKey: release/lambda_latest.zip
               OutputArtifacts:
