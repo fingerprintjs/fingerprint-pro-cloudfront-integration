@@ -9,7 +9,6 @@ export function createLogger(request?: CloudFrontRequest) {
   return winston.createLogger({
     level: isDebug ? 'debug' : 'info',
     format: winston.format.json({
-      space: 1,
       replacer: (_key, value) => {
         if (value instanceof Error) {
           return {
