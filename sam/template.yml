@@ -90,12 +90,17 @@ Resources:
               - lambda:GetFunctionConfiguration
               - lambda:EnableReplication
             Resource:
-              !Join
-                - ''
-                - - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:'
-                  - 'fingerprint-pro-cloudfront-lambda-'
-                  - !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]
-                  - ':*'
+              - !Join
+                  - ''
+                  - - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:'
+                    - 'fingerprint-pro-cloudfront-lambda-'
+                    - !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]
+                    - ':*'
+              - !Join
+                  - ''
+                  - - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:'
+                    - 'fingerprint-pro-cloudfront-lambda-'
+                    - !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]
       - PolicyName: CloudFrontUpdate
         PolicyDocument:
           Version: '2012-10-17'
@@ -295,7 +300,7 @@ Resources:
       Runtime: nodejs18.x
       CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/release/mgmt_lambda_latest.zip
       MemorySize: 128
-      Timeout: 3
+      Timeout: 120
       Role: !GetAtt FpMgmtLambdaFunctionExecutionRole.Arn
 
   FingerprintProCDNCachePolicy:
