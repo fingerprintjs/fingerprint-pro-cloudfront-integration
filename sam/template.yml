@@ -206,6 +206,7 @@ Resources:
                 - - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:'
                   - 'fingerprint-pro-mgmt-lambda-'
                   - !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]    
+                  - ':*'
 
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
