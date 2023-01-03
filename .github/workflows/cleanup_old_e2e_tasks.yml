@@ -19,6 +19,7 @@ jobs:
         uses: fregante/setup-git-user@2e28d51939d2a84005a917d2f844090637f435f8
 
       - name: Cleanup old artifacts
+        id: cleanup
         shell: bash
         run: |
           now=`date +%s`
@@ -31,11 +32,13 @@ jobs:
               if [ $diff -gt 84600 ]; then
                 rm -rf ./${name}
                 echo "deleted: $name"
+                echo "HAS_DELETED_DIRECTORY=true" >> $GITHUB_OUTPUT
               fi
             fi
           done
 
       - name: commit changes
+        if: ${{ steps.cleanup.outputs.HAS_DELETED_DIRECTORY == 'true' }}
         run: |
           git add .
           git status
