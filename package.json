@@ -18,7 +18,8 @@
   ],
   "dependencies": {
     "aws-sdk": "^2.1234.0",
-    "punycode": "^2.1.1"
+    "punycode": "^2.1.1",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",

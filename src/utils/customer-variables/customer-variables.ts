@@ -1,5 +1,6 @@
 import { CustomerVariableProvider, CustomerVariableType, CustomerVariableValue } from './types'
 import { getDefaultCustomerVariable } from './defaults'
+import { createLogger } from '../../logger'
 
 export interface GetVariableResult {
   value: CustomerVariableValue
@@ -11,7 +12,7 @@ export interface GetVariableResult {
  * Variables will be resolved in order in which providers are set.
  * */
 export class CustomerVariables {
-  constructor(private readonly providers: CustomerVariableProvider[]) {}
+  constructor(private readonly providers: CustomerVariableProvider[], private readonly logger = createLogger()) {}
 
   /**
    * Attempts to resolve customer variable using providers.
@@ -26,7 +27,7 @@ export class CustomerVariables {
 
     const defaultValue = getDefaultCustomerVariable(variable)
 
-    console.info(`Resolved customer variable ${variable} with default value ${defaultValue}`)
+    this.logger.debug(`Resolved customer variable ${variable} with default value ${defaultValue}`)
 
     return {
       value: defaultValue,
@@ -40,7 +41,7 @@ export class CustomerVariables {
         const result = await provider.getVariable(variable)
 
         if (result) {
-          console.info(`Resolved customer variable ${variable} with provider ${provider.name}`)
+          this.logger.debug(`Resolved customer variable ${variable} with provider ${provider.name}`)
 
           return {
             value: result,
@@ -48,7 +49,9 @@ export class CustomerVariables {
           }
         }
       } catch (error) {
-        console.error(`Error while resolving customer variable ${variable} with provider ${provider.name}`, error)
+        this.logger.error(`Error while resolving customer variable ${variable} with provider ${provider.name}`, {
+          error,
+        })
       }
     }
 

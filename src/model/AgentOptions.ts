@@ -1,4 +1,5 @@
 import { OutgoingHttpHeaders } from 'http'
+import { Logger } from '../logger'
 
 export interface AgentOptions {
   apiKey: string | undefined
@@ -7,4 +8,5 @@ export interface AgentOptions {
   method: string
   headers: OutgoingHttpHeaders
   domain: string
+  logger: Logger
 }
