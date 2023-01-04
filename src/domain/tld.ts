@@ -17,11 +17,16 @@ type ParsedResult = {
   listed: boolean
 }
 
+const cache = new Map<string, Rule>()
+
 function endsWith(str: string, suffix: string): boolean {
   return str.indexOf(suffix, str.length - suffix.length) !== -1
 }
 
 function findRule(domain: string): Rule | null {
+  if (cache.has(domain)) {
+    return cache.get(domain)!
+  }
   const punyDomain = Punycode.toASCII(domain)
   let foundRule: Rule | null = null
   let foundRulePunySuffix: string | null = null
@@ -37,6 +42,7 @@ function findRule(domain: string): Rule | null {
       const exception = rule.charAt(0) === '!'
       foundRule = { rule, suffix, wildcard, exception }
       foundRulePunySuffix = rulePunySuffix
+      cache.set(domain, foundRule)
     }
   }
   return foundRule
