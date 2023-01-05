@@ -1,4 +1,4 @@
-import domainSuffixList from './domain-suffix-list.json'
+import domainSuffixListReversed from './domain-suffix-list-reversed.json'
 import * as Punycode from 'punycode'
 
 type Rule = {
@@ -17,34 +17,83 @@ type ParsedResult = {
   listed: boolean
 }
 
-const cache = new Map<string, Rule>()
-
-function endsWith(str: string, suffix: string): boolean {
-  return str.indexOf(suffix, str.length - suffix.length) !== -1
+type TrieNode = {
+  key: string
+  parent: TrieNode | null
+  children: Map<string, TrieNode>
+  suffix: string
+  end: boolean
 }
 
-function findRule(domain: string): Rule | null {
-  if (cache.has(domain)) {
-    return cache.get(domain)!
+const rootNode = createTrie()
+
+function createTrie(): TrieNode {
+  const root: TrieNode = {
+    key: '',
+    parent: null,
+    children: new Map(),
+    suffix: '',
+    end: false,
   }
+  for (const rule of domainSuffixListReversed) {
+    const word = rule.reversed + '.'
+    let node = root
+    for (let i = 0; i < word.length; i++) {
+      if (!node.children.has(word[i])) {
+        node.children.set(word[i], {
+          key: word[i],
+          suffix: '',
+          parent: node,
+          children: new Map(),
+          end: false,
+        })
+      }
+
+      node = node.children.get(word[i])!
+
+      if (i === word.length - 1 || i === word.length - 2) {
+        node.suffix = rule.suffix
+        node.end = true
+      }
+    }
+  }
+  return root
+}
+
+function search(domain: string): string | null {
+  let node = rootNode
+
+  for (let i = 0; i < domain.length; i++) {
+    if (node.children.has(domain[i])) {
+      node = node.children.get(domain[i])!
+    } else {
+      return node.end ? node.suffix : null
+    }
+  }
+  return node.end ? node.suffix : null
+}
+
+function reverse(str: string): string {
+  let newStr = ''
+  for (let i = str.length - 1; i >= 0; i--) {
+    newStr += str[i]
+  }
+  return newStr
+}
+
+function findRule2(domain: string): Rule | null {
   const punyDomain = Punycode.toASCII(domain)
   let foundRule: Rule | null = null
-  let foundRulePunySuffix: string | null = null
-  for (const rule of domainSuffixList) {
-    const suffix = rule.replace(/^(\*\.|!)/, '')
-    const rulePunySuffix = Punycode.toASCII(suffix)
-    if (foundRulePunySuffix != null && foundRulePunySuffix.length > rulePunySuffix.length) {
-      continue
-    }
 
-    if (endsWith(punyDomain, '.' + rulePunySuffix) || punyDomain === rulePunySuffix) {
-      const wildcard = rule.charAt(0) === '*'
-      const exception = rule.charAt(0) === '!'
-      foundRule = { rule, suffix, wildcard, exception }
-      foundRulePunySuffix = rulePunySuffix
-      cache.set(domain, foundRule)
-    }
+  const domainReversed = reverse(punyDomain)
+  const rule = search(domainReversed)
+  if (!rule) {
+    return null
   }
+  const suffix = rule.replace(/^(\*\.|!)/, '')
+  const wildcard = rule.charAt(0) === '*'
+  const exception = rule.charAt(0) === '!'
+  foundRule = { rule, suffix, wildcard, exception }
   return foundRule
 }
 
@@ -112,8 +161,7 @@ function parse(domain: string): ParsedResult {
   }
 
   const domainParts = domainSanitized.split('.')
-
-  const rule = findRule(domainSanitized)
+  const rule = findRule2(domainSanitized)
   if (!rule) {
     if (domainParts.length < 2) {
       return parsed
