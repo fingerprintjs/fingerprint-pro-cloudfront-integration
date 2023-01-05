@@ -30,10 +30,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
     new HeaderCustomerVariables(request),
   ])
 
-  const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request))
-
   logger.debug('Handling request', request)
-  logger.debug('Resolved domain', eTLDPlusOneDomain)
 
   const pathname = removeTrailingSlashes(request.uri)
   if (pathname === (await getAgentUri(customerVariables))) {
@@ -43,10 +40,11 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       loaderVersion: getLoaderVersion(request, logger),
       method: request.method,
       headers: filterRequestHeaders(request),
-      domain: eTLDPlusOneDomain,
+      domain: getHost(request),
       logger,
     })
   } else if (pathname === (await getResultUri(customerVariables))) {
+    const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request))
     return handleResult({
       region: getRegion(request, logger),
       querystring: request.querystring,
