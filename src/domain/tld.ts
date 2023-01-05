@@ -26,6 +26,7 @@ type TrieNode = {
 }
 
 const rootNode = createTrie()
+const cache = new Map<string, Rule>()
 
 function createTrie(): TrieNode {
   const root: TrieNode = {
@@ -81,7 +82,10 @@ function reverse(str: string): string {
   return newStr
 }
 
-function findRule2(domain: string): Rule | null {
+function findRule(domain: string): Rule | null {
+  if (cache.has(domain)) {
+    return cache.get(domain)!
+  }
   const punyDomain = Punycode.toASCII(domain)
   let foundRule: Rule | null = null
 
@@ -94,6 +98,7 @@ function findRule2(domain: string): Rule | null {
   const wildcard = rule.charAt(0) === '*'
   const exception = rule.charAt(0) === '!'
   foundRule = { rule, suffix, wildcard, exception }
+  cache.set(domain, foundRule)
   return foundRule
 }
 
@@ -161,7 +166,7 @@ function parse(domain: string): ParsedResult {
   }
 
   const domainParts = domainSanitized.split('.')
-  const rule = findRule2(domainSanitized)
+  const rule = findRule(domainSanitized)
   if (!rule) {
     if (domainParts.length < 2) {
       return parsed
