@@ -4,6 +4,7 @@ import { arrayBufferToString } from '../../buffer'
 import { normalizeSecret } from './normalize-secret'
 import { validateSecret } from './validate-secret'
 import { isBlob } from '../../is-blob'
+import { Logger } from '../../../logger'
 
 interface CacheEntry {
   value: CustomerVariablesRecord | null
@@ -17,14 +18,14 @@ const cache = new Map<string, CacheEntry>()
 /**
  * Retrieves a secret from Secrets Manager and caches it or returns it from cache if it's still valid.
  * */
-export async function retrieveSecret(secretsManager: SecretsManager, key: string) {
+export async function retrieveSecret(secretsManager: SecretsManager, key: string, logger: Logger) {
   if (cache.has(key)) {
     const entry = cache.get(key)!
 
     return entry.value
   }
 
-  const result = await fetchSecret(secretsManager, key)
+  const result = await fetchSecret(secretsManager, key, logger)
 
   cache.set(key, {
     value: result,
@@ -47,7 +48,11 @@ async function convertSecretToString(result: SecretsManager.GetSecretValueRespon
   }
 }
 
-async function fetchSecret(secretsManager: SecretsManager, key: string): Promise<CustomerVariablesRecord | null> {
+async function fetchSecret(
+  secretsManager: SecretsManager,
+  key: string,
+  logger: Logger,
+): Promise<CustomerVariablesRecord | null> {
   try {
     const result = await secretsManager
       .getSecretValue({
@@ -67,7 +72,7 @@ async function fetchSecret(secretsManager: SecretsManager, key: string): Promise
 
     return parsedSecret
   } catch (error) {
-    console.error(`Failed to fetch and parse secret ${key}`, error)
+    logger.error(`Failed to fetch and parse secret ${key}`, { error })
 
     return null
   }

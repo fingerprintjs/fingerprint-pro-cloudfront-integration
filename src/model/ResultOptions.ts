@@ -1,4 +1,5 @@
 import { OutgoingHttpHeaders } from 'http'
+import { Logger } from '../logger'
 
 export interface ResultOptions {
   region: string
@@ -7,4 +8,5 @@ export interface ResultOptions {
   headers: OutgoingHttpHeaders
   body: string
   domain: string
+  logger: Logger
 }

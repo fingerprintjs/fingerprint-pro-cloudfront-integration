@@ -1,4 +1,4 @@
-import domainSuffixList from './domain-suffix-list.json'
+import domainSuffixList from './domain-suffix-list-reversed.json'
 
 export function getDomainFromHostname(hostname: string): string {
   if (!hostname) {
@@ -22,7 +22,8 @@ export function getDomainFromHostname(hostname: string): string {
 
 function findETLDMatch(hostname: string): string | null {
   let currentMatch = null
-  for (const domainSuffix of domainSuffixList) {
+  for (const domain of domainSuffixList) {
+    const domainSuffix = domain.suffix
     const lengthDiff = hostname.length - domainSuffix.length
     if (lengthDiff < 0) {
       continue
