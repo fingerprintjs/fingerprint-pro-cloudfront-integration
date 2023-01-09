@@ -251,6 +251,8 @@ Resources:
               - s3:GetObjectVersion
               - s3:GetBucketAcl
               - s3:GetBucketLocation
+              - s3:ListBucket
+              - s3:DeleteObject
             Resource:
               - arn:aws:s3:::fingerprint-pro-code-pipeline-storage-*
       - PolicyName: Reporting
@@ -347,16 +349,22 @@ Resources:
         - Name: LAMBDA_FUNCTION_NAME
           Type: PLAINTEXT
           Value: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+        - Name: ARTIFACT_STORAGE_BUCKET_NAME
+          Type: PLAINTEXT
+          Value: !Join ['-', ['fingerprint-pro-code-pipeline-storage', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Source:
         Type: CODEPIPELINE
         BuildSpec: |          
           version: 0.2
           phases:
-            post_build:
+            build:
               commands:
                 - zip -r lambda.zip fingerprintjs-pro-cloudfront-lambda-function.js
                 - echo $LAMBDA_FUNCTION_NAME
                 - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://lambda.zip --publish
+            post_build:
+              commands:
+                - aws s3 rm s3://${ARTIFACT_STORAGE_BUCKET_NAME} --recursive
 
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
