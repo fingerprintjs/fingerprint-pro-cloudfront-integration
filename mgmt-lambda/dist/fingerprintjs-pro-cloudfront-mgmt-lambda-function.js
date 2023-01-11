@@ -1,3 +1,8 @@
+/**
+ * FingerprintJS Pro CloudFront Management Lambda function v0.0.4 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
+ * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
+ */
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -77,8 +82,8 @@ async function handler(event, ctx) {
                 Quantity: 1,
                 Items: [pathPattern],
             },
-            CallerReference: 'fingerprint-pro-management-lambda-function'
-        }
+            CallerReference: 'fingerprint-pro-management-lambda-function',
+        },
     };
     const invalidationCommand = new clientCloudfront.CreateInvalidationCommand(invalidationParams);
     const invalidationResult = await cloudFrontClient.send(invalidationCommand);
