@@ -15,7 +15,7 @@ on:
 
 jobs:
   release:
-    name: Release new version
+    name: Release CloudFront integration distribution
     runs-on: ubuntu-20.04
 
     permissions:
@@ -39,6 +39,7 @@ jobs:
       - name: Set git settings
         uses: fregante/setup-git-user@v1
 
+      ## Build Lambda@Edge function
       - name: Install dependencies
         run: yarn install
 
@@ -60,25 +61,52 @@ jobs:
       - name: Run type check
         run: yarn test:dts
 
-      - name: Get new version
-        id: version      
+      - name: Get new version of lambda@edge
+        id: version_edge
         uses: notiz-dev/github-action-json-property@v0.2.0
         with:
           path: 'package.json'
           prop_path: 'version'
 
+      ## Build Mgmt-lambda function
+      - name: Install dependencies
+        working-directory: ./mgmt-lambda
+        run: yarn install
+
+      - name: Lint
+        working-directory: ./mgmt-lambda
+        run: yarn lint
+
+      - name: Bump version
+        working-directory: ./mgmt-lambda
+        run: yarn version --${{ github.event.inputs.version_bump }}
+
+      - name: Build lambda function
+        working-directory: ./mgmt-lambda
+        run: yarn build
+
+      - name: Get new version of mgmt-lambda
+        id: version_mgmt
+        uses: notiz-dev/github-action-json-property@v0.2.0
+        with:
+          path: 'mgmt-lambda/package.json'
+          prop_path: 'version'
+      
       - name: Commit and push new version of lambda
-        run: |
-          git commit package.json dist/ -m "build: new scripts v${{steps.version.outputs.prop}}"
+        run: |          
+          git commit package.json dist/ -m "build: new lambda@edge function v${{steps.version_edge.outputs.prop}}"
+          git commit mgmt-lambda/package.json mgmt-lambda/dist/ -m "build: new mgmt-lambda function v${{steps.version_mgmt.outputs.prop}}"
           git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
-          git tag -a "v${{steps.version.outputs.prop}}" -m "v${{steps.version.outputs.prop}}"
+          git tag -a "v${{steps.version_edge.outputs.prop}}" -m "v${{steps.version_edge.outputs.prop}}"
           git push --tags "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+      
+      ## Prepare a release
 
       - name: Create a Github release
         uses: ncipollo/release-action@v1
         with:
-          tag: v${{steps.version.outputs.prop}}
-          name: Release ${{steps.version.outputs.prop}}
+          tag: v${{steps.version_edge.outputs.prop}}
+          name: Release ${{steps.version_edge.outputs.prop}}
 
       - name: Create Pull Request from develop to main
         id: create_pr
@@ -87,8 +115,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: develop
           target_branch: main
-          title: New version of scripts v${{ steps.version.outputs.prop }}
-          body: New version of scripts v${{ steps.version.outputs.prop }}
+          title: New version of scripts v${{ steps.version_edge.outputs.prop }}
+          body: New version of scripts v${{ steps.version_edge.outputs.prop }}
 
       - name: Check PR outputs
         if: ${{ steps.create_pr.outputs.url }}
