@@ -4,6 +4,8 @@ import {
   UpdateDistributionCommand,
   UpdateDistributionCommandInput,
   GetDistributionConfigCommandOutput,
+  CreateInvalidationCommand,
+  CreateInvalidationCommandInput,
 } from '@aws-sdk/client-cloudfront'
 import {
   CodePipelineClient,
@@ -25,11 +27,11 @@ const REGION = 'us-east-1'
 
 export async function handler(event: any, ctx: any) {
   console.info(JSON.stringify(event))
-  
+
   const job = event['CodePipeline.job']
   if (!job) {
     console.error('No job found')
-    return;
+    return
   }
 
   const userInput = JSON.parse(job.data.actionConfiguration.configuration.UserParameters)
@@ -91,6 +93,31 @@ export async function handler(event: any, ctx: any) {
   const updateCFResult = await cloudFrontClient.send(updateConfigCommand)
   console.info(`CloudFront update has finished, ${JSON.stringify(updateCFResult)}`)
 
+  console.info('Going to invalidate routes for upgraded cache behavior')
+  if (!cacheBehavior.PathPattern) {
+    publishJobFailure(ctx, job, 'Path pattern is not defined')
+    return
+  }
+
+  let pathPattern = cacheBehavior.PathPattern
+  if (!pathPattern.startsWith('/')) {
+    pathPattern = '/' + pathPattern
+  }
+
+  const invalidationParams: CreateInvalidationCommandInput = {
+    DistributionId: cloudFrontDistrId,
+    InvalidationBatch: {
+      Paths: {
+        Quantity: 1,
+        Items: [pathPattern],
+      },
+      CallerReference: 'fingerprint-pro-management-lambda-function',
+    },
+  }
+  const invalidationCommand = new CreateInvalidationCommand(invalidationParams)
+  const invalidationResult = await cloudFrontClient.send(invalidationCommand)
+  console.info(`Invalidation has finished, ${JSON.stringify(invalidationResult)}`)
+
   publishJobSuccess(ctx, job)
 }
 
@@ -106,7 +133,8 @@ async function getLambdaLatestVersionArn(functionName: string): Promise<string |
   }
 
   const latest = result.Versions.filter((it) => it.Version && Number.isFinite(Number.parseInt(it.Version))).sort(
-    (a, b) => Number.parseInt(b.Version!!) - Number.parseInt(a.Version!!))[0]
+    (a, b) => Number.parseInt(b.Version!!) - Number.parseInt(a.Version!!),
+  )[0]
   return Promise.resolve(latest.FunctionArn)
 }
 
@@ -125,7 +153,7 @@ async function publishJobSuccess(ctx: any, job: any) {
   }
   try {
     const command = new PutJobSuccessResultCommand(params)
-    const result = await getCodePipelineClient().send(command)  
+    const result = await getCodePipelineClient().send(command)
     console.info(`Job successfully finished with ${result}`)
     ctx.succeed()
   } catch (err) {
@@ -145,7 +173,7 @@ async function publishJobFailure(ctx: any, job: any, message: string) {
   try {
     const command = new PutJobFailureResultCommand(params)
     const result = await getCodePipelineClient().send(command)
-    console.info(`Job failed with ${result}`)  
+    console.info(`Job failed with ${result}`)
     ctx.fail(message)
   } catch (err) {
     ctx.fail(err)

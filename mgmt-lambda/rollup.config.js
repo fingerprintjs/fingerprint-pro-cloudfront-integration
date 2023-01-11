@@ -1,5 +1,7 @@
 import typescript from '@rollup/plugin-typescript'
 import jsonPlugin from '@rollup/plugin-json'
+import licensePlugin from 'rollup-plugin-license'
+import { join } from 'path'
 import external from 'rollup-plugin-peer-deps-external'
 import dtsPlugin from 'rollup-plugin-dts'
 const dotenv = require('dotenv')
@@ -11,12 +13,21 @@ const inputFile = 'src/app.ts'
 const outputDirectory = 'dist'
 const artifactName = 'fingerprintjs-pro-cloudfront-mgmt-lambda-function'
 
+const commonBanner = licensePlugin({
+  banner: {
+    content: {
+      file: join(__dirname, 'assets', 'license_banner.txt'),
+    },
+  },
+})
+
 const commonInput = {
   input: inputFile,
   plugins: [
     jsonPlugin(),
     typescript(),
     external(),
+    commonBanner
   ],
 }
 
