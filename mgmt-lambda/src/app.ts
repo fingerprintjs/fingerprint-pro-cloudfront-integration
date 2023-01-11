@@ -98,12 +98,18 @@ export async function handler(event: any, ctx: any) {
     publishJobFailure(ctx, job, 'Path pattern is not defined')
     return
   }
+
+  let pathPattern = cacheBehavior.PathPattern
+  if (!pathPattern.startsWith('/')) {
+    pathPattern = '/' + pathPattern
+  }
+
   const invalidationParams: CreateInvalidationCommandInput = {
     DistributionId: cloudFrontDistrId,
     InvalidationBatch: {
       Paths: {
         Quantity: 1,
-        Items: [cacheBehavior.PathPattern]
+        Items: [pathPattern],
       },
       CallerReference: 'fingerprint-pro-management-lambda-function'
     }
