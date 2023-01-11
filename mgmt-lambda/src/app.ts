@@ -4,6 +4,8 @@ import {
   UpdateDistributionCommand,
   UpdateDistributionCommandInput,
   GetDistributionConfigCommandOutput,
+  CreateInvalidationCommand,
+  CreateInvalidationCommandInput,
 } from '@aws-sdk/client-cloudfront'
 import {
   CodePipelineClient,
@@ -90,6 +92,25 @@ export async function handler(event: any, ctx: any) {
   const updateConfigCommand = new UpdateDistributionCommand(updateParams)
   const updateCFResult = await cloudFrontClient.send(updateConfigCommand)
   console.info(`CloudFront update has finished, ${JSON.stringify(updateCFResult)}`)
+
+  console.info('Going to invalidate routes for upgraded cache behavior')
+  if (!cacheBehavior.PathPattern) {
+    publishJobFailure(ctx, job, 'Path pattern is not defined')
+    return
+  }
+  const invalidationParams: CreateInvalidationCommandInput = {
+    DistributionId: cloudFrontDistrId,
+    InvalidationBatch: {
+      Paths: {
+        Quantity: 1,
+        Items: [cacheBehavior.PathPattern]
+      },
+      CallerReference: 'fingerprint-pro-management-lambda-function'
+    }
+  }
+  const invalidationCommand = new CreateInvalidationCommand(invalidationParams)
+  const invalidationResult = await cloudFrontClient.send(invalidationCommand)
+  console.info(`Invalidation has finished, ${JSON.stringify(invalidationResult)}`)
 
   publishJobSuccess(ctx, job)
 }
