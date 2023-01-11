@@ -110,6 +110,7 @@ Resources:
               - cloudfront:GetDistribution
               - cloudfront:UpdateDistribution
               - cloudfront:GetDistributionConfig
+              - cloudfront:CreateInvalidation
             Resource: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${DistributionId}
       - PolicyName: CodePipelinePublishingResults
         PolicyDocument:
