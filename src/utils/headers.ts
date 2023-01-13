@@ -27,10 +27,10 @@ export async function prepareHeadersForIngressAPI(
 ): Promise<OutgoingHttpHeaders> {
   const headers = filterRequestHeaders(request)
 
-  headers['fpjs-client-ip'] = request.clientIp
+  headers['fpjs-proxy-client-ip'] = request.clientIp
   const preSharedSecret = await getPreSharedSecret(variables)
   if (preSharedSecret) {
-    headers['fpjs-proxy-identification'] = preSharedSecret
+    headers['fpjs-proxy-secret'] = preSharedSecret
   }
 
   return headers
