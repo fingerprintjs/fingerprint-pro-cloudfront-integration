@@ -42,8 +42,8 @@ describe('test fpjs-headers preparation', () => {
       },
     }
     const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req))
-    expect(headers['fpjs-client-ip']).toBe('1.1.1.1')
-    expect(headers['fpjs-proxy-identification']).toBe('qwertyuio1356767')
+    expect(headers['fpjs-proxy-client-ip']).toBe('1.1.1.1')
+    expect(headers['fpjs-proxy-secret']).toBe('qwertyuio1356767')
   })
 
   test('secret is not defined', async () => {
@@ -67,8 +67,8 @@ describe('test fpjs-headers preparation', () => {
       },
     }
     const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req))
-    expect(headers['fpjs-client-ip']).toBe('1.1.1.1')
-    expect(headers.hasOwnProperty('fpjs-proxy-identification')).toBeFalsy()
+    expect(headers['fpjs-proxy-client-ip']).toBe('1.1.1.1')
+    expect(headers.hasOwnProperty('fpjs-proxy-secret')).toBeFalsy()
   })
 })
 
