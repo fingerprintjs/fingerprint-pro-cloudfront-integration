@@ -22,11 +22,16 @@
 
 # Fingerprint Pro CloudFront Integration
 
+> **Warning**
+> This project is in the Private Beta phase. For more information, reach out to [support@fingerprint.com](mailto:support@fingerprint.com).
+
 Fingerprint Pro CloudFront Integration is responsible for proxying identification and agent-download requests that are performed on your AWS infrastructure.
 
 
 ## Setup process
 The process consists of two steps. One needs to set up Serveless application creation with our support at [support@fingerprint.com](mailto:support@fingerprint.com). Afterwards, the Fingerprint Pro JS agent on the site needs to be configured to communicate with the Lambda@Edge function.
+
+You can find the full documentation at https://dev.fingerprint.com/docs/cloudfront-proxy-integration.
 
 
 ## License
