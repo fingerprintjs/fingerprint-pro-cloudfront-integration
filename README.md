@@ -30,7 +30,7 @@ Fingerprint Pro CloudFront Integration is responsible for
 * Delivering the latest Fingerprint Pro JS Agent to your site.
 * Proxying identification requests and responses between your site and Fingerprint Pro's APIs.
 
-This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration#the-benefits-of-using-the-cloudfront-integration) both accurancy and resilience of visitor identification and bot detection on your site.
+This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration#the-benefits-of-using-the-cloudfront-integration) both accurancy and reliability of visitor identification and bot detection on your site.
 
 ## Setup
 
