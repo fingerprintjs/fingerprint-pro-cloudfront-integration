@@ -25,14 +25,22 @@
 > **Warning**
 > This project is in the Private Beta phase. For more information, reach out to [support@fingerprint.com](mailto:support@fingerprint.com).
 
-Fingerprint Pro CloudFront Integration is responsible for proxying identification and agent-download requests that are performed on your AWS infrastructure.
+Fingerprint Pro CloudFront Integration is responsible for
 
+* Delivering the latest Fingerprint Pro JS Agent to your site.
+* Proxying identification requests and responses between your site and Fingerprint Pro's APIs.
 
-## Setup process
-The process consists of two steps. One needs to set up Serveless application creation with our support at [support@fingerprint.com](mailto:support@fingerprint.com). Afterwards, the Fingerprint Pro JS agent on the site needs to be configured to communicate with the Lambda@Edge function.
+This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration#the-benefits-of-using-the-cloudfront-integration) both accurancy and resilience of visitor identification and bot detection on your site.
 
-You can find the full documentation at https://dev.fingerprint.com/docs/cloudfront-proxy-integration.
+## Setup
 
+To set up Cloudfront integration, you need to 
+
+1. Create the required resources in your AWS infrastructure — a secret, a CloudFormation stack, and a Cloudfront distribution.
+2. Configure the Fingerprint Pro JS Agent on your site to communicate with your created Lambda@Edge function.
+
+See [Cloudflare Proxy Integration guide](https://dev.fingerprint.com/docs/cloudfront-proxy-integration) in our documentation for step-by-step instructions. Some steps require contacting our support team, which you can do at [support@fingerprint.com](mailto:support@fingerprint.com). 
 
 ## License
+
 This project is licensed under the MIT license. See the [LICENSE](https://github.com/fingerprintjs/fingerprintjs-pro-cloudflare-worker/blob/main/LICENSE) file for more info.
