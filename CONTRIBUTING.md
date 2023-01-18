@@ -51,7 +51,7 @@ You are required to follow [conventional commits](https://www.conventionalcommit
 
 ### How to test
 
-End-to-end tests are located in `test/e2e` folder and run by [playwright](https://github.com/microsoft/playwright) environment. 
+End-to-end tests are located in `e2e` folder and run by [playwright](https://github.com/microsoft/playwright) environment. 
 These tests are run automatically by the `deploy_test_branch.yml` workflow on every PR automatically, you don't need to run them locally. 
 
 ### How to release a new version
@@ -60,4 +60,4 @@ The workflow `release.yml` is responsible for releasing a new version. It has to
 
 ### How to keep your worker up-to-date
 
-CloudFront Integration by Fingerprint always uses the latest stable version for the customers, and upgrades customer Lambda@Edge automatically by running CodePipeline once new version of Lambda@Edge function is available on public [S3 bucket](s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip).
+CloudFront Integration by Fingerprint always uses the latest stable version for the customers, and upgrades customer Lambda@Edge automatically by running CodePipeline once new version of Lambda@Edge function is available on public [S3 bucket](s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip). Serverless application that contains CodePipeline is responsible to deliver new update from S3 bucket to customer's infrastructure.
