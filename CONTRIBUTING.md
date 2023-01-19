@@ -38,7 +38,7 @@ Consistent code formatting is enforced by [ESLint](https://eslint.org/) and [Pre
 yarn lint
 ```
 
-You aren't required to run the check manually, the CI will do it. Run the following command to fix style issues (not all issues can be fixed automatically):
+You don't need to do this manually, CI runs the check automatically. To fix all auto-fixable issues at once, run:
 ```shell
 yarn lint:fix
 ```
