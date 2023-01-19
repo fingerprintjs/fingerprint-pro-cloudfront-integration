@@ -22,12 +22,26 @@
 
 # Fingerprint Pro CloudFront Integration
 
-Fingerprint Pro CloudFront Integration is responsible for proxying identification and agent-download requests that are performed on your AWS infrastructure.
+> **Warning**
+> This project is in the Private Beta phase. For more information, reach out to [support@fingerprint.com](mailto:support@fingerprint.com).
+
+Fingerprint Pro CloudFront Integration is responsible for
+
+* Proxying download requests of the latest Fingerprint Pro JS Agent between your site and Fingerprint CDN.
+* Proxying identification requests and responses between your site and Fingerprint Pro's APIs.
+
+This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration#the-benefits-of-using-the-cloudfront-integration) both accurancy and reliability of visitor identification and bot detection on your site.
+
+## Setup
+
+To set up Cloudfront integration, you need to 
+
+1. Create the required resources in your AWS infrastructure — a secret stored in the Secrets Manager, a CloudFormation stack, and a CloudFront distribution.
+2. Configure the Fingerprint Pro JS Agent on your site to communicate with your created Lambda@Edge function using the [endpoint](https://dev.fingerprint.com/docs/js-agent#endpoint) parameter.
 
 
-## Setup process
-The process consists of two steps. One needs to set up Serveless application creation with our support at [support@fingerprint.com](mailto:support@fingerprint.com). Afterwards, the Fingerprint Pro JS agent on the site needs to be configured to communicate with the Lambda@Edge function.
-
+See [Cloudflare Proxy Integration guide](https://dev.fingerprint.com/docs/cloudfront-proxy-integration) in our documentation for step-by-step instructions. Some steps require contacting our support team, which you can do at [support@fingerprint.com](mailto:support@fingerprint.com). 
 
 ## License
+
 This project is licensed under the MIT license. See the [LICENSE](https://github.com/fingerprintjs/fingerprintjs-pro-cloudflare-worker/blob/main/LICENSE) file for more info.
