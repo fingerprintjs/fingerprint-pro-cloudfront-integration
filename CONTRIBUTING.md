@@ -60,4 +60,4 @@ The workflow `release.yml` is responsible for releasing a new version. It has to
 
 ### How to keep your worker up-to-date
 
-CloudFront Integration by Fingerprint always uses the latest stable version for the customers, and upgrades customer Lambda@Edge automatically by running CodePipeline once new version of Lambda@Edge function is available on public [S3 bucket](s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip). Serverless application that contains CodePipeline is responsible to deliver new update from S3 bucket to customer's infrastructure.
+CloudFront Integration by Fingerprint always uses the latest stable version for the customers and upgrades customer Lambda@Edge automatically by running CodePipeline once a new version of Lambda@Edge function is available on the public [S3 bucket](s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip). The serverless application that contains the CodePipeline is responsible for delivering new updates from the S3 bucket to the customer's infrastructure.
