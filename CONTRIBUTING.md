@@ -19,17 +19,17 @@ For proposing changes, use the standard [pull request approach](https://docs.git
 
 ### How to deploy to Lambda@Edge
 
-Install [AWS CLI](https://aws.amazon.com/cli/) provided by AWS.
-Configure AWS CLI according to the [guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html).
+1. Install the [AWS CLI](https://aws.amazon.com/cli/) and configure it according to the [AWS CLI Guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html).
+2. Create a Lambda function using the [AWS Console](https://us-east-1.console.aws.amazon.com/lambda). For the Lambda function for CloudFront distribution, you must create it in the `us-east-1` region.
+3. Prepare a `.zip` archive that contains the built Lambda@Edge function (`dist/fingerprintjs-pro-cloudfront-lambda-function.js`).
+4. Run 
+    ```shell
+    aws lambda update-function-code --function-name <LAMBDA_FUNCTION_NAME> --region <AWS_REGION> --zip-file file://lambda.zip --publish
+    ```
 
-You need Lambda function created at [AWS Console](https://us-east-1.console.aws.amazon.com/lambda). In case of Lambda@Edge function for CloudFront distribution it's required to create the function in `us-east-1` region.
+You can invoke the function from your local environment using the [Invoke command](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/lambda/invoke.html) in the AWS CLI, for example `aws lambda invoke --function-name <LAMBDA_FUNCTION_NAME> --region <AWS_REGION> --invocation-type RequestResponse --payload <EVENT_JSON>`, where the `<EVENT_JSON>` is the JSON you want to provide to your Lambda function as input. See [examples of events here](test/lambda).
 
-Prepare a zip file that contains Lambda@Edge function (`dist/fingerprintjs-pro-cloudfront-lambda-function`).
-Then, you can run `aws lambda update-function-code --function-name <LAMBDA_FUNCTION_NAME> --region <AWS_REGION> --zip-file fileb://lambda.zip --publish`
-
-You can invoke the function from your local environment using [Invoke command](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/lambda/invoke.html) from AWS CLI. For example, `aws lambda invoke --function-name <LAMBDA_FUNCTION_NAME> --region <AWS_REGION> --invocation-type RequestResponse --payload <EVENT_JSON>`. `<EVENT_JSON>` is the JSON that you want to provide to your Lambda function as input. Please refer to [examples](test/lambda) of events.
-
-If you want to deploy your function to CloudFront distribution please follow the [guide](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-edge-how-it-works-tutorial.html#lambda-edge-how-it-works-tutorial-add-trigger).
+To deploy your function to your CloudFront distribution follow the [Cloudfront Developer Guide](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-edge-how-it-works-tutorial.html#lambda-edge-how-it-works-tutorial-add-trigger).
 
 ### Code style
 
