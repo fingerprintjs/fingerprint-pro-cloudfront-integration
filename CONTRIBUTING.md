@@ -4,15 +4,13 @@
 
 We prefer using [yarn](https://yarnpkg.com/) for installing dependencies and running scripts.
 
-The `main` and `develop` branches are locked for the push action. 
-
-`main` branch is always where we create releases. If you have CloudFront Integration set up, the source code is from the `main` branch. 
-
-`develop` branch can be taught of as candidate for the next release. The code always passes the tests in `develop` branch. 
 
 For proposing changes, use the standard [pull request approach](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request). It's recommended to discuss fixes or new functionality in the Issues, first.
 
-Create pull requests for `develop` branch. No pull requests to `main` branch will be accepted.
+* The `main` and `develop` branches are locked for the push action.
+* Releases are created from the `main` branch. If you have CloudFront Integration set up, it is running code from the `main` branch. Pull requests into the `main` branch are not accepted.
+* The `develop` branch functions as a candidate for the next release. Create your pull requests into this branch. The code in `develop` must always pass the tests. 
+
 
 ### How to build
 After cloning the repo, run `yarn install` to install packages.
