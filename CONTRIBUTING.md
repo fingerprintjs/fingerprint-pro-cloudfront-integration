@@ -13,7 +13,7 @@ For proposing changes, use the standard [pull request approach](https://docs.git
 
 
 ### How to build
-After cloning the repo, run `yarn install` to install packages.
+* After cloning the repository, run `yarn install` to install dependencies.
 
 Run `yarn build` for creating a build in `dist` folder. After building, `dist/fingerprintjs-pro-cloudfront-lambda-function.js` file is created, and it is used to deploy to Lambda@Edge.
 
