@@ -37,8 +37,8 @@ This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration#th
 To set up Cloudfront integration, you need to 
 
 1. Create the required resources in your AWS infrastructure — a secret stored in the Secret Manager, a CloudFormation stack, and a CloudFront distribution.
-2. Configure the Fingerprint Pro JS Agent on your site to communicate with your created Lambda@Edge function using [endpoint](https://dev.fingerprint.com/docs/js-agent#endpoint) parameter.
-)
+2. Configure the Fingerprint Pro JS Agent on your site to communicate with your created Lambda@Edge function using the [endpoint](https://dev.fingerprint.com/docs/js-agent#endpoint) parameter.
+
 
 See [Cloudflare Proxy Integration guide](https://dev.fingerprint.com/docs/cloudfront-proxy-integration) in our documentation for step-by-step instructions. Some steps require contacting our support team, which you can do at [support@fingerprint.com](mailto:support@fingerprint.com). 
 
