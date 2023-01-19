@@ -33,7 +33,7 @@ To deploy your function to your CloudFront distribution follow the [Cloudfront D
 
 ### Code style
 
-The code style is controlled by [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/). Run to check that the code style is ok:
+Consistent code formatting is enforced by [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/). To check your code, run:
 ```shell
 yarn lint
 ```
