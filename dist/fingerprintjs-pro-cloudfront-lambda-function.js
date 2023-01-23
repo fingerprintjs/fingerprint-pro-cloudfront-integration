@@ -1,5 +1,5 @@
 /**
- * FingerprintJS Pro CloudFront Lambda function v0.0.8 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
+ * FingerprintJS Pro CloudFront Lambda function v1.0.0 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
 
@@ -211,7 +211,7 @@ function getQueryParameter(request, key, logger) {
     return undefined;
 }
 
-const LAMBDA_FUNC_VERSION = '0.0.8';
+const LAMBDA_FUNC_VERSION = '1.0.0';
 const PARAM_NAME = 'ii';
 function addTrafficMonitoringSearchParamsForProCDN(url) {
     url.searchParams.append(PARAM_NAME, getTrafficMonitoringValue('procdn'));
@@ -278,7 +278,9 @@ function handleResult(options) {
         options.logger.debug('Handling result:', options);
         const data = [];
         const url = new URL(getIngressAPIHost(options.region));
-        options.querystring.split('&').forEach((it) => {
+        decodeURIComponent(options.querystring)
+            .split('&')
+            .forEach((it) => {
             const kv = it.split('=');
             url.searchParams.append(kv[0], kv[1]);
         });
@@ -426,7 +428,7 @@ function renderHtml({ version, envInfo }) {
 }
 async function getStatusInfo(customerVariables) {
     return {
-        version: '0.0.8',
+        version: '1.0.0',
         envInfo: await getEnvInfo(customerVariables),
     };
 }

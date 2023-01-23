@@ -1,6 +1,6 @@
 {
   "name": "@fingerprintjs/fingerprint-pro-cloudfront-mgmt-lambda",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "Fingerprint Pro CloudFront integration management",
   "author": "FingerprintJS, Inc (https://fingerprint.com)",
   "license": "MIT",

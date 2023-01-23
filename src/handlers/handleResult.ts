@@ -11,10 +11,12 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
     const data: any[] = []
 
     const url = new URL(getIngressAPIHost(options.region))
-    options.querystring.split('&').forEach((it) => {
-      const kv = it.split('=')
-      url.searchParams.append(kv[0], kv[1])
-    })
+    decodeURIComponent(options.querystring)
+      .split('&')
+      .forEach((it) => {
+        const kv = it.split('=')
+        url.searchParams.append(kv[0], kv[1])
+      })
     addTrafficMonitoringSearchParamsForVisitorIdRequest(url)
 
     options.logger.debug('Performing request', url.toString())
