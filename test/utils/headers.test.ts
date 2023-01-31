@@ -154,6 +154,7 @@ describe('updateResponseHeaders', () => {
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-amz-cf-id')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amzn-cf-id')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-amz-cf-pop')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-amz-cf-xxx')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-edge-cf-xxx')).toBe(false)
