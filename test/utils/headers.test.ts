@@ -144,10 +144,14 @@ describe('updateResponseHeaders', () => {
       'set-cookie': ['_iidf', 'HttpOnly', 'Domain=cloudfront.net'],
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
+      'x-amz-cf-id': 'qwewrwer',
+      'x-amz-cf-pop': 'dsjfdsa'
     }
     const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amz-cf-id')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amz-cf-pop')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('public, max-age=3600, s-maxage=60')
     expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
   })

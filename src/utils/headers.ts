@@ -46,10 +46,10 @@ const READ_ONLY_RESPONSE_HEADERS = new Set([
   'via',
 ])
 
+const READ_ONLY_REQUEST_HEADERS = new Set(['content-length', 'host', 'transfer-encoding', 'via'])
+
 const COOKIE_HEADER_NAME = 'set-cookie'
 const CACHE_CONTROL_HEADER_NAME = 'cache-control'
-
-const READ_ONLY_REQUEST_HEADERS = ['content-length', 'host', 'transfer-encoding', 'via']
 
 export async function prepareHeadersForIngressAPI(
   request: CloudFrontRequest,
@@ -72,7 +72,7 @@ export function filterRequestHeaders(request: CloudFrontRequest): OutgoingHttpHe
   return Object.entries(request.headers).reduce((result: { [key: string]: string }, [name, value]) => {
     const headerName = name.toLowerCase()
     // Lambda@Edge function can't add read-only headers from a client request to Ingress API request
-    if (!READ_ONLY_REQUEST_HEADERS.includes(headerName)) {
+    if (isHeaderAllowedForRequest(headerName)) {
       let headerValue = value[0].value
       if (headerName === 'cookie') {
         headerValue = headerValue.split(/; */).join('; ')
@@ -91,7 +91,7 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
   for (const [key, value] of Object.entries(headers)) {
     // Lambda@Edge function can't add read-only headers to response to CloudFront
     // So, such headers from IngressAPI response are filtered out before return the response to CloudFront
-    if (isBlacklistedOrReadOnlyHeader(key)) {
+    if (!isHeaderAllowedForResponse(key)) {
       continue
     }
 
@@ -122,16 +122,28 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
   return resultHeaders
 }
 
-function isBlacklistedOrReadOnlyHeader(headerName: string) {
-  if (READ_ONLY_RESPONSE_HEADERS.has(headerName) || BLACKLISTED_HEADERS.has(headerName)) {
-    return true
+function isHeaderAllowedForRequest(headerName: string) {
+  if (READ_ONLY_REQUEST_HEADERS.has(headerName) || BLACKLISTED_HEADERS.has(headerName)) {
+    return false
   }
-  for (const prefix in BLACKLISTED_HEADERS_PREFIXES) {
-    if (headerName.startsWith(prefix)) {
-      return true
+  for (let i = 0; i < BLACKLISTED_HEADERS_PREFIXES.length; i++) {
+    if (headerName.startsWith(BLACKLISTED_HEADERS_PREFIXES[i])) {
+      return false
     }
   }
-  return false
+  return true
+}
+
+function isHeaderAllowedForResponse(headerName: string) {
+  if (READ_ONLY_RESPONSE_HEADERS.has(headerName) || BLACKLISTED_HEADERS.has(headerName)) {
+    return false
+  }
+  for (let i = 0; i < BLACKLISTED_HEADERS_PREFIXES.length; i++) {
+    if (headerName.startsWith(BLACKLISTED_HEADERS_PREFIXES[i])) {
+      return false
+    }
+  }
+  return true
 }
 
 export function getOriginForHeaders({ origin }: CloudFrontRequest) {
