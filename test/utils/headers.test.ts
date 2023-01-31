@@ -146,7 +146,7 @@ describe('updateResponseHeaders', () => {
       'custom-header-1': 'gdfddfd',
     }
     const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
-    expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('public, max-age=3600, s-maxage=60')
     expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
@@ -168,7 +168,7 @@ describe('updateResponseHeaders', () => {
       'custom-header-1': 'gdfddfd',
     }
     const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
-    expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('no-cache, max-age=3600, s-maxage=60')
     expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
