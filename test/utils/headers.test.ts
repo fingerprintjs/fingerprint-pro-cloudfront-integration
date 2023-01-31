@@ -116,6 +116,42 @@ describe('filterRequestHeaders', () => {
             value: '_iidt=7A03Gwg; _vid_t=gEFRuIQlzYmv692/UL4GLA==',
           },
         ],
+        'x-amzn-cf-id': [
+          {
+            key: 'x-amzn-cf-id',
+            value: 'some value'
+          }
+        ],
+        'x-amz-cf-id': [
+          {
+            key: 'x-amz-cf-id',
+            value: 'some value'
+          }
+        ],
+        'x-amz-cf-yyy': [
+          {
+            key: 'x-amz-cf-yyy',
+            value: 'some value'
+          }
+        ],
+        'x-amzn-cf-zzz': [
+          {
+            key: 'x-amzn-cf-zzz',
+            value: 'some-value'
+          }
+        ],
+        'x-custom-header': [
+          {
+            key: 'x-custom-header',
+            value: 'value123899'
+          }
+        ],
+        'x-edge-qqq': [
+          {
+            key: 'x-edge-qqq',
+            value: 'some value'
+          }
+        ]
       },
     }
     const headers = filterRequestHeaders(req)
@@ -126,6 +162,12 @@ describe('filterRequestHeaders', () => {
     expect(headers.hasOwnProperty('via')).toBe(false)
     expect(headers['content-type']).toBe('application/json')
     expect(headers['cookie']).toBe('_iidt=7A03Gwg')
+    expect(headers['x-custom-header']).toBe('value123899')
+    expect(headers['x-amzn-cf-zzz']).toBe('some-value')
+    expect(headers.hasOwnProperty('x-amzn-cf-id')).toBe(false)
+    expect(headers.hasOwnProperty('x-amz-cf-id')).toBe(false)
+    expect(headers.hasOwnProperty('x-amz-cf-yyy')).toBe(false)
+    expect(headers.hasOwnProperty('x-edge-qqq')).toBe(false)    
   })
 })
 
