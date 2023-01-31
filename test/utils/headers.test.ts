@@ -157,7 +157,7 @@ describe('updateResponseHeaders', () => {
     expect(cfHeaders.hasOwnProperty('x-amzn-cf-id')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-amz-cf-pop')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-amz-cf-xxx')).toBe(false)
-    expect(cfHeaders.hasOwnProperty('x-edge-cf-xxx')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-edge-xxx')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('public, max-age=3600, s-maxage=60')
     expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
   })
