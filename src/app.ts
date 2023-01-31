@@ -30,6 +30,8 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
     new HeaderCustomerVariables(request),
   ])
 
+  console.log('info')
+
   logger.debug('Handling request', request)
 
   const pathname = removeTrailingSlashes(request.uri)
