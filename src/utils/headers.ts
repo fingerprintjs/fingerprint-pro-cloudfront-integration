@@ -31,6 +31,7 @@ const BLACKLISTED_HEADERS = new Set([
   'x-cache',
   'x-forwarded-proto',
   'x-real-ip',
+  'strict-transport-security',
 ])
 
 const BLACKLISTED_HEADERS_PREFIXES = ['x-edge-', 'x-amz-cf-']
