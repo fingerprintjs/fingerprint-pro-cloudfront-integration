@@ -116,6 +116,48 @@ describe('filterRequestHeaders', () => {
             value: '_iidt=7A03Gwg; _vid_t=gEFRuIQlzYmv692/UL4GLA==',
           },
         ],
+        'x-amzn-cf-id': [
+          {
+            key: 'x-amzn-cf-id',
+            value: 'some value'
+          }
+        ],
+        'x-amz-cf-id': [
+          {
+            key: 'x-amz-cf-id',
+            value: 'some value'
+          }
+        ],
+        'x-amz-cf-yyy': [
+          {
+            key: 'x-amz-cf-yyy',
+            value: 'some value'
+          }
+        ],
+        'x-amzn-cf-zzz': [
+          {
+            key: 'x-amzn-cf-zzz',
+            value: 'some-value'
+          }
+        ],
+        'x-custom-header': [
+          {
+            key: 'x-custom-header',
+            value: 'value123899'
+          }
+        ],
+        'x-edge-qqq': [
+          {
+            key: 'x-edge-qqq',
+            value: 'some value'
+          }
+        ],
+        'strict-transport-security': [
+          {
+            key: 'strict-transport-security',
+            value: 'max-age=600'
+          }
+        ]
       },
     }
     const headers = filterRequestHeaders(req)
@@ -126,6 +168,13 @@ describe('filterRequestHeaders', () => {
     expect(headers.hasOwnProperty('via')).toBe(false)
     expect(headers['content-type']).toBe('application/json')
     expect(headers['cookie']).toBe('_iidt=7A03Gwg')
+    expect(headers['x-custom-header']).toBe('value123899')
+    expect(headers['x-amzn-cf-zzz']).toBe('some-value')
+    expect(headers.hasOwnProperty('x-amzn-cf-id')).toBe(false)
+    expect(headers.hasOwnProperty('x-amz-cf-id')).toBe(false)
+    expect(headers.hasOwnProperty('x-amz-cf-yyy')).toBe(false)
+    expect(headers.hasOwnProperty('x-edge-qqq')).toBe(false)
+    expect(headers.hasOwnProperty('strict-transport-security')).toBe(false)
   })
 })
 
@@ -144,12 +193,24 @@ describe('updateResponseHeaders', () => {
       'set-cookie': ['_iidf', 'HttpOnly', 'Domain=cloudfront.net'],
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
+      'x-amz-cf-id': 'qwewrwer',
+      'x-amz-cf-pop': 'dsjfdsa',
+      'x-amzn-cf-id': 'zxcvbn',
+      'x-amz-cf-xxx': 'cxc',
+      'x-edge-xxx': 'ery8u',
+      'strict-transport-security': 'max-age=1000'
     }
     const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
-    expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amz-cf-id')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amzn-cf-id')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amz-cf-pop')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amz-cf-xxx')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-edge-xxx')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('public, max-age=3600, s-maxage=60')
     expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
+    expect(cfHeaders.hasOwnProperty('strict-transport-security')).toBe(false)
   })
 
   test('update cache policy', () => {
@@ -168,7 +229,7 @@ describe('updateResponseHeaders', () => {
       'custom-header-1': 'gdfddfd',
     }
     const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
-    expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('no-cache, max-age=3600, s-maxage=60')
     expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
