@@ -5,21 +5,52 @@ import { updateCacheControlHeader } from './cache-control'
 import { CustomerVariables } from './customer-variables/customer-variables'
 import { getPreSharedSecret } from './customer-variables/selectors'
 
-const ALLOWED_RESPONSE_HEADERS = [
-  'access-control-allow-credentials',
-  'access-control-allow-origin',
-  'access-control-expose-headers',
-  'content-encoding',
-  'content-type',
-  'cross-origin-resource-policy',
-  'etag',
-  'vary',
-]
+const BLACKLISTED_HEADERS = new Set([
+  'connection',
+  'expect',
+  'keep-alive',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'proxy-connection',
+  'trailer',
+  'upgrade',
+  'x-accel-buffering',
+  'x-accel-charset',
+  'x-accel-limit-rate',
+  'x-accel-redirect',
+  'x-amzn-auth',
+  'x-amzn-cf-billing',
+  'x-amzn-cf-id',
+  'x-amzn-cf-xff',
+  'x-amzn-errortype',
+  'x-amzn-fle-profile',
+  'x-amzn-header-count',
+  'x-amzn-header-order',
+  'x-amzn-lambda-integration-tag',
+  'x-amzn-requestid',
+  'x-cache',
+  'x-forwarded-proto',
+  'x-real-ip',
+  'strict-transport-security',
+])
+
+const BLACKLISTED_HEADERS_PREFIXES = ['x-edge-', 'x-amz-cf-']
+
+const READ_ONLY_RESPONSE_HEADERS = new Set([
+  'accept-encoding',
+  'content-length',
+  'if-modified-since',
+  'if-none-match',
+  'if-range',
+  'if-unmodified-since',
+  'transfer-encoding',
+  'via',
+])
+
+const READ_ONLY_REQUEST_HEADERS = new Set(['content-length', 'host', 'transfer-encoding', 'via'])
 
 const COOKIE_HEADER_NAME = 'set-cookie'
 const CACHE_CONTROL_HEADER_NAME = 'cache-control'
-
-const BLACKLISTED_REQUEST_HEADERS = ['content-length', 'host', 'transfer-encoding', 'via']
 
 export async function prepareHeadersForIngressAPI(
   request: CloudFrontRequest,
@@ -41,7 +72,8 @@ export const getHost = (request: CloudFrontRequest) => request.headers['host'][0
 export function filterRequestHeaders(request: CloudFrontRequest): OutgoingHttpHeaders {
   return Object.entries(request.headers).reduce((result: { [key: string]: string }, [name, value]) => {
     const headerName = name.toLowerCase()
-    if (!BLACKLISTED_REQUEST_HEADERS.includes(headerName)) {
+    // Lambda@Edge function can't add read-only headers from a client request to Ingress API request
+    if (isHeaderAllowedForRequest(headerName)) {
       let headerValue = value[0].value
       if (headerName === 'cookie') {
         headerValue = headerValue.split(/; */).join('; ')
@@ -57,37 +89,62 @@ export function filterRequestHeaders(request: CloudFrontRequest): OutgoingHttpHe
 export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: string): CloudFrontHeaders {
   const resultHeaders: CloudFrontHeaders = {}
 
-  for (const name of ALLOWED_RESPONSE_HEADERS) {
-    const headerValue = headers[name]
-    if (headerValue) {
-      resultHeaders[name] = [
+  for (const [key, value] of Object.entries(headers)) {
+    // Lambda@Edge function can't add read-only headers to response to CloudFront
+    // So, such headers from IngressAPI response are filtered out before return the response to CloudFront
+    if (!isHeaderAllowedForResponse(key)) {
+      continue
+    }
+
+    if (key === COOKIE_HEADER_NAME && value !== undefined && Array.isArray(value)) {
+      resultHeaders[COOKIE_HEADER_NAME] = [
         {
-          key: name,
-          value: headerValue.toString(),
+          key: COOKIE_HEADER_NAME,
+          value: adjustCookies(value, domain),
+        },
+      ]
+    } else if (key == CACHE_CONTROL_HEADER_NAME && typeof value === 'string') {
+      resultHeaders[CACHE_CONTROL_HEADER_NAME] = [
+        {
+          key: CACHE_CONTROL_HEADER_NAME,
+          value: updateCacheControlHeader(value),
+        },
+      ]
+    } else if (value) {
+      resultHeaders[key] = [
+        {
+          key: key,
+          value: value.toString(),
         },
       ]
     }
   }
 
-  if (headers[COOKIE_HEADER_NAME] !== undefined) {
-    resultHeaders[COOKIE_HEADER_NAME] = [
-      {
-        key: COOKIE_HEADER_NAME,
-        value: adjustCookies(headers[COOKIE_HEADER_NAME], domain),
-      },
-    ]
-  }
-
-  if (headers[CACHE_CONTROL_HEADER_NAME] !== undefined) {
-    resultHeaders[CACHE_CONTROL_HEADER_NAME] = [
-      {
-        key: CACHE_CONTROL_HEADER_NAME,
-        value: updateCacheControlHeader(headers[CACHE_CONTROL_HEADER_NAME]),
-      },
-    ]
-  }
-
   return resultHeaders
+}
+
+function isHeaderAllowedForRequest(headerName: string) {
+  if (READ_ONLY_REQUEST_HEADERS.has(headerName) || BLACKLISTED_HEADERS.has(headerName)) {
+    return false
+  }
+  for (let i = 0; i < BLACKLISTED_HEADERS_PREFIXES.length; i++) {
+    if (headerName.startsWith(BLACKLISTED_HEADERS_PREFIXES[i])) {
+      return false
+    }
+  }
+  return true
+}
+
+function isHeaderAllowedForResponse(headerName: string) {
+  if (READ_ONLY_RESPONSE_HEADERS.has(headerName) || BLACKLISTED_HEADERS.has(headerName)) {
+    return false
+  }
+  for (let i = 0; i < BLACKLISTED_HEADERS_PREFIXES.length; i++) {
+    if (headerName.startsWith(BLACKLISTED_HEADERS_PREFIXES[i])) {
+      return false
+    }
+  }
+  return true
 }
 
 export function getOriginForHeaders({ origin }: CloudFrontRequest) {
