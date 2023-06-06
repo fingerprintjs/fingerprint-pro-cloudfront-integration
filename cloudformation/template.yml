@@ -3,7 +3,7 @@ Transform: 'AWS::Serverless-2016-10-31'
 Description: Fingerprint Pro Lambda@Edge function for CloudFront integration
 Parameters:
   SecretName:
-    AllowedPattern: ^([a-zA-Z0-9\-\:])+$
+    AllowedPattern: ^([a-zA-Z0-9\/_+=.@\-])+$
     Description: AWS Secret Name
     Type: String
   SecretRegion:
