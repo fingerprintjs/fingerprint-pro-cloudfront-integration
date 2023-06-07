@@ -6,6 +6,7 @@ import replace from '@rollup/plugin-replace'
 import { join } from 'path'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
+
 const dotenv = require('dotenv')
 dotenv.config()
 
@@ -25,10 +26,10 @@ const commonBanner = licensePlugin({
 
 const commonInput = {
   input: inputFile,
-  external: ['aws-sdk', 'https'],
-  plugins: [    
+  external: ['@aws-sdk/client-secrets-manager', 'https'],
+  plugins: [
     jsonPlugin(),
-    typescript(),    
+    typescript(),
     nodeResolve({ preferBuiltins: false }),
     commonjs(),
     replace({

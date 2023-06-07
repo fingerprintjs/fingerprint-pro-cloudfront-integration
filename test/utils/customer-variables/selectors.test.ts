@@ -4,10 +4,10 @@ import { HeaderCustomerVariables } from '../../../src/utils/customer-variables/h
 import { getAgentUri, getResultUri, getStatusUri } from '../../../src/utils'
 import { SecretsManagerVariables } from '../../../src/utils/customer-variables/secrets-manager/secrets-manager-variables'
 import { CustomerVariablesRecord, CustomerVariableType } from '../../../src/utils/customer-variables/types'
-import { Blob } from 'buffer'
 import { clearSecretsCache } from '../../../src/utils/customer-variables/secrets-manager/retrieve-secret'
 import { getMockSecretsManager } from '../../aws'
 import { getBehaviorPath } from '../../../src/utils/customer-variables/selectors'
+import { GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
 
 describe('customer variables selectors', () => {
   describe('from headers', () => {
@@ -147,19 +147,10 @@ describe('customer variables selectors', () => {
   })
 
   describe('from secrets manager', () => {
-    const { getSecretValue, MockSecretsManager, mockSecret } = getMockSecretsManager()
+    const { send, MockSecretsManager, mockSecret } = getMockSecretsManager()
 
     const getSecretsManagerCustomerVariables = (request: CloudFrontRequest) =>
       new CustomerVariables([new SecretsManagerVariables(request, MockSecretsManager as any)])
-
-    const stringToArrayBuffer = (str: string) => {
-      const buf = new ArrayBuffer(str.length)
-      const bufView = new Uint8Array(buf)
-      for (let i = 0, strLen = str.length; i < strLen; i++) {
-        bufView[i] = str.charCodeAt(i)
-      }
-      return bufView
-    }
 
     const req: CloudFrontRequest = {
       clientIp: '1.1.1.1',
@@ -208,22 +199,24 @@ describe('customer variables selectors', () => {
       expect(MockSecretsManager).toHaveBeenCalledWith({
         region: 'eu-west-1',
       })
-      expect(getSecretValue).toHaveBeenCalledTimes(1)
-      expect(getSecretValue).toHaveBeenCalledWith({
+      expect(send).toHaveBeenCalledTimes(1)
+
+      const cmd = send.mock.calls[0][0] as GetSecretValueCommand
+      expect(cmd.input).toEqual({
         SecretId: 'my_secret',
       })
 
       await checkVariables()
 
       // Ensure that the secret is only fetched once
-      expect(getSecretValue).toHaveBeenCalledTimes(1)
+      expect(send).toHaveBeenCalledTimes(1)
     }
 
     beforeEach(() => {
       clearSecretsCache()
 
       MockSecretsManager.mockClear()
-      getSecretValue.mockClear()
+      send.mockClear()
     })
 
     const variablesRecord = {
@@ -234,15 +227,14 @@ describe('customer variables selectors', () => {
     } as CustomerVariablesRecord
     const variablesRecordStr = JSON.stringify(variablesRecord)
 
-    test.each([
-      new Blob([variablesRecordStr]),
-      stringToArrayBuffer(variablesRecordStr),
-      Buffer.from(variablesRecordStr),
-    ])('positive scenario for custom origin with buffer secret', async (buffer) => {
-      mockSecret.asBuffer(buffer)
+    test.each([Buffer.from(variablesRecordStr)])(
+      'positive scenario for custom origin with buffer secret',
+      async (buffer) => {
+        mockSecret.asBuffer(buffer)
 
-      await runAssertions()
-    })
+        await runAssertions()
+      },
+    )
 
     test('positive scenario for custom origin with string secret', async () => {
       mockSecret.asString(variablesRecordStr)
@@ -288,7 +280,7 @@ describe('customer variables selectors', () => {
   })
 
   describe('from secrets manager and headers', () => {
-    const { getSecretValue, MockSecretsManager, mockSecret } = getMockSecretsManager()
+    const { send, MockSecretsManager, mockSecret } = getMockSecretsManager()
 
     const getCustomerVariables = (request: CloudFrontRequest) =>
       new CustomerVariables([
@@ -357,7 +349,7 @@ describe('customer variables selectors', () => {
       clearSecretsCache()
 
       MockSecretsManager.mockClear()
-      getSecretValue.mockClear()
+      send.mockClear()
     })
 
     it('should fallback to headers if secrets manager value is empty', async () => {
@@ -366,7 +358,7 @@ describe('customer variables selectors', () => {
       const result = await getBehaviorPath(getCustomerVariables(req))
 
       expect(result).toBe('eifjdsnmzxcn')
-      expect(getSecretValue).toHaveBeenCalledTimes(1)
+      expect(send).toHaveBeenCalledTimes(1)
     })
 
     it('should fallback to headers if secrets manager constructor throws', async () => {
@@ -377,7 +369,7 @@ describe('customer variables selectors', () => {
       const result = await getBehaviorPath(getCustomerVariables(req))
 
       expect(result).toBe('eifjdsnmzxcn')
-      expect(getSecretValue).toHaveBeenCalledTimes(0)
+      expect(send).toHaveBeenCalledTimes(0)
     })
 
     it('should fallback to headers if secrets manager related headers are empty', async () => {
@@ -429,7 +421,7 @@ describe('customer variables selectors', () => {
       const result = await getBehaviorPath(getCustomerVariables(req))
 
       expect(result).toBe('eifjdsnmzxcn')
-      expect(getSecretValue).toHaveBeenCalledTimes(0)
+      expect(send).toHaveBeenCalledTimes(0)
     })
   })
 })

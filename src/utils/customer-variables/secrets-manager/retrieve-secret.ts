@@ -1,9 +1,8 @@
 import { CustomerVariablesRecord } from '../types'
-import { SecretsManager } from 'aws-sdk'
+import { GetSecretValueCommand, GetSecretValueResponse, SecretsManager } from '@aws-sdk/client-secrets-manager'
 import { arrayBufferToString } from '../../buffer'
 import { normalizeSecret } from './normalize-secret'
 import { validateSecret } from './validate-secret'
-import { isBlob } from '../../is-blob'
 import { Logger } from '../../../logger'
 
 interface CacheEntry {
@@ -34,15 +33,9 @@ export async function retrieveSecret(secretsManager: SecretsManager, key: string
   return result
 }
 
-async function convertSecretToString(result: SecretsManager.GetSecretValueResponse) {
+async function convertSecretToString(result: GetSecretValueResponse) {
   if (result.SecretBinary) {
-    if (result.SecretBinary instanceof Uint8Array) {
-      return arrayBufferToString(result.SecretBinary)
-    } else if (isBlob(result.SecretBinary)) {
-      return await result.SecretBinary.text()
-    } else {
-      return result.SecretBinary.toString()
-    }
+    return arrayBufferToString(result.SecretBinary)
   } else {
     return result.SecretString || ''
   }
@@ -54,11 +47,11 @@ async function fetchSecret(
   logger: Logger,
 ): Promise<CustomerVariablesRecord | null> {
   try {
-    const result = await secretsManager
-      .getSecretValue({
+    const result = await secretsManager.send(
+      new GetSecretValueCommand({
         SecretId: key,
-      })
-      .promise()
+      }),
+    )
 
     const secretString = await convertSecretToString(result)
 

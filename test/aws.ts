@@ -1,41 +1,31 @@
-import { SecretsManager } from 'aws-sdk'
-
-export function toAwsResponse<T>(value: T) {
-  return {
-    promise: () => Promise.resolve(value),
-  }
-}
-
 export function getMockSecretsManager() {
-  const getSecretValue = jest.fn()
+  const send = jest.fn()
 
   const MockSecretsManager = jest.fn(() => ({
-    getSecretValue,
+    send,
   })) as jest.Mock
 
   const mockSecret = {
     asString: (value: string) => {
-      getSecretValue.mockReturnValue(toAwsResponse({ SecretString: value }))
+      send.mockReturnValue({ SecretString: value })
     },
-    asBuffer: (value: SecretsManager.SecretBinaryType) => {
-      getSecretValue.mockReturnValue(toAwsResponse({ SecretBinary: value }))
+    asBuffer: (value: Buffer) => {
+      send.mockReturnValue({ SecretBinary: value })
     },
     asUndefined: () => {
-      getSecretValue.mockReturnValue(
-        toAwsResponse({
-          SecretString: undefined,
-          SecretBinary: undefined,
-        }),
-      )
+      send.mockReturnValue({
+        SecretString: undefined,
+        SecretBinary: undefined,
+      })
     },
     asError: (error: Error) => {
-      getSecretValue.mockReturnValueOnce(toAwsResponse(Promise.reject(error)))
+      send.mockReturnValueOnce(Promise.reject(error))
     },
   }
 
   return {
     MockSecretsManager,
-    getSecretValue,
+    send,
     mockSecret,
   }
 }

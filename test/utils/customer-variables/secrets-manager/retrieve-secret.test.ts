@@ -5,7 +5,7 @@ import {
 } from '../../../../src/utils/customer-variables/secrets-manager/retrieve-secret'
 import { createLogger } from '../../../../src/logger'
 
-const { mockSecret, MockSecretsManager, getSecretValue } = getMockSecretsManager()
+const { mockSecret, MockSecretsManager, send } = getMockSecretsManager()
 
 const logger = createLogger()
 
@@ -14,7 +14,7 @@ describe('retrieve secret', () => {
     clearSecretsCache()
 
     MockSecretsManager.mockClear()
-    getSecretValue.mockClear()
+    send.mockClear()
   })
 
   it('caches result even if it is null', async () => {
@@ -23,7 +23,7 @@ describe('retrieve secret', () => {
     await retrieveSecret(new MockSecretsManager() as any, 'test', logger)
     await retrieveSecret(new MockSecretsManager() as any, 'test', logger)
 
-    expect(getSecretValue).toHaveBeenCalledTimes(1)
+    expect(send).toHaveBeenCalledTimes(1)
   })
 
   it('caches result even if it secrets manager throws', async () => {
@@ -32,6 +32,6 @@ describe('retrieve secret', () => {
     await retrieveSecret(new MockSecretsManager() as any, 'test', logger)
     await retrieveSecret(new MockSecretsManager() as any, 'test', logger)
 
-    expect(getSecretValue).toHaveBeenCalledTimes(1)
+    expect(send).toHaveBeenCalledTimes(1)
   })
 })

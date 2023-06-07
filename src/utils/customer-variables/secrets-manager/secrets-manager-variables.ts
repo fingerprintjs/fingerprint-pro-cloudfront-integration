@@ -1,5 +1,5 @@
 import { CustomerVariableProvider, CustomerVariableType, CustomerVariableValue } from '../types'
-import { SecretsManager } from 'aws-sdk'
+import { SecretsManager } from '@aws-sdk/client-secrets-manager'
 import { CloudFrontRequest } from 'aws-lambda'
 import { getHeaderValue } from '../../headers'
 import { retrieveSecret } from './retrieve-secret'
