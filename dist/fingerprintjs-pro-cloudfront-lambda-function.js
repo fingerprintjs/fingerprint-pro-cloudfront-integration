@@ -1,5 +1,5 @@
 /**
- * FingerprintJS Pro CloudFront Lambda function v1.0.3 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
+ * FingerprintJS Pro CloudFront Lambda function v1.0.4 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
 
@@ -267,7 +267,7 @@ function getQueryParameter(request, key, logger) {
     return undefined;
 }
 
-const LAMBDA_FUNC_VERSION = '1.0.3';
+const LAMBDA_FUNC_VERSION = '1.0.4';
 const PARAM_NAME = 'ii';
 function addTrafficMonitoringSearchParamsForProCDN(url) {
     url.searchParams.append(PARAM_NAME, getTrafficMonitoringValue('procdn'));
@@ -484,7 +484,7 @@ function renderHtml({ version, envInfo }) {
 }
 async function getStatusInfo(customerVariables) {
     return {
-        version: '1.0.3',
+        version: '1.0.4',
         envInfo: await getEnvInfo(customerVariables),
     };
 }
@@ -1466,7 +1466,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.bd",
-		reversed: "db"
+		reversed: "db.*"
 	},
 	{
 		suffix: "be",
@@ -2462,7 +2462,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.nom.br",
-		reversed: "rb.mon"
+		reversed: "rb.mon.*"
 	},
 	{
 		suffix: "not.br",
@@ -2926,11 +2926,12 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.ck",
-		reversed: "kc"
+		reversed: "kc.*"
 	},
 	{
 		suffix: "!www.ck",
-		reversed: "kc.www"
+		reversed: "kc.www",
+		excluded: true
 	},
 	{
 		suffix: "cl",
@@ -7114,59 +7115,66 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.kawasaki.jp",
-		reversed: "pj.ikasawak"
+		reversed: "pj.ikasawak.*"
 	},
 	{
 		suffix: "*.kitakyushu.jp",
-		reversed: "pj.uhsuykatik"
+		reversed: "pj.uhsuykatik.*"
 	},
 	{
 		suffix: "*.kobe.jp",
-		reversed: "pj.ebok"
+		reversed: "pj.ebok.*"
 	},
 	{
 		suffix: "*.nagoya.jp",
-		reversed: "pj.ayogan"
+		reversed: "pj.ayogan.*"
 	},
 	{
 		suffix: "*.sapporo.jp",
-		reversed: "pj.oroppas"
+		reversed: "pj.oroppas.*"
 	},
 	{
 		suffix: "*.sendai.jp",
-		reversed: "pj.iadnes"
+		reversed: "pj.iadnes.*"
 	},
 	{
 		suffix: "*.yokohama.jp",
-		reversed: "pj.amahokoy"
+		reversed: "pj.amahokoy.*"
 	},
 	{
 		suffix: "!city.kawasaki.jp",
-		reversed: "pj.ikasawak.ytic"
+		reversed: "pj.ikasawak.ytic",
+		excluded: true
 	},
 	{
 		suffix: "!city.kitakyushu.jp",
-		reversed: "pj.uhsuykatik.ytic"
+		reversed: "pj.uhsuykatik.ytic",
+		excluded: true
 	},
 	{
 		suffix: "!city.kobe.jp",
-		reversed: "pj.ebok.ytic"
+		reversed: "pj.ebok.ytic",
+		excluded: true
 	},
 	{
 		suffix: "!city.nagoya.jp",
-		reversed: "pj.ayogan.ytic"
+		reversed: "pj.ayogan.ytic",
+		excluded: true
 	},
 	{
 		suffix: "!city.sapporo.jp",
-		reversed: "pj.oroppas.ytic"
+		reversed: "pj.oroppas.ytic",
+		excluded: true
 	},
 	{
 		suffix: "!city.sendai.jp",
-		reversed: "pj.iadnes.ytic"
+		reversed: "pj.iadnes.ytic",
+		excluded: true
 	},
 	{
 		suffix: "!city.yokohama.jp",
-		reversed: "pj.amahokoy.ytic"
+		reversed: "pj.amahokoy.ytic",
+		excluded: true
 	},
 	{
 		suffix: "aisai.aichi.jp",
@@ -13930,7 +13938,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.kh",
-		reversed: "hk"
+		reversed: "hk.*"
 	},
 	{
 		suffix: "ki",
@@ -14790,7 +14798,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.mm",
-		reversed: "mm"
+		reversed: "mm.*"
 	},
 	{
 		suffix: "mn",
@@ -18402,7 +18410,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.np",
-		reversed: "pn"
+		reversed: "pn.*"
 	},
 	{
 		suffix: "nr",
@@ -18654,7 +18662,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.pg",
-		reversed: "gp"
+		reversed: "gp.*"
 	},
 	{
 		suffix: "ph",
@@ -21502,7 +21510,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.sch.uk",
-		reversed: "ku.hcs"
+		reversed: "ku.hcs.*"
 	},
 	{
 		suffix: "us",
@@ -27854,11 +27862,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.devcdnaccesso.com",
-		reversed: "moc.osseccandcved"
+		reversed: "moc.osseccandcved.*"
 	},
 	{
 		suffix: "*.on-acorn.io",
-		reversed: "oi.nroca-no"
+		reversed: "oi.nroca-no.*"
 	},
 	{
 		suffix: "activetrail.biz",
@@ -27870,7 +27878,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.dev.adobeaemcloud.com",
-		reversed: "moc.duolcmeaeboda.ved"
+		reversed: "moc.duolcmeaeboda.ved.*"
 	},
 	{
 		suffix: "hlx.live",
@@ -27982,11 +27990,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.compute.estate",
-		reversed: "etatse.etupmoc"
+		reversed: "etatse.etupmoc.*"
 	},
 	{
 		suffix: "*.alces.network",
-		reversed: "krowten.secla"
+		reversed: "krowten.secla.*"
 	},
 	{
 		suffix: "kasserver.com",
@@ -28010,15 +28018,15 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.compute.amazonaws.com",
-		reversed: "moc.swanozama.etupmoc"
+		reversed: "moc.swanozama.etupmoc.*"
 	},
 	{
 		suffix: "*.compute-1.amazonaws.com",
-		reversed: "moc.swanozama.1-etupmoc"
+		reversed: "moc.swanozama.1-etupmoc.*"
 	},
 	{
 		suffix: "*.compute.amazonaws.com.cn",
-		reversed: "nc.moc.swanozama.etupmoc"
+		reversed: "nc.moc.swanozama.etupmoc.*"
 	},
 	{
 		suffix: "us-east-1.amazonaws.com",
@@ -28490,11 +28498,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.elb.amazonaws.com.cn",
-		reversed: "nc.moc.swanozama.ble"
+		reversed: "nc.moc.swanozama.ble.*"
 	},
 	{
 		suffix: "*.elb.amazonaws.com",
-		reversed: "moc.swanozama.ble"
+		reversed: "moc.swanozama.ble.*"
 	},
 	{
 		suffix: "awsglobalaccelerator.com",
@@ -28598,11 +28606,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.awdev.ca",
-		reversed: "ac.vedwa"
+		reversed: "ac.vedwa.*"
 	},
 	{
 		suffix: "*.advisor.ws",
-		reversed: "sw.rosivda"
+		reversed: "sw.rosivda.*"
 	},
 	{
 		suffix: "ecommerce-shop.pl",
@@ -28626,7 +28634,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.banzai.cloud",
-		reversed: "duolc.iaznab"
+		reversed: "duolc.iaznab.*"
 	},
 	{
 		suffix: "app.banzaicloud.io",
@@ -28634,7 +28642,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.backyards.banzaicloud.io",
-		reversed: "oi.duolciaznab.sdraykcab"
+		reversed: "oi.duolciaznab.sdraykcab.*"
 	},
 	{
 		suffix: "base.ec",
@@ -28682,7 +28690,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.beget.app",
-		reversed: "ppa.tegeb"
+		reversed: "ppa.tegeb.*"
 	},
 	{
 		suffix: "betainabox.com",
@@ -28978,19 +28986,19 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.lcl.dev",
-		reversed: "ved.lcl"
+		reversed: "ved.lcl.*"
 	},
 	{
 		suffix: "*.lclstage.dev",
-		reversed: "ved.egatslcl"
+		reversed: "ved.egatslcl.*"
 	},
 	{
 		suffix: "*.stg.dev",
-		reversed: "ved.gts"
+		reversed: "ved.gts.*"
 	},
 	{
 		suffix: "*.stgstage.dev",
-		reversed: "ved.egatsgts"
+		reversed: "ved.egatsgts.*"
 	},
 	{
 		suffix: "clickrising.net",
@@ -29038,7 +29046,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.cloudera.site",
-		reversed: "etis.areduolc"
+		reversed: "etis.areduolc.*"
 	},
 	{
 		suffix: "cf-ipfs.com",
@@ -29074,7 +29082,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.otap.co",
-		reversed: "oc.pato"
+		reversed: "oc.pato.*"
 	},
 	{
 		suffix: "co.cz",
@@ -29234,7 +29242,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.cryptonomic.net",
-		reversed: "ten.cimonotpyrc"
+		reversed: "ten.cimonotpyrc.*"
 	},
 	{
 		suffix: "cupcake.is",
@@ -29246,19 +29254,19 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.customer-oci.com",
-		reversed: "moc.ico-remotsuc"
+		reversed: "moc.ico-remotsuc.*"
 	},
 	{
 		suffix: "*.oci.customer-oci.com",
-		reversed: "moc.ico-remotsuc.ico"
+		reversed: "moc.ico-remotsuc.ico.*"
 	},
 	{
 		suffix: "*.ocp.customer-oci.com",
-		reversed: "moc.ico-remotsuc.pco"
+		reversed: "moc.ico-remotsuc.pco.*"
 	},
 	{
 		suffix: "*.ocs.customer-oci.com",
-		reversed: "moc.ico-remotsuc.sco"
+		reversed: "moc.ico-remotsuc.sco.*"
 	},
 	{
 		suffix: "cyon.link",
@@ -29338,11 +29346,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.dapps.earth",
-		reversed: "htrae.sppad"
+		reversed: "htrae.sppad.*"
 	},
 	{
 		suffix: "*.bzz.dapps.earth",
-		reversed: "htrae.sppad.zzb"
+		reversed: "htrae.sppad.zzb.*"
 	},
 	{
 		suffix: "builtwithdark.com",
@@ -29390,11 +29398,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.rss.my.id",
-		reversed: "di.ym.ssr"
+		reversed: "di.ym.ssr.*"
 	},
 	{
 		suffix: "*.diher.solutions",
-		reversed: "snoitulos.rehid"
+		reversed: "snoitulos.rehid.*"
 	},
 	{
 		suffix: "discordsays.com",
@@ -30630,7 +30638,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.digitaloceanspaces.com",
-		reversed: "moc.secapsnaecolatigid"
+		reversed: "moc.secapsnaecolatigid.*"
 	},
 	{
 		suffix: "bci.dnstrace.pro",
@@ -31394,7 +31402,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.user.fm",
-		reversed: "mf.resu"
+		reversed: "mf.resu.*"
 	},
 	{
 		suffix: "fastvps-server.com",
@@ -31554,7 +31562,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.frusky.de",
-		reversed: "ed.yksurf"
+		reversed: "ed.yksurf.*"
 	},
 	{
 		suffix: "ravpage.co.il",
@@ -31602,15 +31610,15 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.futurecms.at",
-		reversed: "ta.smcerutuf"
+		reversed: "ta.smcerutuf.*"
 	},
 	{
 		suffix: "*.ex.futurecms.at",
-		reversed: "ta.smcerutuf.xe"
+		reversed: "ta.smcerutuf.xe.*"
 	},
 	{
 		suffix: "*.in.futurecms.at",
-		reversed: "ta.smcerutuf.ni"
+		reversed: "ta.smcerutuf.ni.*"
 	},
 	{
 		suffix: "futurehosting.at",
@@ -31622,15 +31630,15 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.ex.ortsinfo.at",
-		reversed: "ta.ofnistro.xe"
+		reversed: "ta.ofnistro.xe.*"
 	},
 	{
 		suffix: "*.kunden.ortsinfo.at",
-		reversed: "ta.ofnistro.nednuk"
+		reversed: "ta.ofnistro.nednuk.*"
 	},
 	{
 		suffix: "*.statics.cloud",
-		reversed: "duolc.scitats"
+		reversed: "duolc.scitats.*"
 	},
 	{
 		suffix: "independent-commission.uk",
@@ -32210,7 +32218,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.0emm.com",
-		reversed: "moc.mme0"
+		reversed: "moc.mme0.*"
 	},
 	{
 		suffix: "appspot.com",
@@ -32218,7 +32226,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.r.appspot.com",
-		reversed: "moc.topsppa.r"
+		reversed: "moc.topsppa.r.*"
 	},
 	{
 		suffix: "codespot.com",
@@ -32250,7 +32258,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.gateway.dev",
-		reversed: "ved.yawetag"
+		reversed: "ved.yawetag.*"
 	},
 	{
 		suffix: "cloud.goog",
@@ -32262,7 +32270,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.usercontent.goog",
-		reversed: "goog.tnetnocresu"
+		reversed: "goog.tnetnocresu.*"
 	},
 	{
 		suffix: "cloudfunctions.net",
@@ -32722,7 +32730,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.moonscale.io",
-		reversed: "oi.elacsnoom"
+		reversed: "oi.elacsnoom.*"
 	},
 	{
 		suffix: "moonscale.net",
@@ -33310,19 +33318,19 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.hosting.myjino.ru",
-		reversed: "ur.onijym.gnitsoh"
+		reversed: "ur.onijym.gnitsoh.*"
 	},
 	{
 		suffix: "*.landing.myjino.ru",
-		reversed: "ur.onijym.gnidnal"
+		reversed: "ur.onijym.gnidnal.*"
 	},
 	{
 		suffix: "*.spectrum.myjino.ru",
-		reversed: "ur.onijym.murtceps"
+		reversed: "ur.onijym.murtceps.*"
 	},
 	{
 		suffix: "*.vps.myjino.ru",
-		reversed: "ur.onijym.spv"
+		reversed: "ur.onijym.spv.*"
 	},
 	{
 		suffix: "jotelulu.cloud",
@@ -33330,11 +33338,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.triton.zone",
-		reversed: "enoz.notirt"
+		reversed: "enoz.notirt.*"
 	},
 	{
 		suffix: "*.cns.joyent.com",
-		reversed: "moc.tneyoj.snc"
+		reversed: "moc.tneyoj.snc.*"
 	},
 	{
 		suffix: "js.org",
@@ -33478,11 +33486,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.nodebalancer.linode.com",
-		reversed: "moc.edonil.recnalabedon"
+		reversed: "moc.edonil.recnalabedon.*"
 	},
 	{
 		suffix: "*.linodeobjects.com",
-		reversed: "moc.stcejboedonil"
+		reversed: "moc.stcejboedonil.*"
 	},
 	{
 		suffix: "ip.linodeusercontent.com",
@@ -33494,7 +33502,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.user.localcert.dev",
-		reversed: "ved.treclacol.resu"
+		reversed: "ved.treclacol.resu.*"
 	},
 	{
 		suffix: "localzone.xyz",
@@ -33662,7 +33670,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.magentosite.cloud",
-		reversed: "duolc.etisotnegam"
+		reversed: "duolc.etisotnegam.*"
 	},
 	{
 		suffix: "mayfirst.info",
@@ -33730,7 +33738,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.cloud.metacentrum.cz",
-		reversed: "zc.murtnecatem.duolc"
+		reversed: "zc.murtnecatem.duolc.*"
 	},
 	{
 		suffix: "custom.metacentrum.cz",
@@ -33758,7 +33766,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.azurecontainer.io",
-		reversed: "oi.reniatnoceruza"
+		reversed: "oi.reniatnoceruza.*"
 	},
 	{
 		suffix: "azurewebsites.net",
@@ -33970,7 +33978,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.developer.app",
-		reversed: "ppa.repoleved"
+		reversed: "ppa.repoleved.*"
 	},
 	{
 		suffix: "noop.app",
@@ -33978,23 +33986,23 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.northflank.app",
-		reversed: "ppa.knalfhtron"
+		reversed: "ppa.knalfhtron.*"
 	},
 	{
 		suffix: "*.build.run",
-		reversed: "nur.dliub"
+		reversed: "nur.dliub.*"
 	},
 	{
 		suffix: "*.code.run",
-		reversed: "nur.edoc"
+		reversed: "nur.edoc.*"
 	},
 	{
 		suffix: "*.database.run",
-		reversed: "nur.esabatad"
+		reversed: "nur.esabatad.*"
 	},
 	{
 		suffix: "*.migration.run",
-		reversed: "nur.noitargim"
+		reversed: "nur.noitargim.*"
 	},
 	{
 		suffix: "noticeable.news",
@@ -34602,11 +34610,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.webpaas.ovh.net",
-		reversed: "ten.hvo.saapbew"
+		reversed: "ten.hvo.saapbew.*"
 	},
 	{
 		suffix: "*.hosting.ovh.net",
-		reversed: "ten.hvo.gnitsoh"
+		reversed: "ten.hvo.gnitsoh.*"
 	},
 	{
 		suffix: "ownprovider.com",
@@ -34618,7 +34626,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.owo.codes",
-		reversed: "sedoc.owo"
+		reversed: "sedoc.owo.*"
 	},
 	{
 		suffix: "ox.rs",
@@ -34642,7 +34650,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.paywhirl.com",
-		reversed: "moc.lrihwyap"
+		reversed: "moc.lrihwyap.*"
 	},
 	{
 		suffix: "bar0.net",
@@ -34726,11 +34734,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.platformsh.site",
-		reversed: "etis.hsmroftalp"
+		reversed: "etis.hsmroftalp.*"
 	},
 	{
 		suffix: "*.tst.site",
-		reversed: "etis.tst"
+		reversed: "etis.tst.*"
 	},
 	{
 		suffix: "platter-app.com",
@@ -34802,7 +34810,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.dweb.link",
-		reversed: "knil.bewd"
+		reversed: "knil.bewd.*"
 	},
 	{
 		suffix: "protonet.io",
@@ -34870,7 +34878,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.sys.qcx.io",
-		reversed: "oi.xcq.sys"
+		reversed: "oi.xcq.sys.*"
 	},
 	{
 		suffix: "dev-myqnapcloud.com",
@@ -34886,7 +34894,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.quipelements.com",
-		reversed: "moc.stnemelepiuq"
+		reversed: "moc.stnemelepiuq.*"
 	},
 	{
 		suffix: "vapor.cloud",
@@ -34910,15 +34918,15 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.on-k3s.io",
-		reversed: "oi.s3k-no"
+		reversed: "oi.s3k-no.*"
 	},
 	{
 		suffix: "*.on-rancher.cloud",
-		reversed: "duolc.rehcnar-no"
+		reversed: "duolc.rehcnar-no.*"
 	},
 	{
 		suffix: "*.on-rio.io",
-		reversed: "oi.oir-no"
+		reversed: "oi.oir-no.*"
 	},
 	{
 		suffix: "readthedocs.io",
@@ -35222,15 +35230,15 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.builder.code.com",
-		reversed: "moc.edoc.redliub"
+		reversed: "moc.edoc.redliub.*"
 	},
 	{
 		suffix: "*.dev-builder.code.com",
-		reversed: "moc.edoc.redliub-ved"
+		reversed: "moc.edoc.redliub-ved.*"
 	},
 	{
 		suffix: "*.stg-builder.code.com",
-		reversed: "moc.edoc.redliub-gts"
+		reversed: "moc.edoc.redliub-gts.*"
 	},
 	{
 		suffix: "sandcats.io",
@@ -35586,7 +35594,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.stolos.io",
-		reversed: "oi.solots"
+		reversed: "oi.solots.*"
 	},
 	{
 		suffix: "spacekit.io",
@@ -35714,11 +35722,11 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.s5y.io",
-		reversed: "oi.y5s"
+		reversed: "oi.y5s.*"
 	},
 	{
 		suffix: "*.sensiosite.cloud",
-		reversed: "duolc.etisoisnes"
+		reversed: "duolc.etisoisnes.*"
 	},
 	{
 		suffix: "syncloud.it",
@@ -35854,15 +35862,15 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.telebit.xyz",
-		reversed: "zyx.tibelet"
+		reversed: "zyx.tibelet.*"
 	},
 	{
 		suffix: "*.firenet.ch",
-		reversed: "hc.tenerif"
+		reversed: "hc.tenerif.*"
 	},
 	{
 		suffix: "*.svc.firenet.ch",
-		reversed: "hc.tenerif.cvs"
+		reversed: "hc.tenerif.cvs.*"
 	},
 	{
 		suffix: "reservd.com",
@@ -36010,15 +36018,15 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.transurl.be",
-		reversed: "eb.lrusnart"
+		reversed: "eb.lrusnart.*"
 	},
 	{
 		suffix: "*.transurl.eu",
-		reversed: "ue.lrusnart"
+		reversed: "ue.lrusnart.*"
 	},
 	{
 		suffix: "*.transurl.nl",
-		reversed: "ln.lrusnart"
+		reversed: "ln.lrusnart.*"
 	},
 	{
 		suffix: "site.transip.me",
@@ -36094,7 +36102,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.uberspace.de",
-		reversed: "ed.ecapsrebu"
+		reversed: "ed.ecapsrebu.*"
 	},
 	{
 		suffix: "hk.com",
@@ -36350,7 +36358,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.vultrobjects.com",
-		reversed: "moc.stcejbortluv"
+		reversed: "moc.stcejbortluv.*"
 	},
 	{
 		suffix: "wafflecell.com",
@@ -36358,7 +36366,7 @@ var domainSuffixListReversed = [
 	},
 	{
 		suffix: "*.webhare.dev",
-		reversed: "ved.erahbew"
+		reversed: "ved.erahbew.*"
 	},
 	{
 		suffix: "reserve-online.net",
@@ -36860,6 +36868,7 @@ function createTrie() {
         children: new Map(),
         suffix: '',
         end: false,
+        excluded: false,
     };
     for (const rule of domainSuffixListReversed) {
         const word = rule.reversed + '.';
@@ -36872,12 +36881,14 @@ function createTrie() {
                     parent: node,
                     children: new Map(),
                     end: false,
+                    excluded: false,
                 });
             }
             node = node.children.get(word[i]);
-            if (i === word.length - 1 || i === word.length - 2) {
-                node.suffix = rule.suffix;
+            if (i === word.length - 1 || i === word.length - 2 || word[i] === '.') {
+                node.suffix = toASCII(rule.suffix);
                 node.end = true;
+                node.excluded = rule.excluded ? rule.excluded : false;
             }
         }
     }
@@ -36885,15 +36896,82 @@ function createTrie() {
 }
 function search(domain) {
     let node = rootNode;
-    for (let i = 0; i < domain.length; i++) {
+    let i;
+    for (i = 0; i < domain.length; i++) {
         if (node.children.has(domain[i])) {
             node = node.children.get(domain[i]);
         }
+        else if (node.children.has('*')) {
+            node = node.children.get('*');
+        }
         else {
-            return node.end ? node.suffix : null;
+            break;
         }
     }
-    return node.end ? node.suffix : null;
+    // PSL has rules like *.kobe.jp which covers all third-level domains,
+    // but also has a rule !city.kobe.jp which means exclusion from the previous one
+    if (node.excluded) {
+        let currNode = node;
+        while (currNode.parent != null) {
+            currNode = currNode.parent;
+            if (currNode.end) {
+                return currNode.suffix;
+            }
+        }
+        return null;
+    }
+    // whole domain string processed
+    if (i == domain.length) {
+        if (node.end) {
+            if (!node.excluded) {
+                return node.suffix;
+            }
+            else if (node.parent) {
+                return node.parent.suffix;
+            }
+            return node.suffix;
+        }
+        else {
+            return null;
+        }
+    }
+    // part of domain string was processed, but some rule found
+    // so need to find previous matching rule
+    // for example, the loop find node `ar.com` for `fdsaar.com`,
+    // so need to proceed with `.com` here
+    let j;
+    for (j = i; j > 0; j--) {
+        if (domain[j] == '.') {
+            break;
+        }
+    }
+    const sub = reverse(domain.substring(0, j));
+    let currNode = node;
+    while (currNode.parent != null) {
+        if (compare(currNode.suffix, sub)) {
+            return currNode.suffix;
+        }
+        else {
+            currNode = currNode.parent;
+        }
+    }
+    return currNode.suffix;
+}
+function compare(value1, value2) {
+    const v1 = reverse(value1);
+    const v2 = reverse(value2);
+    let i;
+    for (i = 0; i < Math.min(v1.length, v2.length); i++) {
+        if (v1[i] !== v2[i]) {
+            break;
+        }
+    }
+    if (v1.length === v2.length && v1.length === i) {
+        return true;
+    }
+    const s1 = v1.substring(i);
+    const s2 = v2.substring(i);
+    return s1 === '.*' || s1 === '*' || s2 === '.*' || s2 === '*';
 }
 function reverse(str) {
     let newStr = '';
