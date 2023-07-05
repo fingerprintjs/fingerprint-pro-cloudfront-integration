@@ -32,6 +32,9 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
 
   logger.debug('Handling request', request)
 
+  const resultUri = await getResultUri(customerVariables)
+  const resultUriRegex = new RegExp(`^${resultUri}(/.*)?$`)
+
   const pathname = removeTrailingSlashes(request.uri)
   if (pathname === (await getAgentUri(customerVariables))) {
     return downloadAgent({
@@ -43,7 +46,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       domain: getHost(request),
       logger,
     })
-  } else if (pathname === (await getResultUri(customerVariables))) {
+  } else if (resultUriRegex.test(pathname)) {
     const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request))
     return handleResult({
       region: getRegion(request, logger),
