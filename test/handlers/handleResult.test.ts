@@ -2,6 +2,7 @@ import { CloudFrontRequest, CloudFrontRequestEvent } from 'aws-lambda'
 import { handler } from '../../src/app'
 import * as handlers from '../../src/handlers'
 import { handleResult } from '../../src/handlers'
+import https from 'https'
 
 const mockRequest = (uri: string): CloudFrontRequest => {
   return {
@@ -73,8 +74,13 @@ const mockEvent = (request: CloudFrontRequest): CloudFrontRequestEvent => {
 }
 
 describe('Result Endpoint', function () {
+  const origin: string = 'https://__ingress_api__'
+  const queryString: string =
+    '?apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2&ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fingress'
+
   beforeAll(() => {
     jest.spyOn(handlers, 'handleResult')
+    jest.spyOn(https, 'request')
   })
 
   afterEach(() => {
@@ -85,17 +91,28 @@ describe('Result Endpoint', function () {
     const event = mockEvent(mockRequest('/behavior/result'))
     await handler(event)
     expect(handleResult).toHaveBeenCalledTimes(1)
+    expect(https.request).toHaveBeenCalledWith(
+      new URL(`${origin}/${queryString}`),
+      expect.anything(),
+      expect.anything(),
+    )
   })
 
   test('Call with suffix', async () => {
     const event = mockEvent(mockRequest('/behavior/result/with/suffix'))
     await handler(event)
     expect(handleResult).toHaveBeenCalledTimes(1)
+    expect(https.request).toHaveBeenCalledWith(
+      new URL(`${origin}/with/suffix${queryString}`),
+      expect.anything(),
+      expect.anything(),
+    )
   })
 
   test('Call with bad suffix', async () => {
     const event = mockEvent(mockRequest('/behavior/resultwith/bad/suffix'))
     await handler(event)
     expect(handleResult).toHaveBeenCalledTimes(0)
+    expect(https.request).toHaveBeenCalledTimes(0)
   })
 })

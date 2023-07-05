@@ -47,6 +47,11 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       logger,
     })
   } else if (resultUriRegex.test(pathname)) {
+    const resultPathMatches = pathname.match(resultUriRegex)
+    let suffix = ''
+    if (resultPathMatches && resultPathMatches.length >= 1) {
+      suffix = resultPathMatches[1] ?? ''
+    }
     const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request))
     return handleResult({
       region: getRegion(request, logger),
@@ -56,6 +61,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       body: request.body?.data || '',
       domain: eTLDPlusOneDomain,
       logger,
+      suffix,
     })
   } else if (pathname === (await getStatusUri(customerVariables))) {
     return handleStatus(customerVariables)
