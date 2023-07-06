@@ -9,11 +9,7 @@ Parameters:
   SecretRegion:
     AllowedPattern: ^([a-z0-9\-])+$
     Description: AWS Region where secret is stored
-    Type: String    
-  DistributionId:
-    AllowedPattern: ^([A-Z0-9])+$
-    Description: CloudFront distribution ID
-    Type: String
+    Type: String  
 
 Resources:
   FpIntLambdaFunctionExecutionRole:
