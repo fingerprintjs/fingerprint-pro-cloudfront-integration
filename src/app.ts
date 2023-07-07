@@ -36,6 +36,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
   const resultUriRegex = new RegExp(`^${resultUri}(/.*)?$`)
 
   const pathname = removeTrailingSlashes(request.uri)
+  const resultPathMatches = pathname.match(resultUriRegex)
   if (pathname === (await getAgentUri(customerVariables))) {
     return downloadAgent({
       apiKey: getApiKey(request, logger),
@@ -46,8 +47,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       domain: getHost(request),
       logger,
     })
-  } else if (resultUriRegex.test(pathname)) {
-    const resultPathMatches = pathname.match(resultUriRegex)
+  } else if (resultPathMatches?.length) {
     let suffix = ''
     if (resultPathMatches && resultPathMatches.length >= 1) {
       suffix = resultPathMatches[1] ?? ''
