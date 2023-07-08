@@ -1,0 +1,214 @@
+# This is a sample CloudFormation templates that creates the following resources
+#
+# * Lambda@Edge function for Fingerprint CloudFront integration.
+#
+# * CloudFront's Cache policy for getting Fingerprint agent.
+#
+# * AWS Secret with settings for the integration.
+#   Secret name and values should be specified in template parameters. 
+#   Refer to the step 3 in the integration guide for that https://dev.fingerprint.com/docs/cloudfront-proxy-integration#step-3---create-a-new-secret-in-the-aws-secrets-manager
+#
+# * CloudFront Distribution with configured origin and default cache behavior associated with the Fingerprint Lambda@Edge function.
+#   Note that in the template we have a default cache behavior only (Resources -> CloudFrontDistribution -> Properties -> DistributionConfig -> DefaultCacheBehavior),
+#   but a real world website with Fingerprint integration enabled has at least two cache behaviors.
+#   For example:
+#   1. default cache behavior (default path pattern '*') that associated with the main web services
+#   2. cache behavior for Fingerprint integration. Path pattern must be the following:
+#       Let's FPHS_BEHAVIOR_PATH=our-path-123
+#       Path pattern is our-path-123/*
+#       The same for the template is
+#          PathPattern: !Join ['', ['/', !Ref FpjsBehaviorPath, '/*']]
+#
+# NOTE: CloudFormation deployment must be called from us-east-1 region
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform:
+  - 'AWS::Serverless-2016-10-31'
+  - AWS::LanguageExtensions
+Description: Fingerprint Pro Lambda@Edge function for CloudFront integration
+Parameters:
+  SecretName:
+    AllowedPattern: ^([a-zA-Z0-9\/_+=.@\-])+$
+    Description: AWS Secret Name
+    Type: String
+  
+  # Specify KeyID of AWS-manager aws/secretmanager key if you don't use customer-managed keys
+  # aws/secretmanager can be found in https://us-east-1.console.aws.amazon.com/kms/home?region=us-east-1#/kms/defaultKeys
+  EncryptionKeyId:
+    AllowedPattern: ^([a-z0-9\-:\/])+$    
+    Description: The ARN, key ID, or alias of the AWS KMS key that Secrets Manager uses to encrypt the secret value in the secret
+    Type: String
+
+  # Refer to the step 3 in the integration guide for these 4 parameters
+  # https://dev.fingerprint.com/docs/cloudfront-proxy-integration#step-3---create-a-new-secret-in-the-aws-secrets-manager
+  FpjsBehaviorPath:
+    AllowedPattern: ^([a-z0-9\-])+$
+    Description: FPJS_BEHAVIOR_PATH value
+    Type: String
+  FpjsGetResultPath:
+    AllowedPattern: ^([a-z0-9\-])+$
+    Description: FPJS_GET_RESULT_PATH value
+    Type: String
+  FpjsAgentDownloadPath:
+    AllowedPattern: ^([a-z0-9\-])+$
+    Description: FPJS_AGENT_DOWNLOAD_PATH value
+    Type: String
+  FpjsPreSharedSecret:
+    AllowedPattern: ^([a-z0-9\-])+$
+    Description: FPJS_PRE_SHARED_SECRET value
+    Type: String
+    
+
+Resources:
+  FpIntLambdaFunctionExecutionRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      SamResourceId: FpIntLambdaFunctionExecutionRole
+    Properties:
+      RoleName: !Join ['-', ['fingerprint-pro-lambda-role', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+              - edgelambda.amazonaws.com
+      Policies:
+      - PolicyName: LambdaExecutionPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: arn:aws:logs:*:*:*
+      - PolicyName: AWSSecretAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: !Join [':', ['arn:aws:secretsmanager', !Ref AWS::Region, !Ref AWS::AccountId, 'secret', !Join ['-', [!Ref SecretName, '??????']]]]
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole    
+
+  FingerprintProCloudfrontLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      Handler: fingerprintjs-pro-cloudfront-lambda-function.handler
+      Runtime: nodejs16.x
+      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip
+      MemorySize: 128
+      Timeout: 3
+      Role: !GetAtt FpIntLambdaFunctionExecutionRole.Arn
+
+  FingerprintProCloudfrontLambdaVersion:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref FingerprintProCloudfrontLambda
+      Description: v1
+
+  FingerprintProCDNCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: !Join [ '-', ['FingerprintProCDNCachePolicy', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+        MinTTL: 1
+        MaxTTL: 180
+        DefaultTTL: 180
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: whitelist
+            QueryStrings:
+              - version
+              - loaderVersion
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
+  
+  FingerprintIntegrationSettingsSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: AWS Secret with a custom Fingerprint integration settings
+      Name: !Ref SecretName
+      KmsKeyId: !Ref EncryptionKeyId
+      SecretString:
+        Fn::ToJsonString:
+          fpjs_behavior_path: !Ref FpjsBehaviorPath
+          fpjs_get_result_path: !Ref FpjsGetResultPath
+          fpjs_agent_download_path: !Ref FpjsAgentDownloadPath
+          fpjs_pre_shared_secret: !Ref FpjsPreSharedSecret
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultCacheBehavior:
+          AllowedMethods:          
+              - HEAD
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+          CachePolicyId: !Ref FingerprintProCDNCachePolicy
+          Compress: true
+          LambdaFunctionAssociations:
+            - EventType: origin-request
+              IncludeBody: true
+              LambdaFunctionARN: !Ref FingerprintProCloudfrontLambdaVersion                
+          OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3 # Default AllViewer policy
+          SmoothStreaming: false
+          TargetOriginId: fpcdn.io
+          ViewerProtocolPolicy: https-only
+        Enabled: true
+        Origins:
+          - Id: fpcdn.io
+            DomainName: fpcdn.io
+            OriginCustomHeaders:
+              - HeaderName: FPJS_SECRET_REGION
+                HeaderValue: !Ref AWS::Region
+              - HeaderName: FPJS_SECRET_NAME
+                HeaderValue: !Ref SecretName 
+              # Enabled debug logging in Lambda@Edge function. Should be disabled in production env
+              - HeaderName: FPJS_DEBUG
+                HeaderValue: true
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginKeepaliveTimeout: 5
+              OriginProtocolPolicy: https-only
+              OriginReadTimeout: 30
+        PriceClass: PriceClass_100
+
+Outputs:
+  LambdaFunctionName:
+    Description: Fingerprint Pro Lambda function name
+    Value:
+      Ref: FingerprintProCloudfrontLambda
+    Export:
+      Name: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  CachePolicyName:
+    Description: Cache policy name
+    Value:
+      Ref: FingerprintProCDNCachePolicy
+    Export:
+      Name: !Join [ '-', ['FingerprintProCDNCachePolicy', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  CloudFrontDistribution:
+    Description: CloudFront distribution
+    Value:
+      Ref: CloudFrontDistribution
+  FingerprintIntegrationSettingsSecret:
+    Description: AWS Secret with Fingerprint settings
+    Value:
+      Ref: FingerprintIntegrationSettingsSecret
