@@ -120,10 +120,10 @@
   resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.8.0.tgz#fe2aa90e6df050a11cd57f5c0f47b0641fd2cad3"
   integrity sha512-TYh1MRcm4JnvpqtqOwT9WYaBYY4KERHdToxs/suDTLviGRsQkIjS5yYROTYTSJQUnYLOn/TuOh5GoMwfLSU+Ew==
 
-"@pulumi/aws@^5.0.0":
-  version "5.21.1"
-  resolved "https://registry.yarnpkg.com/@pulumi/aws/-/aws-5.21.1.tgz#616e7f3558625a61d0ee73cc7007bba19ca8efbc"
-  integrity sha512-A4ygarp9zaEjPEAhQF0R+vgay254D3Jxh1u01+KEQc5nphaPASSwUUdl721CrimHYFVuMc5BRrntGctIpDpltA==
+"@pulumi/aws@^5.16.2", "@pulumi/aws@^5.41.0":
+  version "5.41.0"
+  resolved "https://registry.yarnpkg.com/@pulumi/aws/-/aws-5.41.0.tgz#bc00da3e311f266bf51b470bc3641a99b27bd1f8"
+  integrity sha512-3Z+biMtXenKnYCa4LIHrKNAnE9O4EEsU4cTsKnu3uUycaA4QWnmioD64oFhDKTkhCASSCQblzxSPDcaXOqxkmQ==
   dependencies:
     "@pulumi/pulumi" "^3.0.0"
     aws-sdk "^2.0.0"
@@ -132,16 +132,18 @@
     read-package-tree "^5.2.1"
     resolve "^1.7.1"
 
-"@pulumi/awsx@^0.40.0":
-  version "0.40.1"
-  resolved "https://registry.yarnpkg.com/@pulumi/awsx/-/awsx-0.40.1.tgz#999920bdf360ed6d9f6f809ef0c15fcbf6f4cf33"
-  integrity sha512-ws5pIxq4tghP6keXBHaSMhuEY0mcxD7kO31rJDjgRL10bqnRGTtblXssULEYMM0dQWTfxXhSeXGwWKSTkalLIw==
+"@pulumi/awsx@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@pulumi/awsx/-/awsx-1.0.2.tgz#d6cc03d8f13ffba964466ebaf469c44c12800f4d"
+  integrity sha512-gT3piAGSa0ErafYYQ3iu7W175+usJ7fWtmoTcJ+oQW2bpnS+fM6uHro/bJlsBup1Ax2A8ep5Ts9AubPGbq01vA==
   dependencies:
-    "@pulumi/docker" "^3.0.0"
-    "@types/aws-lambda" "8.10.93"
+    "@pulumi/aws" "^5.16.2"
+    "@pulumi/docker" "^3.6.1"
+    "@pulumi/pulumi" "^3.0.0"
+    "@types/aws-lambda" "^8.10.23"
     mime "^2.0.0"
 
-"@pulumi/docker@^3.0.0":
+"@pulumi/docker@^3.6.1":
   version "3.6.1"
   resolved "https://registry.yarnpkg.com/@pulumi/docker/-/docker-3.6.1.tgz#a216c9bd2bbd35dd7091db2827a3a434adff021c"
   integrity sha512-BZME50QkT556v+LvmTXPT8ssB2xxNkp9+msB5xYFEnUnWcdGAx5yUysQw70RJCb+U0GbkJSbxtlgMJgOQf/now==
@@ -183,10 +185,10 @@
   resolved "https://registry.yarnpkg.com/@pulumi/query/-/query-0.3.0.tgz#f496608e86a18c3dd31b6c533408e2441c29071d"
   integrity sha512-xfo+yLRM2zVjVEA4p23IjQWzyWl1ZhWOGobsBqRpIarzLvwNH/RAGaoehdxlhx4X92302DrpdIFgTICMN4P38w==
 
-"@types/aws-lambda@8.10.93":
-  version "8.10.93"
-  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.93.tgz#3e2c80894122477040aabf29b7320556f5702a76"
-  integrity sha512-Vsyi9ogDAY3REZDjYnXMRJJa62SDvxHXxJI5nGDQdZW058dDE+av/anynN2rLKbCKXDRNw3D/sQmqxVflZFi4A==
+"@types/aws-lambda@^8.10.23":
+  version "8.10.119"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.119.tgz#aaf010a9c892b3e29a290e5c49bfe8bcec82c455"
+  integrity sha512-Vqm22aZrCvCd6I5g1SvpW151jfqwTzEZ7XJ3yZ6xaZG31nUEOEyzzVImjRcsN8Wi/QyPxId/x8GTtgIbsy8kEw==
 
 "@types/node@>=12.12.47":
   version "18.11.9"
