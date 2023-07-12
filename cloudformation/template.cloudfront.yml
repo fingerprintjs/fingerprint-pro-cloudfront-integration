@@ -31,14 +31,6 @@ Parameters:
     AllowedPattern: ^([a-zA-Z0-9\/_+=.@\-])+$
     Description: AWS Secret Name
     Type: String
-  
-  # Specify KeyID of AWS-manager aws/secretmanager key if you don't use customer-managed keys
-  # aws/secretmanager can be found in https://us-east-1.console.aws.amazon.com/kms/home?region=us-east-1#/kms/defaultKeys
-  EncryptionKeyId:
-    AllowedPattern: ^([a-z0-9\-:\/])+$    
-    Description: The ARN, key ID, or alias of the AWS KMS key that Secrets Manager uses to encrypt the secret value in the secret
-    Type: String
-
   # Refer to the step 3 in the integration guide for these 4 parameters
   # https://dev.fingerprint.com/docs/cloudfront-proxy-integration#step-3---create-a-new-secret-in-the-aws-secrets-manager
   FpjsBehaviorPath:
@@ -140,7 +132,6 @@ Resources:
     Properties:
       Description: AWS Secret with a custom Fingerprint integration settings
       Name: !Ref SecretName
-      KmsKeyId: !Ref EncryptionKeyId
       SecretString:
         Fn::ToJsonString:
           fpjs_behavior_path: !Ref FpjsBehaviorPath
