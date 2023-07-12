@@ -34,19 +34,19 @@ Parameters:
   # Refer to the step 3 in the integration guide for these 4 parameters
   # https://dev.fingerprint.com/docs/cloudfront-proxy-integration#step-3---create-a-new-secret-in-the-aws-secrets-manager
   FpjsBehaviorPath:
-    AllowedPattern: ^([a-z0-9\-])+$
+    AllowedPattern: ^([a-zA-Z0-9\-])+$
     Description: FPJS_BEHAVIOR_PATH value
     Type: String
   FpjsGetResultPath:
-    AllowedPattern: ^([a-z0-9\-])+$
+    AllowedPattern: ^([a-zA-Z0-9\-])+$
     Description: FPJS_GET_RESULT_PATH value
     Type: String
   FpjsAgentDownloadPath:
-    AllowedPattern: ^([a-z0-9\-])+$
+    AllowedPattern: ^([a-zA-Z0-9\-])+$
     Description: FPJS_AGENT_DOWNLOAD_PATH value
     Type: String
   FpjsPreSharedSecret:
-    AllowedPattern: ^([a-z0-9\-])+$
+    AllowedPattern: ^([a-zA-Z0-9\-])+$
     Description: FPJS_PRE_SHARED_SECRET value
     Type: String
     
