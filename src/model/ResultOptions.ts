@@ -9,4 +9,5 @@ export interface ResultOptions {
   body: string
   domain: string
   logger: Logger
+  suffix: string
 }
