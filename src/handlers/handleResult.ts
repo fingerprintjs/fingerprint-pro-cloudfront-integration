@@ -10,7 +10,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
 
     const data: any[] = []
 
-    const url = new URL(getIngressAPIHost(options.region))
+    const url = new URL(getIngressAPIHost(options.region) + options.suffix)
     decodeURIComponent(options.querystring)
       .split('&')
       .forEach((it) => {
