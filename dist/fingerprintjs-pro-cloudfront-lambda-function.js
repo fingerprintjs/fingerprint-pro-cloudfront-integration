@@ -1,5 +1,5 @@
 /**
- * FingerprintJS Pro CloudFront Lambda function v1.0.4 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
+ * FingerprintJS Pro CloudFront Lambda function v1.0.5 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
 
@@ -267,7 +267,7 @@ function getQueryParameter(request, key, logger) {
     return undefined;
 }
 
-const LAMBDA_FUNC_VERSION = '1.0.4';
+const LAMBDA_FUNC_VERSION = '1.0.5';
 const PARAM_NAME = 'ii';
 function addTrafficMonitoringSearchParamsForProCDN(url) {
     url.searchParams.append(PARAM_NAME, getTrafficMonitoringValue('procdn'));
@@ -333,7 +333,7 @@ function handleResult(options) {
     return new Promise((resolve) => {
         options.logger.debug('Handling result:', options);
         const data = [];
-        const url = new URL(getIngressAPIHost(options.region));
+        const url = new URL(getIngressAPIHost(options.region) + options.suffix);
         decodeURIComponent(options.querystring)
             .split('&')
             .forEach((it) => {
@@ -484,7 +484,7 @@ function renderHtml({ version, envInfo }) {
 }
 async function getStatusInfo(customerVariables) {
     return {
-        version: '1.0.4',
+        version: '1.0.5',
         envInfo: await getEnvInfo(customerVariables),
     };
 }
@@ -56678,7 +56678,10 @@ const handler = async (event) => {
         new HeaderCustomerVariables(request),
     ]);
     logger.debug('Handling request', request);
+    const resultUri = await getResultUri(customerVariables);
+    const resultUriRegex = new RegExp(`^${resultUri}(/.*)?$`);
     const pathname = removeTrailingSlashes(request.uri);
+    const resultPathMatches = pathname.match(resultUriRegex);
     if (pathname === (await getAgentUri(customerVariables))) {
         return downloadAgent({
             apiKey: getApiKey(request, logger),
@@ -56690,7 +56693,11 @@ const handler = async (event) => {
             logger,
         });
     }
-    else if (pathname === (await getResultUri(customerVariables))) {
+    else if (resultPathMatches?.length) {
+        let suffix = '';
+        if (resultPathMatches && resultPathMatches.length >= 1) {
+            suffix = resultPathMatches[1] ?? '';
+        }
         const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request));
         return handleResult({
             region: getRegion(request, logger),
@@ -56700,6 +56707,7 @@ const handler = async (event) => {
             body: request.body?.data || '',
             domain: eTLDPlusOneDomain,
             logger,
+            suffix,
         });
     }
     else if (pathname === (await getStatusUri(customerVariables))) {
