@@ -2,7 +2,7 @@ import { AgentOptions } from '../model'
 import { CloudFrontResultResponse } from 'aws-lambda'
 import https from 'https'
 
-import { updateResponseHeaders, addTrafficMonitoringSearchParamsForProCDN } from '../utils'
+import { updateResponseHeadersForAgentDownload, addTrafficMonitoringSearchParamsForProCDN } from '../utils'
 
 export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultResponse> {
   return new Promise((resolve) => {
@@ -35,7 +35,7 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
           resolve({
             status: response.statusCode ? response.statusCode.toString() : '500',
             statusDescription: response.statusMessage,
-            headers: updateResponseHeaders(response.headers, options.domain),
+            headers: updateResponseHeadersForAgentDownload(response.headers, options.domain),
             bodyEncoding: 'base64',
             body: body.toString('base64'),
           })

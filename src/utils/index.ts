@@ -1,4 +1,10 @@
-import { filterRequestHeaders, updateResponseHeaders, prepareHeadersForIngressAPI, getHost } from './headers'
+import {
+  filterRequestHeaders,
+  updateResponseHeaders,
+  updateResponseHeadersForAgentDownload,
+  prepareHeadersForIngressAPI,
+  getHost,
+} from './headers'
 import { getApiKey, getLoaderVersion, getVersion, getRegion } from './request'
 import {
   addTrafficMonitoringSearchParamsForVisitorIdRequest,
@@ -13,6 +19,7 @@ export {
   getStatusUri,
   filterRequestHeaders,
   updateResponseHeaders,
+  updateResponseHeadersForAgentDownload,
   prepareHeadersForIngressAPI,
   getHost,
   getApiKey,
