@@ -86,7 +86,14 @@ export function filterRequestHeaders(request: CloudFrontRequest): OutgoingHttpHe
   }, {})
 }
 
-export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: string): CloudFrontHeaders {
+export const updateResponseHeadersForAgentDownload = (headers: IncomingHttpHeaders, domain: string) =>
+  updateResponseHeaders(headers, domain, true)
+
+export function updateResponseHeaders(
+  headers: IncomingHttpHeaders,
+  domain: string,
+  overrideCacheControl = false,
+): CloudFrontHeaders {
   const resultHeaders: CloudFrontHeaders = {}
 
   for (const [key, value] of Object.entries(headers)) {
@@ -103,7 +110,7 @@ export function updateResponseHeaders(headers: IncomingHttpHeaders, domain: stri
           value: adjustCookies(value, domain),
         },
       ]
-    } else if (key == CACHE_CONTROL_HEADER_NAME && typeof value === 'string') {
+    } else if (overrideCacheControl && key == CACHE_CONTROL_HEADER_NAME && typeof value === 'string') {
       resultHeaders[CACHE_CONTROL_HEADER_NAME] = [
         {
           key: CACHE_CONTROL_HEADER_NAME,
