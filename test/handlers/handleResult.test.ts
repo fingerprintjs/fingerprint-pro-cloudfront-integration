@@ -3,6 +3,8 @@ import { handler } from '../../src/app'
 import * as handlers from '../../src/handlers'
 import { handleResult } from '../../src/handlers'
 import https from 'https'
+import { IncomingMessage, ClientRequest } from 'http'
+import { Socket } from 'net'
 
 const mockRequest = (uri: string): CloudFrontRequest => {
   return {
@@ -114,5 +116,33 @@ describe('Result Endpoint', function () {
     await handler(event)
     expect(handleResult).toHaveBeenCalledTimes(0)
     expect(https.request).toHaveBeenCalledTimes(0)
+  })
+})
+
+describe('Browser caching endpoint', () => {
+  let requestSpy: jest.MockInstance<ClientRequest, any>
+
+  beforeAll(() => {
+    requestSpy = jest.spyOn(https, 'request')
+  })
+
+  afterAll(() => {
+    requestSpy.mockRestore()
+  })
+
+  test('cache-control header is returned as is', async () => {
+    const cacheControlValue = 'max-age=31536000, immutable, private'
+    const responseStream = new IncomingMessage(new Socket())
+    responseStream.headers['cache-control'] = cacheControlValue
+    requestSpy.mockImplementation((_url, _options, cb) => {
+      return new ClientRequest('http://example.com', () => {
+        cb(responseStream)
+        responseStream.emit('data', Buffer.from('some-data'))
+        responseStream.emit('end')
+      })
+    })
+    const reqEvent = mockEvent(mockRequest('/behavior/result/some/suffix'))
+    const response = await handler(reqEvent)
+    expect(response?.headers?.['cache-control']?.[0]?.['value']).toBe(cacheControlValue)
   })
 })
