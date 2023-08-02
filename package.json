@@ -16,6 +16,9 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": "~16"
+  },
   "dependencies": {
     "aws-sdk": "^2.1234.0",
     "punycode": "^2.1.1",
