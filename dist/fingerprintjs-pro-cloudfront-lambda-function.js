@@ -1,5 +1,5 @@
 /**
- * FingerprintJS Pro CloudFront Lambda function v1.1.0 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
+ * FingerprintJS Pro CloudFront Lambda function v1.1.1 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
 
@@ -172,7 +172,8 @@ function filterRequestHeaders(request) {
         return result;
     }, {});
 }
-function updateResponseHeaders(headers, domain) {
+const updateResponseHeadersForAgentDownload = (headers, domain) => updateResponseHeaders(headers, domain, true);
+function updateResponseHeaders(headers, domain, overrideCacheControl = false) {
     const resultHeaders = {};
     for (const [key, value] of Object.entries(headers)) {
         // Lambda@Edge function can't add read-only headers to response to CloudFront
@@ -188,7 +189,7 @@ function updateResponseHeaders(headers, domain) {
                 },
             ];
         }
-        else if (key == CACHE_CONTROL_HEADER_NAME && typeof value === 'string') {
+        else if (overrideCacheControl && key == CACHE_CONTROL_HEADER_NAME && typeof value === 'string') {
             resultHeaders[CACHE_CONTROL_HEADER_NAME] = [
                 {
                     key: CACHE_CONTROL_HEADER_NAME,
@@ -267,7 +268,7 @@ function getQueryParameter(request, key, logger) {
     return undefined;
 }
 
-const LAMBDA_FUNC_VERSION = '1.1.0';
+const LAMBDA_FUNC_VERSION = '1.1.1';
 const PARAM_NAME = 'ii';
 function addTrafficMonitoringSearchParamsForProCDN(url) {
     url.searchParams.append(PARAM_NAME, getTrafficMonitoringValue('procdn'));
@@ -305,7 +306,7 @@ function downloadAgent(options) {
                 resolve({
                     status: response.statusCode ? response.statusCode.toString() : '500',
                     statusDescription: response.statusMessage,
-                    headers: updateResponseHeaders(response.headers, options.domain),
+                    headers: updateResponseHeadersForAgentDownload(response.headers, options.domain),
                     bodyEncoding: 'base64',
                     body: body.toString('base64'),
                 });
@@ -484,7 +485,7 @@ function renderHtml({ version, envInfo }) {
 }
 async function getStatusInfo(customerVariables) {
     return {
-        version: '1.1.0',
+        version: '1.1.1',
         envInfo: await getEnvInfo(customerVariables),
     };
 }
