@@ -2,7 +2,7 @@ import { CloudFrontRequest, CloudFrontRequestEvent } from 'aws-lambda'
 import { handler } from '../../src/app'
 import * as handlers from '../../src/handlers'
 import { handleResult } from '../../src/handlers'
-import https from 'https'
+import https, { Agent } from 'https'
 import { IncomingMessage, ClientRequest } from 'http'
 import { Socket } from 'net'
 
@@ -132,14 +132,14 @@ describe('Browser caching endpoint', () => {
 
   test('cache-control header is returned as is', async () => {
     const cacheControlValue = 'max-age=31536000, immutable, private'
-    const responseStream = new IncomingMessage(new Socket())
-    responseStream.headers['cache-control'] = cacheControlValue
-    requestSpy.mockImplementation((_url, _options, cb) => {
-      return new ClientRequest('http://example.com', () => {
-        cb(responseStream)
-        responseStream.emit('data', Buffer.from('some-data'))
-        responseStream.emit('end')
-      })
+    requestSpy.mockImplementationOnce((...args) => {
+      const [, options, cb] = args
+      options.agent = new Agent()
+      const responseStream = new IncomingMessage(new Socket())
+      cb(responseStream)
+      responseStream.headers['cache-control'] = cacheControlValue
+      responseStream.emit('end')
+      return Reflect.construct(ClientRequest, args)
     })
     const reqEvent = mockEvent(mockRequest('/behavior/result/some/suffix'))
     const response = await handler(reqEvent)
