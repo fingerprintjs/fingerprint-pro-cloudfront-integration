@@ -3,7 +3,8 @@ import {
   getHost,
   prepareHeadersForIngressAPI,
   updateResponseHeaders,
-} from '../../src/utils/headers'
+  updateResponseHeadersForAgentDownload,
+} from '../../src/utils'
 import { getDomainFromHostname } from '../../src/domain'
 import { CloudFrontHeaders, CloudFrontRequest } from 'aws-lambda'
 import { IncomingHttpHeaders } from 'http'
@@ -119,45 +120,45 @@ describe('filterRequestHeaders', () => {
         'x-amzn-cf-id': [
           {
             key: 'x-amzn-cf-id',
-            value: 'some value'
-          }
+            value: 'some value',
+          },
         ],
         'x-amz-cf-id': [
           {
             key: 'x-amz-cf-id',
-            value: 'some value'
-          }
+            value: 'some value',
+          },
         ],
         'x-amz-cf-yyy': [
           {
             key: 'x-amz-cf-yyy',
-            value: 'some value'
-          }
+            value: 'some value',
+          },
         ],
         'x-amzn-cf-zzz': [
           {
             key: 'x-amzn-cf-zzz',
-            value: 'some-value'
-          }
+            value: 'some-value',
+          },
         ],
         'x-custom-header': [
           {
             key: 'x-custom-header',
-            value: 'value123899'
-          }
+            value: 'value123899',
+          },
         ],
         'x-edge-qqq': [
           {
             key: 'x-edge-qqq',
-            value: 'some value'
-          }
+            value: 'some value',
+          },
         ],
         'strict-transport-security': [
           {
             key: 'strict-transport-security',
-            value: 'max-age=600'
-          }
-        ]
+            value: 'max-age=600',
+          },
+        ],
       },
     }
     const headers = filterRequestHeaders(req)
@@ -198,9 +199,67 @@ describe('updateResponseHeaders', () => {
       'x-amzn-cf-id': 'zxcvbn',
       'x-amz-cf-xxx': 'cxc',
       'x-edge-xxx': 'ery8u',
-      'strict-transport-security': 'max-age=1000'
+      'strict-transport-security': 'max-age=1000',
     }
     const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
+    expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
+    expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amz-cf-id')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amzn-cf-id')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amz-cf-pop')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-amz-cf-xxx')).toBe(false)
+    expect(cfHeaders.hasOwnProperty('x-edge-xxx')).toBe(false)
+    expect(cfHeaders['cache-control'][0].value).toBe('public, max-age=40000, s-maxage=40000')
+    expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
+    expect(cfHeaders.hasOwnProperty('strict-transport-security')).toBe(false)
+  })
+
+  test('update cache policy', () => {
+    const headers: IncomingHttpHeaders = {
+      'access-control-allow-credentials': 'true',
+      'access-control-allow-origin': 'true',
+      'access-control-expose-headers': 'true',
+      'cache-control': 'no-cache',
+      'content-encoding': 'br',
+      'content-length': '73892',
+      'content-type': 'application/json',
+      'cross-origin-resource-policy': 'cross-origin',
+      etag: 'dskjhfadsjk',
+      'set-cookie': ['_iidf', 'HttpOnly', 'Domain=cloudfront.net'],
+      vary: 'Accept-Encoding',
+      'custom-header-1': 'gdfddfd',
+    }
+    const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
+    expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
+    expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
+    expect(cfHeaders['cache-control'][0].value).toBe('no-cache')
+    expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
+  })
+})
+
+describe('updateResponseHeadersForAgentDownload', () => {
+  test('test', () => {
+    const headers: IncomingHttpHeaders = {
+      'access-control-allow-credentials': 'true',
+      'access-control-allow-origin': 'true',
+      'access-control-expose-headers': 'true',
+      'cache-control': 'public, max-age=40000, s-maxage=40000',
+      'content-encoding': 'br',
+      'content-length': '73892',
+      'content-type': 'application/json',
+      'cross-origin-resource-policy': 'cross-origin',
+      etag: 'dskjhfadsjk',
+      'set-cookie': ['_iidf', 'HttpOnly', 'Domain=cloudfront.net'],
+      vary: 'Accept-Encoding',
+      'custom-header-1': 'gdfddfd',
+      'x-amz-cf-id': 'qwewrwer',
+      'x-amz-cf-pop': 'dsjfdsa',
+      'x-amzn-cf-id': 'zxcvbn',
+      'x-amz-cf-xxx': 'cxc',
+      'x-edge-xxx': 'ery8u',
+      'strict-transport-security': 'max-age=1000',
+    }
+    const cfHeaders: CloudFrontHeaders = updateResponseHeadersForAgentDownload(headers, 'fpjs.sh')
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-amz-cf-id')).toBe(false)
@@ -228,7 +287,7 @@ describe('updateResponseHeaders', () => {
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
     }
-    const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
+    const cfHeaders: CloudFrontHeaders = updateResponseHeadersForAgentDownload(headers, 'fpjs.sh')
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('no-cache, max-age=3600, s-maxage=60')

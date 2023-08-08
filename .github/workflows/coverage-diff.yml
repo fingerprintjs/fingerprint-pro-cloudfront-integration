@@ -12,6 +12,12 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v3
+
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.node-version'
+
       - name: Jest coverage comment
         id: coverage
         uses: ArtiomTr/jest-coverage-report-action@df2b025553c31d68f84be6337843e277e2576844
