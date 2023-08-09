@@ -9,7 +9,7 @@ Parameters:
   SecretRegion:
     AllowedPattern: ^([a-z0-9\-])+$
     Description: AWS Region where secret is stored
-    Type: String    
+    Type: String
   DistributionId:
     AllowedPattern: ^([A-Z0-9])+$
     Description: CloudFront distribution ID
@@ -49,10 +49,10 @@ Resources:
           - Effect: Allow
             Action:
               - secretsmanager:GetSecretValue
-            Resource: 
+            Resource:
               Fn::Sub: arn:aws:secretsmanager:${SecretRegion}:${AWS::AccountId}:secret:${SecretName}-??????
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole    
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
   FpMgmtLambdaFunctionExecutionRole:
     Type: AWS::IAM::Role
@@ -122,7 +122,7 @@ Resources:
               - codepipeline:PutJobSuccessResult
             Resource: "*"
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole            
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
   FpCodePipelineExecutionRole:
     Type: AWS::IAM::Role
@@ -146,7 +146,7 @@ Resources:
           - Effect: Allow
             Action:
               - s3:*
-            Resource: "*"     
+            Resource: "*"
       - PolicyName: Builds
         PolicyDocument:
           Version: '2012-10-17'
@@ -198,7 +198,7 @@ Resources:
               - appconfig:StartDeployment
               - appconfig:StopDeployment
               - appconfig:GetDeployment
-            Resource: "*"      
+            Resource: "*"
       - PolicyName: InvokeLambda
         PolicyDocument:
           Version: '2012-10-17'
@@ -219,7 +219,7 @@ Resources:
     Metadata:
       SamResourceId: CodeBuildServiceRole
     Properties:
-      RoleName: !Join ['-', ['fingerprint-pro-codebuild-service-role', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]      
+      RoleName: !Join ['-', ['fingerprint-pro-codebuild-service-role', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -227,8 +227,8 @@ Resources:
           Action: sts:AssumeRole
           Principal:
             Service:
-              - codebuild.amazonaws.com            
-      Policies:      
+              - codebuild.amazonaws.com
+      Policies:
       - PolicyName: LogsPolicy
         PolicyDocument:
           Version: '2012-10-17'
@@ -277,7 +277,7 @@ Resources:
             Action:
               - lambda:UpdateFunctionCode
               - lambda:PublishVersion
-            Resource:              
+            Resource:
               !Join
                 - ''
                 - - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:'
@@ -299,7 +299,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-      Handler: index.handler
+      Handler: fingerprintjs-pro-cloudfront-mgmt-lambda-function.handler
       Runtime: nodejs18.x
       CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/release/mgmt_lambda_latest.zip
       MemorySize: 128
@@ -326,7 +326,7 @@ Resources:
               - loaderVersion
           EnableAcceptEncodingBrotli: true
           EnableAcceptEncodingGzip: true
-  
+
   FpCodePipelineArtifactStorage:
     Type: AWS::S3::Bucket
     Properties:
@@ -374,7 +374,7 @@ Resources:
         Type: S3
         Location: !Join ['-', ['fingerprint-pro-code-pipeline-storage', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       RoleArn: !GetAtt FpCodePipelineExecutionRole.Arn
-      Stages: 
+      Stages:
         -
           Name: Source
           Actions:
@@ -391,8 +391,8 @@ Resources:
                 S3Bucket: fingerprint-pro-cloudfront-integration-lambda-function
                 S3ObjectKey: release/lambda_latest.zip
               OutputArtifacts:
-                - 
-                  Name: SourceArtifact 
+                -
+                  Name: SourceArtifact
         -
           Name: Build
           Actions:
@@ -416,7 +416,7 @@ Resources:
         -
           Name: Deploy
           Actions:
-            - 
+            -
               Name: UpdateCloudFront
               ActionTypeId:
                 Category: Invoke
