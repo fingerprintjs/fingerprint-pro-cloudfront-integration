@@ -1,5 +1,5 @@
 /**
- * FingerprintJS Pro CloudFront Lambda function v1.1.3 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
+ * FingerprintJS Pro CloudFront Lambda function v1.1.4 - Copyright (c) FingerprintJS, Inc, 2023 (https://fingerprint.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  */
 
@@ -268,7 +268,7 @@ function getQueryParameter(request, key, logger) {
     return undefined;
 }
 
-const LAMBDA_FUNC_VERSION = '1.1.3';
+const LAMBDA_FUNC_VERSION = '1.1.4';
 const PARAM_NAME = 'ii';
 function addTrafficMonitoringSearchParamsForProCDN(url) {
     url.searchParams.append(PARAM_NAME, getTrafficMonitoringValue('procdn'));
@@ -485,7 +485,7 @@ function renderHtml({ version, envInfo }) {
 }
 async function getStatusInfo(customerVariables) {
     return {
-        version: '1.1.3',
+        version: '1.1.4',
         envInfo: await getEnvInfo(customerVariables),
     };
 }
