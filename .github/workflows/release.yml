@@ -21,7 +21,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      
+
     if: github.ref == 'refs/heads/develop'
 
     steps:
@@ -35,7 +35,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version-file: '.node-version'
-        
+
       - name: Set git settings
         uses: fregante/setup-git-user@v1
 
@@ -91,7 +91,7 @@ jobs:
         with:
           path: 'mgmt-lambda/package.json'
           prop_path: 'version'
-      
+
       - name: Commit and push new version of lambda
         run: |          
           git commit package.json dist/ -m "build: new lambda@edge function v${{steps.version_edge.outputs.prop}}"
@@ -99,7 +99,7 @@ jobs:
           git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
           git tag -a "v${{steps.version_edge.outputs.prop}}" -m "v${{steps.version_edge.outputs.prop}}"
           git push --tags "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
-      
+
       ## Prepare a release
 
       - name: Create a Github release
@@ -107,6 +107,7 @@ jobs:
         with:
           tag: v${{steps.version_edge.outputs.prop}}
           name: Release ${{steps.version_edge.outputs.prop}}
+          generateReleaseNotes: true
 
       - name: Create Pull Request from develop to main
         id: create_pr
