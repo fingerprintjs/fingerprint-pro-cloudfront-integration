@@ -21,7 +21,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      
+
     if: github.ref == 'refs/heads/develop'
 
     steps:
@@ -35,9 +35,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version-file: '.node-version'
-        
+
       - name: Set git settings
-        uses: fregante/setup-git-user@v1
+        uses: fregante/setup-git-user@77c1b5542f14ab6db4b8462d6857e31deb988b09
 
       ## Build Lambda@Edge function
       - name: Install dependencies
@@ -63,7 +63,7 @@ jobs:
 
       - name: Get new version of lambda@edge
         id: version_edge
-        uses: notiz-dev/github-action-json-property@v0.2.0
+        uses: notiz-dev/github-action-json-property@a5a9c668b16513c737c3e1f8956772c99c73f6e8
         with:
           path: 'package.json'
           prop_path: 'version'
@@ -87,11 +87,11 @@ jobs:
 
       - name: Get new version of mgmt-lambda
         id: version_mgmt
-        uses: notiz-dev/github-action-json-property@v0.2.0
+        uses: notiz-dev/github-action-json-property@a5a9c668b16513c737c3e1f8956772c99c73f6e8
         with:
           path: 'mgmt-lambda/package.json'
           prop_path: 'version'
-      
+
       - name: Commit and push new version of lambda
         run: |          
           git commit package.json dist/ -m "build: new lambda@edge function v${{steps.version_edge.outputs.prop}}"
@@ -99,18 +99,19 @@ jobs:
           git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
           git tag -a "v${{steps.version_edge.outputs.prop}}" -m "v${{steps.version_edge.outputs.prop}}"
           git push --tags "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
-      
+
       ## Prepare a release
 
       - name: Create a Github release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e
         with:
           tag: v${{steps.version_edge.outputs.prop}}
           name: Release ${{steps.version_edge.outputs.prop}}
+          generateReleaseNotes: true
 
       - name: Create Pull Request from develop to main
         id: create_pr
-        uses: devops-infra/action-pull-request@v0.5.3
+        uses: devops-infra/action-pull-request@e66e2ba93519dc63b9884a26e620e2fd0cffab2c
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: develop
