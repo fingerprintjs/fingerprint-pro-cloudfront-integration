@@ -12,7 +12,7 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
     url.pathname = getEndpoint(options.apiKey, options.version, options.loaderVersion)
     addTrafficMonitoringSearchParamsForProCDN(url)
 
-    options.logger.debug('Downloading agent from', url.toString())
+    options.logger.debug(`Downloading agent from: ${url.toString()}`)
 
     const request = https.request(
       url,
