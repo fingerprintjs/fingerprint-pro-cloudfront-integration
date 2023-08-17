@@ -33,7 +33,7 @@ const secretPolicy = new aws.iam.Policy(resource('secret-policy'), {
 const lambdaRole = new aws.iam.Role(
   resource('lambda-role'),
   {
-    managedPolicyArns: [secretPolicy.arn],
+    managedPolicyArns: [secretPolicy.arn, aws.iam.ManagedPolicies.AWSLambdaBasicExecutionRole],
     assumeRolePolicy: {
       Version: '2012-10-17',
       Statement: [

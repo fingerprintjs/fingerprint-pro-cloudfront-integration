@@ -12,6 +12,12 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-witho
     {
       domainName: websiteBucket.bucketRegionalDomainName,
       originId: s3OriginId,
+      customHeaders: [
+        {
+          name: 'FPJS_DEBUG',
+          value: 'true',
+        },
+      ],
     },
   ],
   enabled: true,
