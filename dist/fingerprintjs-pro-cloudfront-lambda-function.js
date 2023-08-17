@@ -290,7 +290,7 @@ function downloadAgent(options) {
         const url = new URL('https://fpcdn.io');
         url.pathname = getEndpoint(options.apiKey, options.version, options.loaderVersion);
         addTrafficMonitoringSearchParamsForProCDN(url);
-        options.logger.debug('Downloading agent from', url.toString());
+        options.logger.debug(`Downloading agent from: ${url.toString()}`);
         const request = https__default["default"].request(url, {
             method: options.method,
             headers: options.headers,
@@ -332,7 +332,7 @@ function getEndpoint(apiKey, version, loaderVersion) {
 
 function handleResult(options) {
     return new Promise((resolve) => {
-        options.logger.debug('Handling result:', options);
+        options.logger.debug('Handling result:', { options });
         const data = [];
         const url = new URL(getIngressAPIHost(options.region) + options.suffix);
         decodeURIComponent(options.querystring)
@@ -342,7 +342,7 @@ function handleResult(options) {
             url.searchParams.append(kv[0], kv[1]);
         });
         addTrafficMonitoringSearchParamsForVisitorIdRequest(url);
-        options.logger.debug('Performing request', url.toString());
+        options.logger.debug(`Performing request: ${url.toString()}`);
         const request = https__default["default"].request(url, {
             method: options.method,
             headers: options.headers,
@@ -350,7 +350,10 @@ function handleResult(options) {
             response.on('data', (chunk) => data.push(chunk));
             response.on('end', () => {
                 const payload = Buffer.concat(data);
-                options.logger.debug('Response from Ingress API', response.statusCode, payload.toString('utf-8'));
+                options.logger.debug('Response from Ingress API', {
+                    statusCode: response.statusCode,
+                    payload: payload.toString('utf-8'),
+                });
                 resolve({
                     status: response.statusCode ? response.statusCode.toString() : '500',
                     statusDescription: response.statusMessage,

@@ -24,6 +24,10 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
           name: 'FPJS_SECRET_REGION',
           value: region,
         },
+        {
+          name: 'FPJS_DEBUG',
+          value: 'true',
+        },
       ],
     },
   ],

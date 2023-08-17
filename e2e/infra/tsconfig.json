@@ -3,6 +3,7 @@
     "strict": true,
     "target": "es2016",
     "module": "commonjs",
+    "types": ["node"],
     "moduleResolution": "node",
     "sourceMap": true,
     "experimentalDecorators": true,
@@ -11,7 +12,7 @@
     "noImplicitReturns": true,
     "forceConsistentCasingInFileNames": true
   },
-  "files": [
+  "include": [
     "**/*.ts"
   ],
   "exclude": [

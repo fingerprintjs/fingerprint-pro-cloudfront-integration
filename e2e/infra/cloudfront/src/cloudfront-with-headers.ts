@@ -29,6 +29,10 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-with-
           name: 'FPJS_BEHAVIOR_PATH',
           value: process.env.FPJS_BEHAVIOR_PATH ?? 'fpjs',
         },
+        {
+          name: 'FPJS_DEBUG',
+          value: 'true',
+        },
       ],
     },
   ],
