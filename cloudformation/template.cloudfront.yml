@@ -111,7 +111,7 @@ Resources:
     Properties:
       CachePolicyConfig:
         Name: !Join [ '-', ['FingerprintProCDNCachePolicy', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-        MinTTL: 1
+        MinTTL: 0
         MaxTTL: 180
         DefaultTTL: 180
         ParametersInCacheKeyAndForwardedToOrigin:
