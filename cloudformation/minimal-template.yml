@@ -9,7 +9,7 @@ Parameters:
   SecretRegion:
     AllowedPattern: ^([a-z0-9\-])+$
     Description: AWS Region where secret is stored
-    Type: String  
+    Type: String
 
 Resources:
   FpIntLambdaFunctionExecutionRole:
@@ -66,7 +66,7 @@ Resources:
     Properties:
       CachePolicyConfig:
         Name: !Join [ '-', ['FingerprintProCDNCachePolicy', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-        MinTTL: 1
+        MinTTL: 0
         MaxTTL: 180
         DefaultTTL: 180
         ParametersInCacheKeyAndForwardedToOrigin:
