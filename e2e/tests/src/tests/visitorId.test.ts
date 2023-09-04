@@ -35,6 +35,10 @@ cloudfrontTest.describe('visitorId', () => {
     await page.waitForResponse(/fpjs\/visitorId/)
 
     const requests = getRequests()
+    console.log('requests list')
+    requests.forEach(it => {
+      console.log(`url=${it.url}, method=${it.method}`)
+    })
     expect(requests).toHaveLength(5)
 
     const [, , agentRequest, , apiRequest] = requests
