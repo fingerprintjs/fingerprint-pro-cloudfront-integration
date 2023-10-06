@@ -21,6 +21,7 @@
 </a>
 
 # Fingerprint Pro CloudFront Integration
+[Fingerprint](https://fingerprint.com/) is a device intelligence platform offering 99.5% accurate visitor identification.
 
 Fingerprint Pro CloudFront Integration is responsible for
 
@@ -29,7 +30,11 @@ Fingerprint Pro CloudFront Integration is responsible for
 
 This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration#the-benefits-of-using-the-cloudfront-integration) both accurancy and reliability of visitor identification and bot detection on your site.
 
-## Setup
+## Requirements
+
+- AWS Account
+
+## How to install
 
 To set up Cloudfront integration, you need to 
 
