@@ -70,12 +70,12 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
 
     if (pathname === statusUri) {
       return handleStatus(customerVariables)
-    } else {
-      return new Promise((resolve) =>
-        resolve({
-          status: '404',
-        }),
-      )
     }
+
+    return new Promise((resolve) =>
+      resolve({
+        status: '404',
+      }),
+    )
   }
 }
