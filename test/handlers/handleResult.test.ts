@@ -1,4 +1,3 @@
-import { CloudFrontRequest, CloudFrontRequestEvent } from 'aws-lambda'
 import { handler } from '../../src/app'
 import * as handlers from '../../src/handlers'
 import { handleResult } from '../../src/handlers'
@@ -6,81 +5,7 @@ import https, { Agent } from 'https'
 import { ClientRequest, IncomingMessage } from 'http'
 import { Socket } from 'net'
 import { EventEmitter } from 'events'
-
-const mockRequest = (uri: string) => {
-  return {
-    clientIp: '1.1.1.1',
-    method: 'GET',
-    uri,
-    querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-    headers: {
-      host: [
-        {
-          key: 'host',
-          value: 'adewe.cloudfront.net',
-        },
-      ],
-      cookie: [
-        {
-          key: 'cookie',
-          value: '',
-        },
-      ],
-    },
-    origin: {
-      s3: {
-        domainName: 'adewe.cloudfront.net',
-        path: '/',
-        region: 'us',
-        authMethod: 'none',
-        customHeaders: {
-          fpjs_pre_shared_secret: [
-            {
-              key: 'fpjs_pre_shared_secret',
-              value: 'qwertyuio1356767',
-            },
-          ],
-          fpjs_agent_download_path: [
-            {
-              key: 'fpjs_agent_download_path',
-              value: 'greiodsfkljlds',
-            },
-          ],
-          fpjs_behavior_path: [
-            {
-              key: 'fpjs_behavior_path',
-              value: 'behavior',
-            },
-          ],
-          fpjs_get_result_path: [
-            {
-              key: 'fpjs_get_result_path',
-              value: 'result',
-            },
-          ],
-        },
-      },
-    },
-  } satisfies CloudFrontRequest
-}
-
-const mockEvent = (request: CloudFrontRequest): CloudFrontRequestEvent => {
-  return {
-    Records: [
-      {
-        cf: {
-          request,
-          config: {
-            eventType: 'origin-request',
-            requestId: 'fake-id',
-            distributionId: 'fake-id',
-            distributionDomainName: 'fake-domain.tld',
-          },
-        },
-      },
-    ],
-  }
-}
+import { mockEvent, mockRequest } from '../aws'
 
 describe('Result Endpoint', function () {
   const origin: string = '__ingress_api__'
@@ -181,6 +106,7 @@ describe('Result Endpoint', function () {
     const options = requestSpy.mock.calls[0][1]
 
     expect(options.headers).toEqual({
+      cookie: '',
       'fpjs-proxy-secret': request.origin.s3.customHeaders.fpjs_pre_shared_secret[0].value,
       'fpjs-proxy-client-ip': request.clientIp,
     })
