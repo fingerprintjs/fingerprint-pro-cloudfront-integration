@@ -37,7 +37,9 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
 
   const pathname = removeTrailingSlashes(request.uri)
   const resultPathMatches = pathname.match(resultUriRegex)
-  if (pathname === (await getAgentUri(customerVariables))) {
+  const agentUri = await getAgentUri(customerVariables)
+
+  if (pathname === agentUri) {
     return downloadAgent({
       apiKey: getApiKey(request, logger),
       version: getVersion(request, logger),
@@ -63,9 +65,13 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       logger,
       suffix,
     })
-  } else if (pathname === (await getStatusUri(customerVariables))) {
-    return handleStatus(customerVariables)
   } else {
+    const statusUri = await getStatusUri(customerVariables)
+
+    if (pathname === statusUri) {
+      return handleStatus(customerVariables)
+    }
+
     return new Promise((resolve) =>
       resolve({
         status: '404',
