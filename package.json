@@ -8,7 +8,8 @@
     "build": "rimraf dist && rollup -c rollup.config.js",
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore --max-warnings 0 src/",
     "lint:fix": "yarn lint --fix",
-    "test": "jest --coverage",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
     "test:dts": "tsc --noEmit --isolatedModules dist/fingerprintjs-pro-cloudfront-lambda-function.d.ts"
   },
   "main": "dist/fingerprintjs-pro-cloudflare-lambda-function.js",
