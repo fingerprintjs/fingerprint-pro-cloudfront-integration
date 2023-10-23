@@ -39,7 +39,7 @@ function bearer() {
 }
 
 async function getLatestGithubRelease() {
-  const url = `https://api.github.com/repos/${config.owner}/${config.reoo}/releases/latest`
+  const url = `https://api.github.com/repos/${config.owner}/${config.repo}/releases/latest`
 
   console.info('url', url)
 
