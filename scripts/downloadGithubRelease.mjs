@@ -39,7 +39,11 @@ function bearer() {
 }
 
 async function getLatestGithubRelease() {
-  const response = await fetch(`https://api.github.com/repos/${config.owner}/${config.reoo}/releases/latest`, {
+  const url = `https://api.github.com/repos/${config.owner}/${config.reoo}/releases/latest`
+
+  console.info('url', url)
+
+  const response = await fetch(url, {
     headers: config.token
       ? {
           Authorization: bearer(config.token),
