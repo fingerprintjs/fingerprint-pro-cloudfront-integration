@@ -22,7 +22,8 @@
       "@types/node"
     ]
   },
-  "files": ["src/app.ts"],
+  "files": [
+    "proxy/app.ts", "mgmt-lambda/app.ts"],
   "exclude": [
     "dist",
     "node_modules",
