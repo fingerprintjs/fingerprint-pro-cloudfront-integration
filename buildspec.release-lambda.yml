@@ -27,8 +27,7 @@ phases:
           echo "Files are the same. Don't need to upload the file."
         elif [ $diffStatus -eq 1 ]; then
           echo "Files are different. Uploading new version."
-          #TODO uncomment
-          #aws s3api put-object --body latest.zip --bucket fingerprint-pro-cloudfront-integration-lambda-function --key release/lambda_latest.zip
+          aws s3api put-object --body latest.zip --bucket fingerprint-pro-cloudfront-integration-lambda-function --key release/lambda_latest_test.zip
         else
           echo "There was something wrong with the diff command."
         fi
@@ -38,8 +37,7 @@ phases:
           echo "Files are the same. Don't need to upload the file."
         elif [ $mgmtDiffStatus -eq 1 ]; then
           echo "Files are different. Uploading new version."
-          #TODO uncomment
-          #aws s3api put-object --body latest_mgmt.zip --bucket fingerprint-pro-cloudfront-integration-lambda-function --key release/mgmt_lambda_latest.zip
+          aws s3api put-object --body latest_mgmt.zip --bucket fingerprint-pro-cloudfront-integration-lambda-function --key release/mgmt_lambda_latest_test.zip
         else
           echo "There was something wrong with the diff command."
         fi
