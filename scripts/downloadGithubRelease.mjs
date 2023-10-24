@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
 const config = {
   token: process.env.GITHUB_TOKEN,
@@ -7,7 +8,7 @@ const config = {
   repo: 'fingerprint-pro-cloudfront-integration',
 }
 
-const dirname = import.meta.url.replace('file://', '')
+const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 console.debug('dirname', dirname)
 
@@ -20,7 +21,7 @@ async function main() {
     return
   }
 
-  console.info('Release', release)
+  console.info('Release', release.tag_name)
 
   const asset = await findFunctionZip(release.assets)
 
@@ -31,7 +32,7 @@ async function main() {
 
   const zip = await downloadReleaseAsset(asset.url, config.token)
 
-  fs.writeFileSync(path.resolve(dirname, 'package.zip'), zip)
+  fs.writeFileSync(path.resolve(dirname, '../package.zip'), zip)
 }
 
 function bearer() {
@@ -63,9 +64,13 @@ async function downloadReleaseAsset(url, token) {
     headers['Authorization'] = bearer(token)
   }
 
+  console.info('Downloading release asset...', url)
+
   const response = await fetch(url, { headers })
 
   const arrayBuffer = await response.arrayBuffer()
+
+  console.info('Downloaded release asset')
 
   return Buffer.from(arrayBuffer)
 }
