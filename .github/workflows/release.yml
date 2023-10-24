@@ -1,124 +1,13 @@
-name: Release
-
+name: release
 on:
-  workflow_dispatch:
-    inputs:
-      version_bump:
-        description: 'A type of version bump'
-        default: 'patch'
-        required: true
-        type: choice
-        options:
-          - major
-          - minor
-          - patch
+  push:
+    branches:
+      - main
+      - test
 
 jobs:
-  release:
-    name: Release CloudFront integration distribution
-    runs-on: ubuntu-20.04
-
-    permissions:
-      contents: write
-      pull-requests: write
-
-    if: github.ref == 'refs/heads/develop'
-
-    steps:
-      - name: Checkout develop branch
-        uses: actions/checkout@v3
-        with:
-          ref: develop
-          fetch-depth: 0
-
-      - name: Install node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.node-version'
-
-      - name: Set git settings
-        uses: fregante/setup-git-user@77c1b5542f14ab6db4b8462d6857e31deb988b09
-
-      ## Build Lambda@Edge function
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Lint
-        run: yarn lint
-
-      - name: Run tests
-        run: yarn test
-
-      - name: Disable version tags
-        run: yarn config set version-git-tag false
-
-      - name: Bump version
-        run: yarn version --${{ github.event.inputs.version_bump }}
-
-      - name: Build lambda function
-        run: yarn build
-
-      - name: Run type check
-        run: yarn test:dts
-
-      - name: Get new version of lambda@edge
-        id: version_edge
-        uses: notiz-dev/github-action-json-property@a5a9c668b16513c737c3e1f8956772c99c73f6e8
-        with:
-          path: 'package.json'
-          prop_path: 'version'
-
-      ## Build Mgmt-lambda function
-      - name: Install dependencies
-        working-directory: ./mgmt-lambda
-        run: yarn install
-
-      - name: Lint
-        working-directory: ./mgmt-lambda
-        run: yarn lint
-
-      - name: Bump version
-        working-directory: ./mgmt-lambda
-        run: yarn version --${{ github.event.inputs.version_bump }}
-
-      - name: Build lambda function
-        working-directory: ./mgmt-lambda
-        run: yarn build
-
-      - name: Get new version of mgmt-lambda
-        id: version_mgmt
-        uses: notiz-dev/github-action-json-property@a5a9c668b16513c737c3e1f8956772c99c73f6e8
-        with:
-          path: 'mgmt-lambda/package.json'
-          prop_path: 'version'
-
-      - name: Commit and push new version of lambda
-        run: |          
-          git commit package.json dist/ -m "build: new lambda@edge function v${{steps.version_edge.outputs.prop}}"
-          git commit mgmt-lambda/package.json mgmt-lambda/dist/ -m "build: new mgmt-lambda function v${{steps.version_mgmt.outputs.prop}}"
-          git push "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
-          git tag -a "v${{steps.version_edge.outputs.prop}}" -m "v${{steps.version_edge.outputs.prop}}"
-          git push --tags "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
-
-      ## Prepare a release
-
-      - name: Create a Github release
-        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e
-        with:
-          tag: v${{steps.version_edge.outputs.prop}}
-          name: Release ${{steps.version_edge.outputs.prop}}
-          generateReleaseNotes: true
-
-      - name: Create Pull Request from develop to main
-        id: create_pr
-        uses: devops-infra/action-pull-request@e66e2ba93519dc63b9884a26e620e2fd0cffab2c
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          source_branch: develop
-          target_branch: main
-          title: New version of scripts v${{ steps.version_edge.outputs.prop }}
-          body: New version of scripts v${{ steps.version_edge.outputs.prop }}
-
-      - name: Check PR outputs
-        if: ${{ steps.create_pr.outputs.url }}
-        run: echo "Pull Request URL - ${{ steps.create_pr.outputs.url }}"
+  build-and-release:
+    name: 'Build project, run CI checks and publish new release'
+    uses: fingerprintjs/dx-team-toolkit/.github/workflows/release-typescript-project.yml@v1
+    secrets:
+      GH_RELEASE_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
