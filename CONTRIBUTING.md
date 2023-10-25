@@ -54,7 +54,7 @@ These tests are run automatically by the `deploy_test_branch.yml` workflow on ev
 
 ### How to release a new version
 
-The workflow `release.yml` is responsible for releasing a new version. It has to be run on `develop` branch, and at the end it will create a release and a PR to `main` branch.
+The integration is automatically released on every push to the main branch if there are relevant changes. The workflow must be approved by one of the maintainers, first.
 
 ### How to keep your worker up-to-date
 
