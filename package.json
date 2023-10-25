@@ -4,6 +4,7 @@
   "description": "Fingerprint Pro CloudFront lambda@edge function",
   "author": "FingerprintJS, Inc (https://fingerprint.com)",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "prepare": "husky install",
     "build": "rimraf dist && NODE_OPTIONS=\"--max_old_space_size=4098\" rollup -c rollup.config.js",
