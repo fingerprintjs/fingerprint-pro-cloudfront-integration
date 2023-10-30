@@ -1,0 +1,21 @@
+name: Generate docs and coverage report
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - 'cloudformation/*.yml'
+    branches:
+      - main
+
+
+jobs:
+  generate-docs-and-coverage:
+    name: Generate docs and coverage report
+    uses: fingerprintjs/dx-team-toolkit/.github/workflows/docs-and-coverage.yml@v1
+    with:
+      skip-docs-step: true
+      nodeVersion: 16
+      prepare-gh-pages-commands: |
+        mv coverage/lcov-report ./gh-pages/coverage
+        

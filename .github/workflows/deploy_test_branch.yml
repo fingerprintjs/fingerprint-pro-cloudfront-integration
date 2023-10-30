@@ -1,6 +1,9 @@
 name: Deploy test branch
 on:
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'cloudformation/*.yml'
 
 jobs:
   deploy-test-branch:

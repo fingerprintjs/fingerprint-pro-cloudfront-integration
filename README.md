@@ -46,3 +46,4 @@ See [CloudFront Proxy Integration guide](https://dev.fingerprint.com/docs/cloudf
 ## License
 
 This project is licensed under the MIT license. See the [LICENSE](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/blob/main/LICENSE) file for more info.
+
