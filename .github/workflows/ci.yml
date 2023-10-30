@@ -5,6 +5,7 @@ on:
       - main
     paths-ignore:
       - '**.md'
+      - 'cloudformation/*.yml'
 
 jobs:
   build-and-check:

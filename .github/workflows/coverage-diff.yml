@@ -2,6 +2,9 @@ name: Check coverage for PR
 
 on:
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'cloudformation/*.yml'
 
 jobs:
   run-tests-check-coverage:

@@ -2,8 +2,12 @@ name: Generate docs and coverage report
 
 on:
   push:
+    paths-ignore:
+      - '**.md'
+      - 'cloudformation/*.yml'
     branches:
       - main
+
 
 jobs:
   generate-docs-and-coverage:
