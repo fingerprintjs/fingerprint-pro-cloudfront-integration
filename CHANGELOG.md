@@ -1,3 +1,10 @@
+## [1.3.0](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.2.0...v1.3.0) (2023-10-31)
+
+
+### Features
+
+* enable semantic-release with prod releases ([7847f0a](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/7847f0a81a8dcfa384d2939f3acaeabd4b7a2e4a))
+
 ## [1.2.0](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.1.6...v1.2.0) (2023-10-30)
 
 
