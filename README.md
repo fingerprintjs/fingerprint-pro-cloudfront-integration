@@ -29,6 +29,12 @@ Fingerprint Pro CloudFront Integration is responsible for
 
 This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration#the-benefits-of-using-the-cloudfront-integration) both accurancy and reliability of visitor identification and bot detection on your site.
 
+> [!IMPORTANT]  
+> The AWS CloudFront Proxy Integration is accessible and exclusively supported for customers on the Enterprise Plan. Other customers are encouraged to use [Custom subdomain setup](https://dev.fingerprint.com/docs/custom-subdomain-setup) or [Cloudflare Proxy Integration](https://dev.fingerprint.com/docs/cloudflare-integration).
+
+> [!WARNING]  
+> The underlying data contract in the identification logic can change to keep up with browser updates. Using the AWS CloudFront Proxy Integration might require occasional manual updates on your side. Ignoring these updates will lead to lower accuracy or service disruption.
+
 ## Setup
 
 To set up Cloudfront integration, you need to 
