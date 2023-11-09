@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.3.0...v1.3.1) (2023-11-09)
+
+
+### Build System
+
+* **deps:** bump @babel/traverse from 7.20.0 to 7.23.3 ([08e41a3](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/08e41a3caf882982fa49890ab185caee1b16eeb5))
+
 ## [1.3.0](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.2.0...v1.3.0) (2023-10-31)
 
 
