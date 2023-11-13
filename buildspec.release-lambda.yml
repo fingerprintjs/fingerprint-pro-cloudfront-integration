@@ -1,0 +1,43 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - node scripts/downloadGithubRelease.mjs
+      - unzip package.zip -d dist
+      - cd dist
+
+      - zip -r latest.zip fingerprintjs-pro-cloudfront-lambda-function.js
+      - zip -r latest_mgmt.zip fingerprintjs-pro-cloudfront-mgmt-lambda-function.js
+
+      - aws s3api get-object --bucket fingerprint-pro-cloudfront-integration-lambda-function --key release/lambda_latest.zip previous.zip
+      - aws s3api get-object --bucket fingerprint-pro-cloudfront-integration-lambda-function --key release/mgmt_lambda_latest.zip previous_mgmt.zip
+
+      - unzip previous.zip -d previous
+      - unzip previous_mgmt.zip -d previous_mgmt
+
+      - diff previous/fingerprintjs-pro-cloudfront-lambda-function.js fingerprintjs-pro-cloudfront-lambda-function.js; diffStatus=$?
+      - diff previous_mgmt/fingerprintjs-pro-cloudfront-mgmt-lambda-function.js fingerprintjs-pro-cloudfront-mgmt-lambda-function.js; mgmtDiffStatus=$?
+
+      - echo $diffStatus
+      - echo $mgmtDiffStatus
+
+      - >-
+        if [ $diffStatus -eq 0 ]; then
+          echo "Files are the same. Don't need to upload the file."
+        elif [ $diffStatus -eq 1 ]; then
+          echo "Files are different. Uploading new version."
+          aws s3api put-object --body latest.zip --bucket fingerprint-pro-cloudfront-integration-lambda-function --key release/lambda_latest.zip
+        else
+          echo "There was something wrong with the diff command."
+        fi
+
+      - >-
+        if [ $mgmtDiffStatus -eq 0 ]; then
+          echo "Files are the same. Don't need to upload the file."
+        elif [ $mgmtDiffStatus -eq 1 ]; then
+          echo "Files are different. Uploading new version."
+          aws s3api put-object --body latest_mgmt.zip --bucket fingerprint-pro-cloudfront-integration-lambda-function --key release/mgmt_lambda_latest.zip
+        else
+          echo "There was something wrong with the diff command."
+        fi

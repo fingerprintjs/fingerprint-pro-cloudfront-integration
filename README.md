@@ -22,12 +22,18 @@
 
 # Fingerprint Pro CloudFront Integration
 
+[Fingerprint](https://fingerprint.com/) is a device intelligence platform offering 99.5% accurate visitor identification.
+
 Fingerprint Pro CloudFront Integration is responsible for
 
-* Proxying download requests of the latest Fingerprint Pro JS Agent between your site and Fingerprint CDN.
-* Proxying identification requests and responses between your site and Fingerprint Pro's APIs.
+- Proxying download requests of the latest Fingerprint Pro JS Agent between your site and Fingerprint CDN.
+- Proxying identification requests and responses between your site and Fingerprint Pro's APIs.
 
 This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration#the-benefits-of-using-the-cloudfront-integration) both accurancy and reliability of visitor identification and bot detection on your site.
+
+## Requirements
+
+- AWS Account
 
 > [!IMPORTANT]  
 > The AWS CloudFront Proxy Integration is accessible and exclusively supported for customers on the Enterprise Plan. Other customers are encouraged to use [Custom subdomain setup](https://dev.fingerprint.com/docs/custom-subdomain-setup) or [Cloudflare Proxy Integration](https://dev.fingerprint.com/docs/cloudflare-integration).
@@ -35,14 +41,14 @@ This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration#th
 > [!WARNING]  
 > The underlying data contract in the identification logic can change to keep up with browser updates. Using the AWS CloudFront Proxy Integration might require occasional manual updates on your side. Ignoring these updates will lead to lower accuracy or service disruption.
 
-## Setup
+## How to install
 
-To set up Cloudfront integration, you need to 
+To set up Cloudfront integration, you need to
 
 1. Create the required resources in your AWS infrastructure — a secret stored in the Secrets Manager, a CloudFormation stack, and a CloudFront distribution.
 2. Configure the Fingerprint Pro JS Agent on your site to communicate with your created Lambda@Edge function using the [endpoint](https://dev.fingerprint.com/docs/js-agent#endpoint) parameter.
 
-See [CloudFront Proxy Integration guide](https://dev.fingerprint.com/docs/cloudfront-proxy-integration) in our documentation for step-by-step instructions. If you have any questions, reach out to our [support team](https://fingerprint.com/support/). 
+See [CloudFront Proxy Integration guide](https://dev.fingerprint.com/docs/cloudfront-proxy-integration) in our documentation for step-by-step instructions. If you have any questions, reach out to our [support team](https://fingerprint.com/support/).
 
 ## License
 

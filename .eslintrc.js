@@ -16,7 +16,7 @@ module.exports = {
     },
     ecmaVersion: 2020,
     sourceType: 'module',
-  },  
+  },
   plugins: ['@typescript-eslint', 'prettier'],
   ignorePatterns: ['build/*'],
   rules: {
