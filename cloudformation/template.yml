@@ -146,7 +146,7 @@ Resources:
     Properties:
       DistributionConfig:
         DefaultCacheBehavior:
-          AllowedMethods:          
+          AllowedMethods:
               - HEAD
               - GET
               - POST
@@ -187,7 +187,7 @@ Resources:
   ## Management Lambda function (responsible for switching CloudFront distribution to the new Fingerprint Pro Lambda@Edge version)
 
   FpMgmtLambdaFunctionExecutionRole:
-    Type: AWS::IAM::Role    
+    Type: AWS::IAM::Role
     Metadata:
       SamResourceId: FpMgmtLambdaFunctionExecutionRole
     Properties:
@@ -272,7 +272,7 @@ Resources:
   # Automatic updates infrastructure
 
   FpCodePipelineExecutionRole:
-    Type: AWS::IAM::Role    
+    Type: AWS::IAM::Role
     Metadata:
       SamResourceId: FpCodePipelineExecutionRole
     Properties:
