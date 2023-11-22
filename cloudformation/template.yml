@@ -46,6 +46,9 @@ Parameters:
 Conditions:
   CreateCloudFrontDistribution:
     !Equals [!Ref DistributionId, ""]
+  AttachDomainToCloudFront: !And
+    - !Not [!Equals [!Ref DomainName, ""]]
+    - !Not [!Equals [!Ref ACMCertificateARN, ""]]
 
 Resources:
   ## Lambda@Edge function for Fingerprint Pro integration
@@ -154,11 +157,17 @@ Resources:
     Properties:
       DistributionConfig:
         Aliases:
-          - !Ref DomainName
+          !If
+          - AttachDomainToCloudFront
+          -
+            !Ref DomainName
         ViewerCertificate:
-          AcmCertificateArn: !Ref ACMCertificateARN
-          MinimumProtocolVersion: TLSv1.2_2018
-          SslSupportMethod: sni-only
+          !If
+          - AttachDomainToCloudFront
+          -
+            AcmCertificateArn: !Ref ACMCertificateARN
+            MinimumProtocolVersion: TLSv1.2_2018
+            SslSupportMethod: sni-only
         DefaultCacheBehavior:
           AllowedMethods:
               - HEAD
