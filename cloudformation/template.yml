@@ -159,14 +159,12 @@ Resources:
         Aliases:
           !If
           - AttachDomainToCloudFront
-          -
-            !Ref DomainName
+          - !Ref DomainName
           - !Ref AWS::NoValue
         ViewerCertificate:
           !If
           - AttachDomainToCloudFront
-          -
-            AcmCertificateArn: !Ref ACMCertificateARN
+          - AcmCertificateArn: !Ref ACMCertificateARN
             MinimumProtocolVersion: TLSv1.2_2018
             SslSupportMethod: sni-only
           - !Ref AWS::NoValue
