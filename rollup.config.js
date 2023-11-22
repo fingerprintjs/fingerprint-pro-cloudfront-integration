@@ -13,6 +13,22 @@ dotenv.config()
 
 const outputDirectory = 'dist'
 
+function getEnv(key, defaultValue) {
+  const value = process.env[key]
+
+  if (!value && !defaultValue) {
+    throw new Error(`Missing environment variable ${key}`)
+  }
+
+  if (!value) {
+    console.warn(`Missing environment variable "${key}". Using default value: ${defaultValue}`)
+
+    return defaultValue
+  }
+
+  return value
+}
+
 function makeConfig(entryFile, artifactName) {
   const commonBanner = licensePlugin({
     banner: {
@@ -34,8 +50,8 @@ function makeConfig(entryFile, artifactName) {
       nodeResolve({ preferBuiltins: false }),
       commonjs(),
       replace({
-        __FPCDN__: process.env.FPCDN,
-        __INGRESS_API__: process.env.INGRESS_API,
+        __FPCDN__: getEnv('FPCDN'),
+        __INGRESS_API__: getEnv('INGRESS_API'),
         __lambda_func_version__: packageJson.version,
         preventAssignment: true,
       }),
