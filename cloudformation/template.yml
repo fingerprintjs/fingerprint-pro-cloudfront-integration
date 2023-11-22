@@ -39,7 +39,7 @@ Parameters:
     Default: ""
     Type: String
   ACMCertificateARN:
-    Description: ARN of SSL certificate in AWS Certificate Manager (the certificate could be requests directly or uploaded from the third-party service to AWS Certificate Manager)
+    Description: ARN of SSL certificate in AWS Certificate Manager (the certificate could be requested in the AWS Certifucate Manager or uploaded from the third-party service to AWS)
     Default: ""
     Type: String
 
