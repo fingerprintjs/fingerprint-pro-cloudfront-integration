@@ -161,6 +161,7 @@ Resources:
           - AttachDomainToCloudFront
           -
             !Ref DomainName
+          - !Ref AWS::NoValue
         ViewerCertificate:
           !If
           - AttachDomainToCloudFront
@@ -168,6 +169,7 @@ Resources:
             AcmCertificateArn: !Ref ACMCertificateARN
             MinimumProtocolVersion: TLSv1.2_2018
             SslSupportMethod: sni-only
+          - !Ref AWS::NoValue
         DefaultCacheBehavior:
           AllowedMethods:
               - HEAD
