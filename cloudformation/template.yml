@@ -34,6 +34,14 @@ Parameters:
     AllowedPattern: ^([a-zA-Z0-9\-])+$
     Description: FPJS_PRE_SHARED_SECRET value
     Type: String
+  DomainName:
+    Description: Domain name to attach to CloudFront distribution
+    Default: ""
+    Type: String
+  ACMCertificateARN:
+    Description: ARN of SSL certificate in AWS Certificate Manager (the certificate could be requests directly or uploaded from the third-party service to AWS Certificate Manager)
+    Default: ""
+    Type: String
 
 Conditions:
   CreateCloudFrontDistribution:
@@ -145,6 +153,12 @@ Resources:
     Condition: CreateCloudFrontDistribution
     Properties:
       DistributionConfig:
+        Aliases:
+          - !Ref DomainName
+        ViewerCertificate:
+          AcmCertificateArn: !Ref ACMCertificateARN
+          MinimumProtocolVersion: TLSv1.2_2018
+          SslSupportMethod: sni-only
         DefaultCacheBehavior:
           AllowedMethods:
               - HEAD
