@@ -34,10 +34,21 @@ Parameters:
     AllowedPattern: ^([a-zA-Z0-9\-])+$
     Description: FPJS_PRE_SHARED_SECRET value
     Type: String
+  DomainName:
+    Description: Domain names to attach to CloudFront distribution. Several domains names should be separated by plus sign (domain1.com+domain2.com)
+    Default: ""
+    Type: String
+  ACMCertificateARN:
+    Description: ARN of SSL certificate in AWS Certificate Manager (the certificate could be requested in the AWS Certifucate Manager or uploaded from the third-party service to AWS)
+    Default: ""
+    Type: String
 
 Conditions:
   CreateCloudFrontDistribution:
     !Equals [!Ref DistributionId, ""]
+  AttachDomainToCloudFront: !And
+    - !Not [!Equals [!Ref DomainName, ""]]
+    - !Not [!Equals [!Ref ACMCertificateARN, ""]]
 
 Resources:
   ## Lambda@Edge function for Fingerprint Pro integration
@@ -145,6 +156,18 @@ Resources:
     Condition: CreateCloudFrontDistribution
     Properties:
       DistributionConfig:
+        Aliases:
+          !If
+          - AttachDomainToCloudFront
+          - !Split ['+', !Ref DomainName]
+          - !Ref AWS::NoValue
+        ViewerCertificate:
+          !If
+          - AttachDomainToCloudFront
+          - AcmCertificateArn: !Ref ACMCertificateARN
+            MinimumProtocolVersion: TLSv1.2_2018
+            SslSupportMethod: sni-only
+          - !Ref AWS::NoValue
         DefaultCacheBehavior:
           AllowedMethods:
               - HEAD
