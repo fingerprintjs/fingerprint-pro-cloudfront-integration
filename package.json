@@ -20,7 +20,7 @@
     "dist"
   ],
   "engines": {
-    "node": "~16"
+    "node": ">=16"
   },
   "resolutions": {
     "wrap-ansi": "7.0.0"
