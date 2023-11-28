@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import Zip from 'adm-zip'
 
 const config = {
   token: process.env.GITHUB_TOKEN,
@@ -13,7 +14,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 console.debug('dirname', dirname)
 
 async function main() {
-  const release = await getLatestGithubRelease()
+  const release = await getGithubRelease()
 
   if (!release) {
     console.warn('No release found')
@@ -32,11 +33,41 @@ async function main() {
 
   const zip = await downloadReleaseAsset(asset.url, config.token)
 
-  fs.writeFileSync(path.resolve(dirname, '../package.zip'), zip)
+  if (process.env.UNPACK_TO_DIST) {
+    new Zip(zip).extractAllTo(path.resolve(dirname, '../dist'), true)
+  } else {
+    fs.writeFileSync(path.resolve(dirname, '../package.zip'), zip)
+  }
 }
 
 function bearer() {
   return `Bearer ${token}`
+}
+
+async function getGithubRelease() {
+  const tag = process.env.TAG
+
+  if (!tag) {
+    return getLatestGithubRelease()
+  }
+
+  return getGithubReleaseByTag(tag)
+}
+
+async function getGithubReleaseByTag(tag) {
+  const url = `https://api.github.com/repos/${config.owner}/${config.repo}/releases/tags/${tag}`
+
+  console.debug('url', url)
+
+  const response = await fetch(url, {
+    headers: config.token
+      ? {
+          Authorization: bearer(config.token),
+        }
+      : undefined,
+  })
+
+  return response.json()
 }
 
 async function getLatestGithubRelease() {
