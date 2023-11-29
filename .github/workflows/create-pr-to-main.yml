@@ -1,0 +1,19 @@
+name: Create PR to Main
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  create-pr-to-main:
+    name: Build project and run CI checks
+    uses: fingerprintjs/dx-team-toolkit/.github/workflows/create-pr.yml@v1
+    with:
+      target_branch: test
+      tag_name: ${{ github.event.release.tag_name }}
+      prerelease: ${{ github.event.release.prerelease }}
