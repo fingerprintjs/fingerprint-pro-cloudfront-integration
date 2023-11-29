@@ -40,7 +40,7 @@ async function main() {
   }
 }
 
-function bearer() {
+function bearer(token) {
   return `Bearer ${token}`
 }
 
