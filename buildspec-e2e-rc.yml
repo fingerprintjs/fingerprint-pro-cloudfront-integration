@@ -31,7 +31,7 @@ phases:
     commands:
       - pwd
       - pulumi version
-      - cd e2e/website && yarn build && cd ../
+      - cd e2e/website && yarn build && cd ../..
       - cd e2e/infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../..
       - cd e2e/infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../..
       - cd e2e/infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../..
