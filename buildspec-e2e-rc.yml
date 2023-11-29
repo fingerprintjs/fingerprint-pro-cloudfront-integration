@@ -21,9 +21,12 @@ phases:
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
-      - yarn install && yarn install --cwd=infra && yarn install --cwd=website && yarn install --cwd=tests
+      - yarn install
+      - yarn install --cwd=e2e/infra
+      - yarn install --cwd=e2e/website
+      - yarn install --cwd=e2e/tests
       - cd e2e/tests && npx playwright install --with-deps && cd ../..
-      - TAG=$CODEBUILD_SOURCE_VERSION UNPACK_TO_DIST=true node scripts/downloadGithubRelease.mjs
+      - UNPACK_TO_DIST=true node scripts/downloadGithubRelease.mjs
   pre_build:
     commands:
       - pwd
