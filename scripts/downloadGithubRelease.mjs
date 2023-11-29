@@ -45,36 +45,56 @@ function bearer() {
 }
 
 async function getGithubRelease() {
-  const tag = process.env.TAG
+  const commitId = process.env.COMMIT_ID
 
-  if (!tag) {
+  if (!commitId) {
     return getLatestGithubRelease()
   }
 
-  return getGithubReleaseByTag(tag)
+  console.info('Using commit id', commitId)
+
+  return getGithubReleaseByCommitId(commitId)
+}
+
+async function listTags() {
+  const url = `https://api.github.com/repos/${config.owner}/${config.repo}/tags`
+
+  console.debug('fetchTags url', url)
+
+  return await doGithubGetRequest(url)
+}
+
+async function getGithubReleaseByCommitId(commitId) {
+  const tag = await listTags().then((response) => findTagByCommitId(response, commitId))
+
+  if (!tag) {
+    throw new Error(`Tag for commit ${commitId} not found`)
+  }
+
+  return await getGithubReleaseByTag(tag.name)
 }
 
 async function getGithubReleaseByTag(tag) {
   const url = `https://api.github.com/repos/${config.owner}/${config.repo}/releases/tags/${tag}`
 
-  console.debug('url', url)
+  console.debug('getGithubReleaseByTag url', url)
 
-  const response = await fetch(url, {
-    headers: config.token
-      ? {
-          Authorization: bearer(config.token),
-        }
-      : undefined,
-  })
+  return await doGithubGetRequest(url)
+}
 
-  return response.json()
+function findTagByCommitId(tags, commitId) {
+  return tags.find((tag) => tag?.commit?.sha === commitId)
 }
 
 async function getLatestGithubRelease() {
   const url = `https://api.github.com/repos/${config.owner}/${config.repo}/releases/latest`
 
-  console.info('url', url)
+  console.info('getLatestGithubRelease url', url)
 
+  return await doGithubGetRequest(url)
+}
+
+async function doGithubGetRequest(url) {
   const response = await fetch(url, {
     headers: config.token
       ? {
