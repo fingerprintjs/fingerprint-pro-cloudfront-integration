@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform:
   - AWS::Serverless-2016-10-31
-  - AWS::LanguageExtensions
 Description: Fingerprint Pro Lambda@Edge function for CloudFront integration
 Parameters:
   SecretName:
@@ -59,11 +58,36 @@ Resources:
       Description: AWS Secret with a custom Fingerprint integration settings
       Name: !Ref SecretName
       SecretString:
-        Fn::ToJsonString:
-          fpjs_behavior_path: !Ref FpjsBehaviorPath
-          fpjs_get_result_path: !Ref FpjsGetResultPath
-          fpjs_agent_download_path: !Ref FpjsAgentDownloadPath
-          fpjs_pre_shared_secret: !Ref FpjsPreSharedSecret
+        !Join
+          - ''
+          - - '{'
+            - !Join
+                - ','
+                - - !Join
+                      - ':'
+                      - - '"fpjs_behavior_path"'
+                        - !Sub
+                            - '"${value}"'
+                            - value: !Ref FpjsBehaviorPath
+                  - !Join
+                      - ':'
+                      - - '"fpjs_get_result_path"'
+                        - !Sub
+                            - '"${value}"'
+                            - value: !Ref FpjsGetResultPath
+                  - !Join
+                      - ':'
+                      - - '"fpjs_agent_download_path"'
+                        - !Sub
+                            - '"${value}"'
+                            - value: !Ref FpjsAgentDownloadPath
+                  - !Join
+                      - ':'
+                      - - '"fpjs_pre_shared_secret"'
+                        - !Sub
+                            - '"${value}"'
+                            - value: !Ref FpjsPreSharedSecret
+            - '}'
 
   FpIntLambdaFunctionExecutionRole:
     Type: AWS::IAM::Role
