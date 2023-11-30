@@ -7,10 +7,6 @@ Parameters:
     AllowedPattern: ^([a-zA-Z0-9\/_+=.@\-])+$
     Description: AWS Secret Name
     Type: String
-  SecretRegion:
-    AllowedPattern: ^([a-z0-9\-])+$
-    Description: AWS Region where secret is stored
-    Type: String
   DistributionId:
     Description: CloudFront distribution ID. Leave it empty to create a new distribution
     Default: ""
@@ -126,7 +122,7 @@ Resources:
             Action:
               - secretsmanager:GetSecretValue
             Resource:
-              Fn::Sub: arn:aws:secretsmanager:${SecretRegion}:${AWS::AccountId}:secret:${SecretName}-??????
+              Fn::Sub: arn:aws:secretsmanager:us-east-1:${AWS::AccountId}:secret:${SecretName}-??????
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
