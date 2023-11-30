@@ -29,7 +29,7 @@ Parameters:
     AllowedPattern: ^([a-zA-Z0-9\-])+$
     Description: FPJS_PRE_SHARED_SECRET value
     Type: String
-  DomainName:
+  DomainNames:
     Description: Domain names to attach to CloudFront distribution. Several domains names should be separated by plus sign (domain1.com+domain2.com)
     Default: ""
     Type: String
@@ -42,7 +42,7 @@ Conditions:
   CreateCloudFrontDistribution:
     !Equals [!Ref DistributionId, ""]
   AttachDomainToCloudFront: !And
-    - !Not [!Equals [!Ref DomainName, ""]]
+    - !Not [!Equals [!Ref DomainNames, ""]]
     - !Not [!Equals [!Ref ACMCertificateARN, ""]]
 
 Resources:
@@ -179,7 +179,7 @@ Resources:
         Aliases:
           !If
           - AttachDomainToCloudFront
-          - !Split ['+', !Ref DomainName]
+          - !Split ['+', !Ref DomainNames]
           - !Ref AWS::NoValue
         ViewerCertificate:
           !If
