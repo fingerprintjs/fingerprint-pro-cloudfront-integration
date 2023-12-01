@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-      - test
+      - rc
 
 jobs:
   build-and-release:
