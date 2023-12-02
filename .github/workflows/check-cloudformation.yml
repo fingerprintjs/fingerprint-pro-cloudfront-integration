@@ -1,0 +1,24 @@
+name: Rules to check CloudFormation template
+
+on:
+  pull_request:
+    paths:
+      - cloudformation/*
+
+jobs:
+  validate:
+    name: Validate template
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install cfn-guard
+        run: curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh
+
+      - name: Validate
+        run: .guard/bin/cfn-guard validate --rules rules.guard --data template.yml
+
+        
