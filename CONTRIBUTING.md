@@ -54,6 +54,9 @@ These tests are run automatically by the `deploy_test_branch.yml` workflow on ev
 
 ### How to release a new version
 
+Every PR should target `rc` branch first. Upon merge, if there are relevant changes a new release candidate is created.
+When that happens, an automated PR is created to `main` branch, and E2E tests run against it. If the tests pass, the PR can be merged and the release is created.
+
 The integration is automatically released on every push to the main branch if there are relevant changes. The workflow must be approved by one of the maintainers, first.
 
 ### How to keep your worker up-to-date
