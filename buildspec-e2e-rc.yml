@@ -43,7 +43,7 @@ phases:
       - cd ../..
       - echo $CODEBUILD_BUILD_SUCCEEDING
       - echo $COMMIT_ID
-      - export STATUS=$(sh ./scripts/get-codebuild-status.sh)
+      - export STATUS=$(sh ./e2e/scripts/get-codebuild-status.sh)
       - echo $STATUS
       - |
         curl \
