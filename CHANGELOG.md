@@ -1,3 +1,15 @@
+## [1.3.2](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.3.1...v1.3.2) (2023-12-04)
+
+
+### Bug Fixes
+
+* **build:** validate env values ([4ccc2d4](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/4ccc2d4851cbd322e44dd85d593c53637cfb75a4))
+
+
+### Documentation
+
+* **README:** mention new release flow ([92ff0fe](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/92ff0fe6b88319048e679bca7fb3f31caf760699))
+
 ## [1.3.2-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.3.1...v1.3.2-rc.1) (2023-12-04)
 
 
