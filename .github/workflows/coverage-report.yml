@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feat/update-coverage-report-workflow # tmp branch for testing
 
 jobs:
   generate-docs-and-coverage:
