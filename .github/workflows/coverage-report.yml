@@ -4,43 +4,13 @@ on:
   push:
     branches:
       - main
+      - feat/update-coverage-report-workflow # tmp branch for testing
 
 jobs:
-  build-and-run-tests:
-    runs-on: ubuntu-20.04
-    name: Build & run tests & publish coverage
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install node
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.node-version'
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install Dependencies and prepare packages
-        run: yarn install
-        env:
-          CI: true
-      - name: Run test
-        run: yarn test:coverage
-
-      - name: Create Coverage Badges
-        uses: jaywcjlove/coverage-badges-cli@e07f25709cd25486855c1ba1b26da53576ff3620
-        with:
-          source: coverage/coverage-summary.json
-          output: coverage/lcov-report/badges.svg
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@8817a56e5bfec6e2b08345c81f4d422db53a2cdc
-        with:
-          branch: gh-pages
-          folder: ./coverage/lcov-report/
+  generate-docs-and-coverage:
+    name: Generate docs and coverage report
+    uses: fingerprintjs/dx-team-toolkit/.github/workflows/docs-and-coverage.yml@v1
+    with:
+      skip-docs-step: true
+      prepare-gh-pages-commands: |
+        mv coverage/lcov-report ./gh-pages/coverage
