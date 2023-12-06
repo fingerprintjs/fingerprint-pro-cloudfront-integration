@@ -13,4 +13,4 @@ jobs:
     with:
       skip-docs-step: true
       prepare-gh-pages-commands: |
-        mv coverage/lcov-report ./gh-pages/coverage
+        mv coverage/lcov-report/* ./gh-pages/
