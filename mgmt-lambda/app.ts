@@ -1,3 +1,4 @@
+import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 import {
   CloudFrontClient,
   CreateInvalidationCommand,
@@ -16,7 +17,7 @@ import {
 
 const REGION = 'us-east-1'
 
-export async function handler(event: any, ctx: any) {
+export async function handler(event: APIGatewayProxyEvent, ctx: Context) {
   console.info(JSON.stringify(event))
 
   //TODO load data from AWS Secret
@@ -32,17 +33,17 @@ export async function handler(event: any, ctx: any) {
 
   const latestFunctionArn = await getLambdaLatestVersionArn(lambdaFunctionName)
   if (!latestFunctionArn) {
-    return publishJobFailure(ctx, 'No lambda versions')
+    return publishJobFailure('No lambda versions')
   }
 
   if (latestFunctionArn.length === 1) {
     console.info('No updates yet')
-    return publishJobSuccess(ctx)
+    return publishJobSuccess()
   }
 
   updateCloudFrontConfig(ctx, cloudFrontDistrId, lambdaFunctionName, latestFunctionArn)
 
-  await publishJobSuccess(ctx)
+  await publishJobSuccess()
 }
 
 async function updateCloudFrontConfig(
@@ -60,20 +61,20 @@ async function updateCloudFrontConfig(
   const cfConfig: GetDistributionConfigCommandOutput = await cloudFrontClient.send(getConfigCommand)
 
   if (!cfConfig.ETag || !cfConfig.DistributionConfig) {
-    return publishJobFailure(ctx, 'CloudFront distribution not found')
+    return publishJobFailure('CloudFront distribution not found')
   }
 
   const cacheBehaviors = cfConfig.DistributionConfig.CacheBehaviors
   const fpCbs = cacheBehaviors?.Items?.filter((it) => it.TargetOriginId === 'fpcdn.io')
   if (!fpCbs || fpCbs?.length === 0) {
-    return publishJobFailure(ctx, 'Cache behavior not found')
+    return publishJobFailure('Cache behavior not found')
   }
   const cacheBehavior = fpCbs[0]
   const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
     (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(lambdaFunctionName)
   )
   if (!lambdas || lambdas?.length === 0) {
-    return publishJobFailure(ctx, 'Lambda function association not found')
+    return publishJobFailure('Lambda function association not found')
   }
   const lambda = lambdas[0]
   lambda.LambdaFunctionARN = latestFunctionArn
@@ -90,7 +91,7 @@ async function updateCloudFrontConfig(
 
   console.info('Going to invalidate routes for upgraded cache behavior')
   if (!cacheBehavior.PathPattern) {
-    return publishJobFailure(ctx, 'Path pattern is not defined')
+    return publishJobFailure('Path pattern is not defined')
   }
 
   let pathPattern = cacheBehavior.PathPattern
@@ -130,12 +131,10 @@ async function getLambdaLatestVersionArn(functionName: string): Promise<string |
   return Promise.resolve(latest.FunctionArn)
 }
 
-async function publishJobSuccess(ctx: any) {
+async function publishJobSuccess() {
   console.info(`Job successfully finished`)
-  ctx.succeed()
 }
 
-async function publishJobFailure(ctx: any, message: string) {
+async function publishJobFailure(message: string) {
   console.info(`Job failed with ${message}`)
-  ctx.fail(message)
 }
