@@ -386,7 +386,7 @@ Outputs:
   FingerprintProMgmtLambda:
     Description: Fingerprint Pro Lambda function name
     Value:
-      Ref: FingerprintProCloudfrontLambda
+      Ref: FingerprintProMgmtLambda
     Export:
       Name: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
   MgmtLambdaFunctionUrl:
