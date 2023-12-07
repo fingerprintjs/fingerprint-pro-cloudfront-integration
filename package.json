@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.224.0",
-    "@aws-sdk/client-codepipeline": "^3.224.0",
     "@aws-sdk/client-lambda": "^3.224.0",
     "aws-sdk": "^2.1234.0",
     "punycode": "^2.1.1",
