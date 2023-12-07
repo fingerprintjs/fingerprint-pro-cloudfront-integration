@@ -301,15 +301,6 @@ Resources:
               - cloudfront:GetDistributionConfig
               - cloudfront:CreateInvalidation
             Resource: !Join ['', [!Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/', !If [CreateCloudFrontDistribution, !Ref CloudFrontDistribution, !Ref DistributionId]]]
-      - PolicyName: CodePipelinePublishingResults
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - codepipeline:PutJobFailureResult
-              - codepipeline:PutJobSuccessResult
-            Resource: "*"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
@@ -353,10 +344,22 @@ Resources:
 
   MgmtFunctionURL:
     Type: AWS::Lambda::Url
-    DependsOn: FingerprintProMgmtLambda
+    DependsOn:
+      - FingerprintProMgmtLambda
     Properties:
       AuthType: NONE
       TargetFunctionArn: !GetAtt FingerprintProMgmtLambda.Arn
+
+  MgmtFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - FingerprintProMgmtLambda
+    Properties:
+      Action: lambda:InvokeFunctionUrl
+      FunctionName: !Ref FingerprintProMgmtLambda
+      FunctionUrlAuthType: NONE
+      Principal: "*"
+
 
 Outputs:
   LambdaFunctionName:
