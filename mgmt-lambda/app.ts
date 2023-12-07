@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, Context } from 'aws-lambda'
+import { APIGatewayProxyEventV2WithRequestContext, APIGatewayEventRequestContextV2, Context } from 'aws-lambda'
 import {
   CloudFrontClient,
   CreateInvalidationCommand,
@@ -17,7 +17,11 @@ import {
 
 const REGION = 'us-east-1'
 
-export async function handler(event: APIGatewayProxyEvent, ctx: Context) {
+export async function handler(
+  event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>,
+  _: Context,
+  callback: any,
+) {
   console.info(JSON.stringify(event))
 
   //TODO load data from AWS Secret
@@ -28,8 +32,26 @@ export async function handler(event: APIGatewayProxyEvent, ctx: Context) {
   const lambdaFunctionName = userInput.LAMBDA_NAME
   const cloudFrontDistrId = userInput.CF_DISTR_ID
 
+  const path = event.rawPath
+  console.info(`path = ${path}`)
+  if (path.startsWith('/update')) {
+    handleUpdate(cloudFrontDistrId, lambdaFunctionName)
+  } else if (path.startsWith('/status')) {
+  }
+
+  const okResp = {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: 'OK',
+    }),
+  }
+
+  callback(null, okResp)
+}
+
+async function handleUpdate(cloudFrontDistributionId: string, lambdaFunctionName: string) {
   console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distbution.`)
-  console.info(`Lambda function: ${lambdaFunctionName}. CloudFront ID: ${cloudFrontDistrId}`)
+  console.info(`Lambda function: ${lambdaFunctionName}. CloudFront ID: ${cloudFrontDistributionId}`)
 
   const latestFunctionArn = await getLambdaLatestVersionArn(lambdaFunctionName)
   if (!latestFunctionArn) {
@@ -41,13 +63,10 @@ export async function handler(event: APIGatewayProxyEvent, ctx: Context) {
     return publishJobSuccess()
   }
 
-  updateCloudFrontConfig(ctx, cloudFrontDistrId, lambdaFunctionName, latestFunctionArn)
-
-  await publishJobSuccess()
+  updateCloudFrontConfig(cloudFrontDistributionId, lambdaFunctionName, latestFunctionArn)
 }
 
 async function updateCloudFrontConfig(
-  ctx: any,
   cloudFrontDistributionId: string,
   lambdaFunctionName: string,
   latestFunctionArn: string,
