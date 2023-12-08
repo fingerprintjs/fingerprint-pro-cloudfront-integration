@@ -313,17 +313,7 @@ Resources:
         ExcludePunctuation: true
         PasswordLength: 30
         GenerateStringKey: token
-        SecretStringTemplate:
-          Fn::Sub:
-            - |
-              {
-                "LambdaFunctionName": "${LambdaFunctionName}",
-                "LambdaFunctionArn": "${LambdaFunctionArn}",
-                "CloudFrontDistributionId": "${CFDistributionId}"
-              }
-            - LambdaFunctionName: !Ref FingerprintProCloudfrontLambda
-              LambdaFunctionArn: !GetAtt FingerprintProCloudfrontLambda.Arn
-              CFDistributionId: !If [CreateCloudFrontDistribution, !Ref CloudFrontDistribution, !Ref DistributionId]
+        SecretStringTemplate: !Sub '{}'
 
   FingerprintProMgmtLambda:
     Type: AWS::Serverless::Function
@@ -340,7 +330,10 @@ Resources:
       Role: !GetAtt FpMgmtLambdaFunctionExecutionRole.Arn
       Environment:
         Variables:
-          settingsSecretName: !Ref MgmtSettingsSecret
+          SettingsSecretName: !Ref MgmtSettingsSecret
+          LambdaFunctionName: !Ref FingerprintProCloudfrontLambda
+          LambdaFunctionArn: !GetAtt FingerprintProCloudfrontLambda.Arn
+          CFDistributionId: !If [CreateCloudFrontDistribution, !Ref CloudFrontDistribution, !Ref DistributionId]
 
   MgmtFunctionURL:
     Type: AWS::Lambda::Url
