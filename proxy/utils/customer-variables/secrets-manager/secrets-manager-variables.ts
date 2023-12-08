@@ -1,5 +1,5 @@
 import { CustomerVariableProvider, CustomerVariableType, CustomerVariableValue } from '../types'
-import { SecretsManager } from 'aws-sdk'
+import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
 import { CloudFrontRequest } from 'aws-lambda'
 import { getHeaderValue } from '../../headers'
 import { retrieveSecret } from './retrieve-secret'
@@ -16,7 +16,7 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
 
   private secretsInfo?: SecretsInfo
 
-  private readonly secretsManager?: SecretsManager
+  private readonly secretsManager?: SecretsManagerClient
 
   private headers: Record<keyof SecretsInfo, string> = {
     secretName: 'fpjs_secret_name',
@@ -25,7 +25,7 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
 
   constructor(
     private readonly request: CloudFrontRequest,
-    SecretsManagerImpl: typeof SecretsManager = SecretsManager,
+    SecretsManagerImpl: typeof SecretsManagerClient = SecretsManagerClient,
     private readonly logger = createLogger(),
   ) {
     this.readSecretsInfoFromHeaders()
