@@ -16,6 +16,7 @@ import {
 } from '@aws-sdk/client-lambda'
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
 import type { AuthSettings } from './model/AuthSettings'
+import type { DeploymentSettings } from './model/DeploymentSettings'
 
 const REGION = 'us-east-1'
 
@@ -29,7 +30,7 @@ export async function handler(
   const authSettings = await getAuthSettings()
   console.info(authSettings)
 
-  const authorization = event.headers['Authorization']
+  const authorization = event.headers['authorization']
   if (authorization !== authSettings.token) {
     const notAuthResponse = {
       statusCode: 401,
@@ -37,18 +38,23 @@ export async function handler(
     callback(null, notAuthResponse)
   }
 
-  //TODO load data from AWS Secret
-  const userInput = {
-    LAMBDA_NAME: '',
-    CF_DISTR_ID: '',
+  let deploymentSettings: DeploymentSettings
+  try {
+    deploymentSettings = loadDeploymentSettings()
+  } catch (error) {
+    const wrongEnv = {
+      statusCode: 500,
+      body: {
+        error: error,
+      },
+    }
+    callback(null, wrongEnv)
   }
-  const lambdaFunctionName = userInput.LAMBDA_NAME
-  const cloudFrontDistrId = userInput.CF_DISTR_ID
 
   const path = event.rawPath
   console.info(`path = ${path}`)
   if (path.startsWith('/update')) {
-    handleUpdate(cloudFrontDistrId, lambdaFunctionName)
+    handleUpdate(deploymentSettings)
   } else if (path.startsWith('/status')) {
   }
 
@@ -89,11 +95,33 @@ async function getAuthSettings(): Promise<AuthSettings> {
   }
 }
 
-async function handleUpdate(cloudFrontDistributionId: string, lambdaFunctionName: string) {
-  console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distbution.`)
-  console.info(`Lambda function: ${lambdaFunctionName}. CloudFront ID: ${cloudFrontDistributionId}`)
+function loadDeploymentSettings(): DeploymentSettings {
+  const cfDistributionId = process.env.CFDistributionId
+  if (!cfDistributionId) {
+    throw new Error('No CloudFront distribution Id')
+  }
+  const lambdaFunctionName = process.env.LambdaFunctionArn
+  if (!lambdaFunctionName) {
+    throw new Error('No lambda function name')
+  }
+  const lambdaFunctionArn = process.env.LambdaFunctionArn
+  if (!lambdaFunctionArn) {
+    throw new Error('No lambda function ARN')
+  }
 
-  const latestFunctionArn = await getLambdaLatestVersionArn(lambdaFunctionName)
+  const settings: DeploymentSettings = {
+    CFDistributionId: cfDistributionId,
+    LambdaFunctionArn: lambdaFunctionArn,
+    LambdaFunctionName: lambdaFunctionName,
+  }
+  return settings
+}
+
+async function handleUpdate(settings: DeploymentSettings) {
+  console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distbution.`)
+  console.info(`Settings: ${settings}`)
+
+  const latestFunctionArn = await getLambdaLatestVersionArn(settings.LambdaFunctionName)
   if (!latestFunctionArn) {
     return publishJobFailure('No lambda versions')
   }
@@ -103,7 +131,7 @@ async function handleUpdate(cloudFrontDistributionId: string, lambdaFunctionName
     return publishJobSuccess()
   }
 
-  updateCloudFrontConfig(cloudFrontDistributionId, lambdaFunctionName, latestFunctionArn)
+  updateCloudFrontConfig(settings.CFDistributionId, settings.LambdaFunctionName, latestFunctionArn)
 }
 
 async function updateCloudFrontConfig(
