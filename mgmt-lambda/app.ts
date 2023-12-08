@@ -14,6 +14,8 @@ import {
   ListVersionsByFunctionCommandInput,
   ListVersionsByFunctionCommandOutput,
 } from '@aws-sdk/client-lambda'
+import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
+import type { AuthSettings } from './model/AuthSettings'
 
 const REGION = 'us-east-1'
 
@@ -23,6 +25,17 @@ export async function handler(
   callback: any,
 ) {
   console.info(JSON.stringify(event))
+
+  const authSettings = await getAuthSettings()
+  console.info(authSettings)
+
+  const authorization = event.headers['Authorization']
+  if (authorization !== authSettings.token) {
+    const notAuthResponse = {
+      statusCode: 401,
+    }
+    callback(null, notAuthResponse)
+  }
 
   //TODO load data from AWS Secret
   const userInput = {
@@ -47,6 +60,33 @@ export async function handler(
   }
 
   callback(null, okResp)
+}
+
+async function getAuthSettings(): Promise<AuthSettings> {
+  console.info(JSON.stringify(process.env))
+  const secretName = process.env.SettingsSecretName
+  if (!secretName) {
+    throw new Error('Unable to get secret name. ')
+  }
+
+  try {
+    const client = new SecretsManagerClient({
+      region: 'us-east-1',
+    })
+    const command = new GetSecretValueCommand({
+      SecretId: secretName,
+    })
+
+    const response = await client.send(command)
+
+    if (!response.SecretString) {
+      throw new Error('Secret is empty')
+    }
+
+    return JSON.parse(response.SecretString)
+  } catch (error) {
+    throw new Error(`Unable to retrieve secret, ${error}`)
+  }
 }
 
 async function handleUpdate(cloudFrontDistributionId: string, lambdaFunctionName: string) {
