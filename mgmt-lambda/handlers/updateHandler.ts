@@ -1,5 +1,6 @@
+import { APIGatewayProxyResult } from 'aws-lambda'
 import type { DeploymentSettings } from '../model/DeploymentSettings'
-import { defaults } from '../model/DefaultSettings'
+import { defaults } from '../DefaultSettings'
 import {
   CloudFrontClient,
   CreateInvalidationCommand,
@@ -14,23 +15,26 @@ import {
   ListVersionsByFunctionCommand,
   ListVersionsByFunctionCommandInput,
   ListVersionsByFunctionCommandOutput,
+  UpdateFunctionCodeCommand,
 } from '@aws-sdk/client-lambda'
 
-export async function handleUpdate(settings: DeploymentSettings) {
+export async function handleUpdate(settings: DeploymentSettings): Promise<APIGatewayProxyResult> {
   console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distbution.`)
   console.info(`Settings: ${settings}`)
 
-  const latestFunctionArn = await getLambdaLatestVersionArn(settings.LambdaFunctionName)
+  const lambdaClient = new LambdaClient({ region: defaults.AWS_REGION })
+
+  const latestFunctionArn = await getLambdaLatestVersionArn(lambdaClient, settings.LambdaFunctionName)
   if (!latestFunctionArn) {
-    return publishJobFailure('No lambda versions')
+    return handleResult('No lambda version')
   }
 
-  if (latestFunctionArn.length === 1) {
-    console.info('No updates yet')
-    return publishJobSuccess()
+  try {
+    const functionVersionArn = await updateLambdaFunctionCode(lambdaClient, settings.LambdaFunctionName)
+    return updateCloudFrontConfig(settings.CFDistributionId, settings.LambdaFunctionName, functionVersionArn)
+  } catch (error) {
+    return handleResult(error)
   }
-
-  updateCloudFrontConfig(settings.CFDistributionId, settings.LambdaFunctionName, latestFunctionArn)
 }
 
 async function updateCloudFrontConfig(
@@ -47,20 +51,20 @@ async function updateCloudFrontConfig(
   const cfConfig: GetDistributionConfigCommandOutput = await cloudFrontClient.send(getConfigCommand)
 
   if (!cfConfig.ETag || !cfConfig.DistributionConfig) {
-    return publishJobFailure('CloudFront distribution not found')
+    return handleResult('CloudFront distribution not found')
   }
 
   const cacheBehaviors = cfConfig.DistributionConfig.CacheBehaviors
   const fpCbs = cacheBehaviors?.Items?.filter((it) => it.TargetOriginId === 'fpcdn.io')
   if (!fpCbs || fpCbs?.length === 0) {
-    return publishJobFailure('Cache behavior not found')
+    return handleResult('Cache behavior not found')
   }
   const cacheBehavior = fpCbs[0]
   const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
     (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(lambdaFunctionName),
   )
   if (!lambdas || lambdas?.length === 0) {
-    return publishJobFailure('Lambda function association not found')
+    return handleResult('Lambda function association not found')
   }
   const lambda = lambdas[0]
   lambda.LambdaFunctionARN = latestFunctionArn
@@ -77,7 +81,7 @@ async function updateCloudFrontConfig(
 
   console.info('Going to invalidate routes for upgraded cache behavior')
   if (!cacheBehavior.PathPattern) {
-    return publishJobFailure('Path pattern is not defined')
+    return handleResult('Path pattern is not defined')
   }
 
   let pathPattern = cacheBehavior.PathPattern
@@ -98,10 +102,28 @@ async function updateCloudFrontConfig(
   const invalidationCommand = new CreateInvalidationCommand(invalidationParams)
   const invalidationResult = await cloudFrontClient.send(invalidationCommand)
   console.info(`Invalidation has finished, ${JSON.stringify(invalidationResult)}`)
+  return handleResult()
 }
 
-async function getLambdaLatestVersionArn(functionName: string): Promise<string | undefined> {
-  const client = new LambdaClient({ region: REGION })
+async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName: string): Promise<string> {
+  const command = new UpdateFunctionCodeCommand({
+    S3Bucket: defaults.LAMBDA_DISTRIBUTION_BUCKET,
+    S3Key: defaults.LAMBDA_DISTRIBUTION_BUCKET_KEY,
+    FunctionName: functionName,
+    Publish: true,
+  })
+  const result = await lambdaClient.send(command)
+  console.info(`function arn = ${result.FunctionArn}`)
+  console.info(`function version = ${result.Version}`)
+
+  if (!result.FunctionArn) {
+    throw new Error('Function ARN not found after update')
+  }
+
+  return result.FunctionArn
+}
+
+async function getLambdaLatestVersionArn(client: LambdaClient, functionName: string): Promise<string | undefined> {
   const params: ListVersionsByFunctionCommandInput = {
     FunctionName: functionName,
   }
@@ -117,10 +139,16 @@ async function getLambdaLatestVersionArn(functionName: string): Promise<string |
   return Promise.resolve(latest.FunctionArn)
 }
 
-async function publishJobSuccess() {
-  console.info(`Job successfully finished`)
-}
-
-async function publishJobFailure(message: string) {
-  console.info(`Job failed with ${message}`)
+async function handleResult(message?: any): Promise<APIGatewayProxyResult> {
+  const body = {
+    status: 'Update failed',
+    error: message,
+  }
+  return {
+    statusCode: 200,
+    body: JSON.stringify(body),
+    headers: {
+      'content-type': 'application/json',
+    },
+  }
 }
