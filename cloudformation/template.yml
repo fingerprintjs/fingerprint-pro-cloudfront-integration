@@ -266,6 +266,15 @@ Resources:
               - secretsmanager:GetSecretValue
             Resource:
               Fn::Sub: ${MgmtSettingsSecret}
+      - PolicyName: S3LambdaDistributionAccess
+        PolicyDocument:      
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+            Resource: arn:aws:s3:::fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip
       - PolicyName: FpLambdaUpdate
         PolicyDocument:
           Version: '2012-10-17'
