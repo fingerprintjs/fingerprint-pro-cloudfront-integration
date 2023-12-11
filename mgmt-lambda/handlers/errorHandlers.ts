@@ -7,6 +7,9 @@ export async function handleNoAthentication(): Promise<APIGatewayProxyResult> {
   return {
     statusCode: 401,
     body: JSON.stringify(body),
+    headers: {
+      'content-type': 'application/json',
+    },
   }
 }
 
@@ -19,6 +22,9 @@ export async function handleWrongConfiguration(error: any): Promise<APIGatewayPr
   return {
     statusCode: 500,
     body: JSON.stringify(body),
+    headers: {
+      'content-type': 'application/json',
+    },
   }
 }
 
@@ -29,5 +35,8 @@ export async function handleNotFound(): Promise<APIGatewayProxyResult> {
   return {
     statusCode: 404,
     body: JSON.stringify(body),
+    headers: {
+      'content-type': 'application/json',
+    },
   }
 }
