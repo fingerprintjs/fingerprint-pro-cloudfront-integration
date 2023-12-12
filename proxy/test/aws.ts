@@ -1,4 +1,3 @@
-import { SecretsManager } from 'aws-sdk'
 import { CloudFrontRequest, CloudFrontRequestEvent } from 'aws-lambda'
 
 export function toAwsResponse<T>(value: T) {
@@ -18,7 +17,7 @@ export function getMockSecretsManager() {
     asString: (value: string) => {
       getSecretValue.mockReturnValue(toAwsResponse({ SecretString: value }))
     },
-    asBuffer: (value: SecretsManager.SecretBinaryType) => {
+    asBuffer: (value: Buffer | Uint8Array | Blob) => {
       getSecretValue.mockReturnValue(toAwsResponse({ SecretBinary: value }))
     },
     asUndefined: () => {
