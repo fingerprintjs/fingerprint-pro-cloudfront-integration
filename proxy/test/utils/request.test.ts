@@ -74,4 +74,15 @@ describe('region', () => {
     }
     expect(getRegion(req, logger)).toBe('eu')
   })
+
+  test('wrong region', () => {
+    const req: CloudFrontRequest = {
+      clientIp: '1.1.1.1',
+      method: 'GET',
+      uri: 'fpjs/agent',
+      querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2&region=bar.baz/foo',
+      headers: {},
+    }
+    expect(getRegion(req, logger)).toBe('us')
+  })
 })

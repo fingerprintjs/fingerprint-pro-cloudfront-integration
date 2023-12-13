@@ -41,10 +41,14 @@ export function getMockSecretsManager() {
   }
 }
 
-export const mockRequest = (uri: string, querystring = 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2') => {
+export const mockRequest = (
+  uri: string,
+  querystring = 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+  method = 'POST',
+) => {
   return {
     clientIp: '1.1.1.1',
-    method: 'GET',
+    method: method,
     uri,
     querystring,
     headers: {
