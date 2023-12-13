@@ -1,3 +1,11 @@
+## [1.3.3](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.3.2...v1.3.3) (2023-12-13)
+
+
+### Bug Fixes
+
+* add types for parameter extraction functions ([d84aaeb](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/d84aaeb50bb61b44116b359a46f4227727e728c7))
+* improve endpoint creation ([006c91b](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/006c91b594c41fe4fb85a143496d4738aaf06793))
+
 ## [1.3.3-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.3.2...v1.3.3-rc.1) (2023-12-13)
 
 
