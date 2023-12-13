@@ -1,6 +1,7 @@
 import { ResultOptions } from '../model'
 import { CloudFrontResultResponse } from 'aws-lambda'
 import https from 'https'
+import { Region } from '../model'
 
 import { updateResponseHeaders, addTrafficMonitoringSearchParamsForVisitorIdRequest } from '../utils'
 
@@ -13,8 +14,12 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
     const url = new URL(getIngressAPIHost(options.region) + options.suffix)
     decodeURIComponent(options.querystring)
       .split('&')
+      .filter((it) => it.includes('='))
       .forEach((it) => {
         const kv = it.split('=')
+        if (kv[0] === 'region') {
+          kv[1] = options.region
+        }
         url.searchParams.append(kv[0], kv[1])
       })
     addTrafficMonitoringSearchParamsForVisitorIdRequest(url)
@@ -98,7 +103,7 @@ function generateRequestUniqueId(): string {
   return generateRandomString(2)
 }
 
-function getIngressAPIHost(region: string): string {
-  const prefix = region === 'us' ? '' : `${region}.`
+function getIngressAPIHost(region: Region): string {
+  const prefix = region === Region.us ? '' : `${region}.`
   return `https://${prefix}__INGRESS_API__`
 }

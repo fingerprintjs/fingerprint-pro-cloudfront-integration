@@ -41,6 +41,90 @@ describe('Result Endpoint', function () {
     )
   })
 
+  test('Call with wrong region', async () => {
+    const queryString = 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2'
+    const request = mockRequest('/behavior/result', queryString)
+    request.querystring = `${request.querystring}&region=bar.baz/foo`
+    const event = mockEvent(request)
+
+    await handler(event)
+
+    expect(handleResult).toHaveBeenCalledTimes(1)
+    expect(https.request).toHaveBeenCalledWith(
+      new URL(`https://${origin}/${queryStringWithRegion('us')}`),
+      expect.anything(),
+      expect.anything(),
+    )
+  })
+
+  test('Invalid query parameters', async () => {
+    const queryString = 'apiKey=foo.bar/baz&version=bar.foo/baz&loaderVersion=baz.bar/foo'
+    const queryStringWithUSRegion =
+      '?apiKey=foo.bar%2Fbaz&version=bar.foo%2Fbaz&loaderVersion=baz.bar%2Ffoo&ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fingress'
+    const request = mockRequest('/behavior/result', queryString)
+    request.querystring = `${request.querystring}`
+    const event = mockEvent(request)
+
+    await handler(event)
+
+    expect(handleResult).toHaveBeenCalledTimes(1)
+    expect(https.request).toHaveBeenCalledWith(
+      new URL(`https://${origin}/${queryStringWithUSRegion}`),
+      expect.anything(),
+      expect.anything(),
+    )
+  })
+
+  test('Suffix with dot', async () => {
+    const suffix = '.suffix/more/path'
+    const iiParam = 'ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fingress'
+    const request = mockRequest(`/behavior/result/${suffix}`, '')
+    const event = mockEvent(request)
+
+    await handler(event)
+
+    expect(handleResult).toHaveBeenCalledTimes(1)
+    expect(https.request).toHaveBeenCalledWith(
+      new URL(`https://${origin}/${suffix}?${iiParam}`),
+      expect.anything(),
+      expect.anything(),
+    )
+  })
+
+  test('Invalid query parameters, GET request', async () => {
+    const queryString = 'apiKey=foo.bar/baz&version=bar.foo/baz&loaderVersion=baz.bar/foo'
+    const queryStringWithUSRegion =
+      '?apiKey=foo.bar%2Fbaz&version=bar.foo%2Fbaz&loaderVersion=baz.bar%2Ffoo&ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fingress'
+    const request = mockRequest('/behavior/result', queryString, 'GET')
+    request.querystring = `${request.querystring}`
+    const event = mockEvent(request)
+
+    await handler(event)
+
+    expect(handleResult).toHaveBeenCalledTimes(1)
+    expect(https.request).toHaveBeenCalledWith(
+      new URL(`https://${origin}/${queryStringWithUSRegion}`),
+      expect.anything(),
+      expect.anything(),
+    )
+  })
+
+  test('Suffix with dot, GET request', async () => {
+    const suffix = '.suffix/more/path'
+    const iiParam = 'ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fingress'
+    const request = mockRequest(`/behavior/result/${suffix}`, '', 'GET')
+    const event = mockEvent(request)
+
+    await handler(event)
+
+    expect(handleResult).toHaveBeenCalledTimes(1)
+    expect(https.request).toHaveBeenCalledWith(
+      new URL(`https://${origin}/${suffix}?${iiParam}`),
+      expect.anything(),
+      expect.anything(),
+    )
+  })
+
   test('Call without suffix', async () => {
     const event = mockEvent(mockRequest('/behavior/result'))
     await handler(event)
