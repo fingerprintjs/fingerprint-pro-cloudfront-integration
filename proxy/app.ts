@@ -54,6 +54,9 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
     if (resultPathMatches && resultPathMatches.length >= 1) {
       suffix = resultPathMatches[1] ?? ''
     }
+    if (suffix.length > 0 && !suffix.startsWith('/')) {
+      suffix = '/' + suffix
+    }
     const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request))
     return handleResult({
       region: getRegion(request, logger),

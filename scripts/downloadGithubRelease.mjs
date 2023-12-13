@@ -14,7 +14,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 console.debug('dirname', dirname)
 
 async function main() {
-  const release = await getGithubRelease()
+  const release = await getGitHubRelease()
 
   if (!release) {
     console.warn('No release found')
@@ -44,16 +44,16 @@ function bearer(token) {
   return `Bearer ${token}`
 }
 
-async function getGithubRelease() {
+async function getGitHubRelease() {
   const commitId = process.env.COMMIT_ID
 
   if (!commitId) {
-    return getLatestGithubRelease()
+    return getLatestGitHubRelease()
   }
 
   console.info('Using commit id', commitId)
 
-  return getGithubReleaseByCommitId(commitId)
+  return getGitHubReleaseByCommitId(commitId)
 }
 
 async function listTags() {
@@ -61,40 +61,40 @@ async function listTags() {
 
   console.debug('fetchTags url', url)
 
-  return await doGithubGetRequest(url)
+  return await doGitHubGetRequest(url)
 }
 
-async function getGithubReleaseByCommitId(commitId) {
+async function getGitHubReleaseByCommitId(commitId) {
   const tag = await listTags().then((response) => findTagByCommitId(response, commitId))
 
   if (!tag) {
     throw new Error(`Tag for commit ${commitId} not found`)
   }
 
-  return await getGithubReleaseByTag(tag.name)
+  return await getGitHubReleaseByTag(tag.name)
 }
 
-async function getGithubReleaseByTag(tag) {
+async function getGitHubReleaseByTag(tag) {
   const url = `https://api.github.com/repos/${config.owner}/${config.repo}/releases/tags/${tag}`
 
-  console.debug('getGithubReleaseByTag url', url)
+  console.debug('getGitHubReleaseByTag url', url)
 
-  return await doGithubGetRequest(url)
+  return await doGitHubGetRequest(url)
 }
 
 function findTagByCommitId(tags, commitId) {
   return tags.find((tag) => tag?.commit?.sha === commitId)
 }
 
-async function getLatestGithubRelease() {
+async function getLatestGitHubRelease() {
   const url = `https://api.github.com/repos/${config.owner}/${config.repo}/releases/latest`
 
-  console.info('getLatestGithubRelease url', url)
+  console.info('getLatestGitHubRelease url', url)
 
-  return await doGithubGetRequest(url)
+  return await doGitHubGetRequest(url)
 }
 
-async function doGithubGetRequest(url) {
+async function doGitHubGetRequest(url) {
   const response = await fetch(url, {
     headers: config.token
       ? {
@@ -109,7 +109,7 @@ async function doGithubGetRequest(url) {
 async function downloadReleaseAsset(url, token) {
   const headers = {
     Accept: 'application/octet-stream',
-    'User-Agent': 'fingerprint-pro-azure-integration',
+    'User-Agent': 'fingerprint-pro-cloudfront-integration',
   }
   if (token) {
     headers['Authorization'] = bearer(token)

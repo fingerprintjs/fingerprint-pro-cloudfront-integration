@@ -1,8 +1,9 @@
 import { OutgoingHttpHeaders } from 'http'
 import { Logger } from '../logger'
+import { Region } from './'
 
 export interface ResultOptions {
-  region: string
+  region: Region
   querystring: string
   method: string
   headers: OutgoingHttpHeaders
