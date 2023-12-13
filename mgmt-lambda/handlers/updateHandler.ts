@@ -106,15 +106,16 @@ async function updateCloudFrontConfig(
 }
 
 async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName: string): Promise<string> {
+  console.info('Preparing command to update function code')
   const command = new UpdateFunctionCodeCommand({
     S3Bucket: defaults.LAMBDA_DISTRIBUTION_BUCKET,
     S3Key: defaults.LAMBDA_DISTRIBUTION_BUCKET_KEY,
     FunctionName: functionName,
     Publish: true,
   })
+  console.info('Sending update command to Lambda runtime')
   const result = await lambdaClient.send(command)
-  console.info(`function arn = ${result.FunctionArn}`)
-  console.info(`function version = ${result.Version}`)
+  console.info(`Got Lambda function update result, functionARN: ${result.FunctionArn}`)
 
   if (!result.FunctionArn) {
     throw new Error('Function ARN not found after update')
