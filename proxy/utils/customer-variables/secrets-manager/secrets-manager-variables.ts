@@ -23,16 +23,12 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
     secretRegion: 'fpjs_secret_region',
   }
 
-  constructor(
-    private readonly request: CloudFrontRequest,
-    SecretsManagerImpl: typeof SecretsManagerClient = SecretsManagerClient,
-    private readonly logger = createLogger(),
-  ) {
+  constructor(private readonly request: CloudFrontRequest, private readonly logger = createLogger()) {
     this.readSecretsInfoFromHeaders()
 
     if (SecretsManagerVariables.isValidSecretInfo(this.secretsInfo)) {
       try {
-        this.secretsManager = new SecretsManagerImpl({ region: this.secretsInfo.secretRegion })
+        this.secretsManager = new SecretsManagerClient({ region: this.secretsInfo.secretRegion })
       } catch (error) {
         logger.error('Failed to create secrets manager', {
           error,

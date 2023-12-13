@@ -46,6 +46,8 @@
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
     "adm-zip": "^0.5.10",
+    "aws-sdk-client-mock": "^3.0.0",
+    "aws-sdk-client-mock-jest": "^3.0.0",
     "commitizen": "^4.2.4",
     "conventional-changelog-conventionalcommits": "5.0.0",
     "cz-conventional-changelog": "^3.3.0",
