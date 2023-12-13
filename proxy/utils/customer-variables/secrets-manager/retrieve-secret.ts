@@ -5,9 +5,7 @@ import {
   GetSecretValueCommandOutput,
 } from '@aws-sdk/client-secrets-manager'
 import { arrayBufferToString } from '../../buffer'
-import { normalizeSecret } from './normalize-secret'
 import { validateSecret } from './validate-secret'
-import { isBlob } from '../../is-blob'
 import { Logger } from '../../../logger'
 
 interface CacheEntry {
@@ -38,15 +36,9 @@ export async function retrieveSecret(secretsManager: SecretsManagerClient, key: 
   return result
 }
 
-async function convertSecretToString(result: GetSecretValueCommandOutput) {
+function convertSecretToString(result: GetSecretValueCommandOutput): string {
   if (result.SecretBinary) {
-    if (result.SecretBinary instanceof Uint8Array) {
-      return arrayBufferToString(result.SecretBinary)
-    } else if (isBlob(result.SecretBinary)) {
-      return result.SecretBinary
-    } else {
-      return result.SecretBinary
-    }
+    return arrayBufferToString(result.SecretBinary)
   } else {
     return result.SecretString || ''
   }
@@ -58,22 +50,19 @@ async function fetchSecret(
   logger: Logger
 ): Promise<CustomerVariablesRecord | null> {
   try {
-    const result = await secretsManager.send(
-      new GetSecretValueCommand({
-        SecretId: key,
-      }),
-    )
+    const command = new GetSecretValueCommand({
+      SecretId: key,
+    })
+    const result = await secretsManager.send(command)
 
-    const secretString = await convertSecretToString(result)
+    const secretString = convertSecretToString(result)
 
     if (!secretString) {
       return null
     }
 
-    const parsedSecret = normalizeSecret(secretString)
-
+    const parsedSecret: CustomerVariablesRecord = JSON.parse(secretString)
     validateSecret(parsedSecret)
-
     return parsedSecret
   } catch (error) {
     logger.error(`Failed to fetch and parse secret ${key}`, { error })

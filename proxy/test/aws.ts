@@ -1,4 +1,6 @@
 import { CloudFrontRequest, CloudFrontRequestEvent } from 'aws-lambda'
+import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
+import { mockClient } from 'aws-sdk-client-mock'
 
 export function toAwsResponse<T>(value: T) {
   return {
@@ -6,44 +8,22 @@ export function toAwsResponse<T>(value: T) {
   }
 }
 
-export function getMockSecretsManager() {
-  const getSecretValue = jest.fn()
-
-  const MockSecretsManager = jest.fn(() => ({
-    getSecretValue,
-  })) as jest.Mock
-
-  const mockSecret = {
-    asString: (value: string) => {
-      getSecretValue.mockReturnValue(toAwsResponse({ SecretString: value }))
-    },
-    asBuffer: (value: Buffer | Uint8Array | Blob) => {
-      getSecretValue.mockReturnValue(toAwsResponse({ SecretBinary: value }))
-    },
-    asUndefined: () => {
-      getSecretValue.mockReturnValue(
-        toAwsResponse({
-          SecretString: undefined,
-          SecretBinary: undefined,
-        })
-      )
-    },
-    asError: (error: Error) => {
-      getSecretValue.mockReturnValueOnce(toAwsResponse(Promise.reject(error)))
-    },
-  }
-
-  return {
-    MockSecretsManager,
-    getSecretValue,
-    mockSecret,
-  }
+export function createSecretManagerClientMock(secretName: string, secretString: string, secretBinary: Uint8Array) {
+  const mock = mockClient(SecretsManagerClient)
+  mock
+    .on(GetSecretValueCommand, {
+      SecretId: secretName,
+    })
+    .resolves({
+      SecretString: secretString,
+      SecretBinary: secretBinary,
+    })
 }
 
 export const mockRequest = (
   uri: string,
   querystring = 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-  method = 'POST'
+  method = 'POST',
 ) => {
   return {
     clientIp: '1.1.1.1',

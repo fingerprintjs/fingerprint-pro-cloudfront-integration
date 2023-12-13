@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2WithRequestContext, APIGatewayEventRequestContextV2 } from 'aws-lambda'
-import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
+import { SecretsManagerClient, GetSecretValueCommand, GetSecretValueResponse } from '@aws-sdk/client-secrets-manager'
 import type { AuthSettings } from './model/AuthSettings'
 import type { DeploymentSettings } from './model/DeploymentSettings'
 import { handleNoAthentication, handleWrongConfiguration, handleNotFound } from './handlers/errorHandlers'
@@ -50,7 +50,7 @@ async function getAuthSettings(): Promise<AuthSettings> {
       SecretId: secretName,
     })
 
-    const response = await client.send(command)
+    const response: GetSecretValueResponse = await client.send(command)
 
     if (!response.SecretString) {
       throw new Error('Secret is empty')
