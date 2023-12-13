@@ -2,17 +2,18 @@ import { CloudFrontRequest } from 'aws-lambda'
 import { Logger } from '../logger'
 import { Region } from '../model'
 
-export const getApiKey = (request: CloudFrontRequest, logger: Logger) => getQueryParameter(request, 'apiKey', logger)
+export const getApiKey = (request: CloudFrontRequest, logger: Logger): string | undefined =>
+  getQueryParameter(request, 'apiKey', logger)
 
-export const getVersion = (request: CloudFrontRequest, logger: Logger) => {
+export const getVersion = (request: CloudFrontRequest, logger: Logger): string => {
   const version = getQueryParameter(request, 'version', logger)
   return version === undefined ? '3' : version
 }
 
-export const getLoaderVersion = (request: CloudFrontRequest, logger: Logger) =>
+export const getLoaderVersion = (request: CloudFrontRequest, logger: Logger): string | undefined =>
   getQueryParameter(request, 'loaderVersion', logger)
 
-export const getRegion = (request: CloudFrontRequest, logger: Logger) => {
+export const getRegion = (request: CloudFrontRequest, logger: Logger): Region => {
   const value = getQueryParameter(request, 'region', logger)
   if (!value || !(value in Region)) {
     return Region.us
