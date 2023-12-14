@@ -1,3 +1,16 @@
+## [1.4.0](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.3.3...v1.4.0) (2023-12-14)
+
+
+### Features
+
+* **proxy-host-header:** add proxy host header, remove PSL ([0a23f39](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/0a23f397fe25d8872e1b950941248f3204add9de))
+
+
+### Bug Fixes
+
+* remove domain field from handlers options ([e14bb50](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/e14bb506a02648d15d07700c3a6d36deb0098ee7))
+* update test data ([2f4a94e](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/2f4a94e07ea18b43d553bc91429a6d90c132570d))
+
 ## [1.4.0-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.3.3...v1.4.0-rc.1) (2023-12-14)
 
 
