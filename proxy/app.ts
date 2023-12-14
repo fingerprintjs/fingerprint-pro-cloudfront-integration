@@ -7,14 +7,12 @@ import {
   getResultUri,
   getStatusUri,
   prepareHeadersForIngressAPI,
-  getHost,
   getRegion,
   getVersion,
   getApiKey,
   getLoaderVersion,
   removeTrailingSlashes,
 } from './utils'
-import { getEffectiveTLDPlusOne } from './domain'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
 import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
 import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
@@ -46,7 +44,6 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       loaderVersion: getLoaderVersion(request, logger),
       method: request.method,
       headers: filterRequestHeaders(request),
-      domain: getHost(request),
       logger,
     })
   } else if (resultPathMatches?.length) {
@@ -57,14 +54,12 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
     if (suffix.length > 0 && !suffix.startsWith('/')) {
       suffix = '/' + suffix
     }
-    const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request))
     return handleResult({
       region: getRegion(request, logger),
       querystring: request.querystring,
       method: request.method,
       headers: await prepareHeadersForIngressAPI(request, customerVariables),
       body: request.body?.data || '',
-      domain: eTLDPlusOneDomain,
       logger,
       suffix,
     })
