@@ -35,7 +35,9 @@ describe('Result Endpoint', function () {
 
     expect(handleResult).toHaveBeenCalledTimes(1)
     expect(https.request).toHaveBeenCalledWith(
-      new URL(`https://eu.${origin}/${queryStringWithRegion('eu')}`),
+      expect.objectContaining<Partial<URL>>({
+        href: `https://eu.${origin}/${queryStringWithRegion('eu')}`,
+      }),
       expect.anything(),
       expect.anything(),
     )
@@ -130,7 +132,9 @@ describe('Result Endpoint', function () {
     await handler(event)
     expect(handleResult).toHaveBeenCalledTimes(1)
     expect(https.request).toHaveBeenCalledWith(
-      new URL(`https://${origin}/${queryString}`),
+      expect.objectContaining<Partial<URL>>({
+        href: `https://${origin}/${queryString}`,
+      }),
       expect.anything(),
       expect.anything(),
     )
@@ -141,7 +145,9 @@ describe('Result Endpoint', function () {
     await handler(event)
     expect(handleResult).toHaveBeenCalledTimes(1)
     expect(https.request).toHaveBeenCalledWith(
-      new URL(`https://${origin}/with/suffix${queryString}`),
+      expect.objectContaining<Partial<URL>>({
+        href: `https://${origin}/with/suffix${queryString}`,
+      }),
       expect.anything(),
       expect.anything(),
     )
@@ -157,7 +163,9 @@ describe('Result Endpoint', function () {
 
     expect(handleResult).toHaveBeenCalledTimes(1)
     expect(https.request).toHaveBeenCalledWith(
-      new URL(`https://eu.${origin}/with/suffix${queryStringWithRegion('eu')}`),
+      expect.objectContaining<Partial<URL>>({
+        href: `https://eu.${origin}/with/suffix${queryStringWithRegion('eu')}`,
+      }),
       expect.anything(),
       expect.anything(),
     )
