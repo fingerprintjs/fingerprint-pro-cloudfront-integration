@@ -5,7 +5,7 @@ import {
 
 describe('test procdn call', () => {
   test('test', () => {
-    const url = new URL('https://fpjs.sh/agent?smth')
+    const url = new URL('https://foo.bar/agent?smth')
     addTrafficMonitoringSearchParamsForProCDN(url)
 
     const param = url.searchParams.get('ii')
@@ -15,7 +15,7 @@ describe('test procdn call', () => {
 
 describe('test visitor call', () => {
   test('test', () => {
-    const url = new URL('https://fpjs.sh/visitorId?smth')
+    const url = new URL('https://foo.bar/visitorId?smth')
     addTrafficMonitoringSearchParamsForVisitorIdRequest(url)
 
     const param = url.searchParams.get('ii')

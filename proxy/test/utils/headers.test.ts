@@ -36,7 +36,7 @@ describe('test fpjs-headers preparation', () => {
         host: [
           {
             key: 'host',
-            value: 'fpjs.sh',
+            value: 'foo.bar',
           },
         ],
         'transfer-encoding': [
@@ -123,7 +123,7 @@ describe('test fpjs-headers preparation', () => {
     const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req))
     expect(headers['fpjs-proxy-client-ip']).toBe('1.1.1.1')
     expect(headers['fpjs-proxy-secret']).toBe('qwertyuio1356767')
-    expect(headers['fpjs-proxy-forwarded-host']).toBe('fpjs.sh')
+    expect(headers['fpjs-proxy-forwarded-host']).toBe('foo.bar')
   })
 
   test('secret is not defined', async () => {
@@ -148,7 +148,7 @@ describe('test fpjs-headers preparation', () => {
         host: [
           {
             key: 'host',
-            value: 'fpjs.sh',
+            value: 'foo.bar',
           },
         ],
         'transfer-encoding': [
@@ -228,7 +228,7 @@ describe('test fpjs-headers preparation', () => {
     const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req))
     expect(headers['fpjs-proxy-client-ip']).toBe('1.1.1.1')
     expect(headers.hasOwnProperty('fpjs-proxy-secret')).toBeFalsy()
-    expect(headers['fpjs-proxy-forwarded-host']).toBe('fpjs.sh')
+    expect(headers['fpjs-proxy-forwarded-host']).toBe('foo.bar')
   })
 })
 
@@ -255,7 +255,7 @@ describe('filterRequestHeaders', () => {
         host: [
           {
             key: 'host',
-            value: 'fpjs.sh',
+            value: 'foo.bar',
           },
         ],
         'transfer-encoding': [
@@ -350,7 +350,7 @@ describe('updateResponseHeaders', () => {
       'content-type': 'application/json',
       'cross-origin-resource-policy': 'cross-origin',
       etag: 'dskjhfadsjk',
-      'set-cookie': ['_iidf; HttpOnly; Domain=fpjs.sh'],
+      'set-cookie': ['_iidf; HttpOnly; Domain=foo.bar'],
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
       'x-amz-cf-id': 'qwewrwer',
@@ -369,7 +369,7 @@ describe('updateResponseHeaders', () => {
     expect(cfHeaders.hasOwnProperty('x-amz-cf-xxx')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-edge-xxx')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('public, max-age=40000, s-maxage=40000')
-    expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
+    expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=foo.bar')
     expect(cfHeaders.hasOwnProperty('strict-transport-security')).toBe(false)
   })
 
@@ -384,7 +384,7 @@ describe('updateResponseHeaders', () => {
       'content-type': 'application/json',
       'cross-origin-resource-policy': 'cross-origin',
       etag: 'dskjhfadsjk',
-      'set-cookie': ['_iidf; HttpOnly; Domain=fpjs.sh'],
+      'set-cookie': ['_iidf; HttpOnly; Domain=foo.bar'],
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
     }
@@ -392,7 +392,7 @@ describe('updateResponseHeaders', () => {
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('no-cache')
-    expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
+    expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=foo.bar')
   })
 })
 
@@ -408,7 +408,7 @@ describe('updateResponseHeadersForAgentDownload', () => {
       'content-type': 'application/json',
       'cross-origin-resource-policy': 'cross-origin',
       etag: 'dskjhfadsjk',
-      'set-cookie': ['_iidf; HttpOnly; Domain=fpjs.sh'],
+      'set-cookie': ['_iidf; HttpOnly; Domain=foo.bar'],
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
       'x-amz-cf-id': 'qwewrwer',
@@ -427,7 +427,7 @@ describe('updateResponseHeadersForAgentDownload', () => {
     expect(cfHeaders.hasOwnProperty('x-amz-cf-xxx')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-edge-xxx')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('public, max-age=3600, s-maxage=60')
-    expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
+    expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=foo.bar')
     expect(cfHeaders.hasOwnProperty('strict-transport-security')).toBe(false)
   })
 
@@ -442,7 +442,7 @@ describe('updateResponseHeadersForAgentDownload', () => {
       'content-type': 'application/json',
       'cross-origin-resource-policy': 'cross-origin',
       etag: 'dskjhfadsjk',
-      'set-cookie': ['_iidf; HttpOnly; Domain=fpjs.sh'],
+      'set-cookie': ['_iidf; HttpOnly; Domain=foo.bar'],
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
     }
@@ -450,7 +450,7 @@ describe('updateResponseHeadersForAgentDownload', () => {
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('no-cache, max-age=3600, s-maxage=60')
-    expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=fpjs.sh')
+    expect(cfHeaders['set-cookie'][0].value).toBe('_iidf; HttpOnly; Domain=foo.bar')
   })
 })
 
@@ -477,7 +477,7 @@ describe('checkHostValues', () => {
         host: [
           {
             key: 'host',
-            value: 'fpjs.sh',
+            value: 'foo.bar',
           },
         ],
         'transfer-encoding': [
@@ -502,7 +502,7 @@ describe('checkHostValues', () => {
     }
     const host = getHost(req)
 
-    expect(host).toBe('fpjs.sh')
+    expect(host).toBe('foo.bar')
   })
 
   test('third-level domain', () => {
@@ -527,7 +527,7 @@ describe('checkHostValues', () => {
         host: [
           {
             key: 'host',
-            value: 'anime.fpjs.sh',
+            value: 'anime.foo.bar',
           },
         ],
         'transfer-encoding': [
@@ -552,6 +552,6 @@ describe('checkHostValues', () => {
     }
     const host = getHost(req)
 
-    expect(host).toBe('anime.fpjs.sh')
+    expect(host).toBe('anime.foo.bar')
   })
 })
