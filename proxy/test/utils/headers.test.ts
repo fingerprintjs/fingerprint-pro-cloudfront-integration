@@ -5,7 +5,6 @@ import {
   updateResponseHeaders,
   updateResponseHeadersForAgentDownload,
 } from '../../utils'
-import { getDomainFromHostname } from '../../domain'
 import { CloudFrontHeaders, CloudFrontRequest } from 'aws-lambda'
 import { IncomingHttpHeaders } from 'http'
 import { CustomerVariables } from '../../utils/customer-variables/customer-variables'
@@ -21,7 +20,86 @@ describe('test fpjs-headers preparation', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-      headers: {},
+      headers: {
+        'content-type': [
+          {
+            key: 'content-type',
+            value: 'application/json',
+          },
+        ],
+        'content-length': [
+          {
+            key: 'content-length',
+            value: '24354',
+          },
+        ],
+        host: [
+          {
+            key: 'host',
+            value: 'fpjs.sh',
+          },
+        ],
+        'transfer-encoding': [
+          {
+            key: 'transfer-encoding',
+            value: 'br',
+          },
+        ],
+        via: [
+          {
+            key: 'via',
+            value: 'cloudfront.net',
+          },
+        ],
+        cookie: [
+          {
+            key: 'cookie',
+            value: '_iidt=7A03Gwg; _vid_t=gEFRuIQlzYmv692/UL4GLA==',
+          },
+        ],
+        'x-amzn-cf-id': [
+          {
+            key: 'x-amzn-cf-id',
+            value: 'some value',
+          },
+        ],
+        'x-amz-cf-id': [
+          {
+            key: 'x-amz-cf-id',
+            value: 'some value',
+          },
+        ],
+        'x-amz-cf-yyy': [
+          {
+            key: 'x-amz-cf-yyy',
+            value: 'some value',
+          },
+        ],
+        'x-amzn-cf-zzz': [
+          {
+            key: 'x-amzn-cf-zzz',
+            value: 'some-value',
+          },
+        ],
+        'x-custom-header': [
+          {
+            key: 'x-custom-header',
+            value: 'value123899',
+          },
+        ],
+        'x-edge-qqq': [
+          {
+            key: 'x-edge-qqq',
+            value: 'some value',
+          },
+        ],
+        'strict-transport-security': [
+          {
+            key: 'strict-transport-security',
+            value: 'max-age=600',
+          },
+        ],
+      },
       origin: {
         custom: {
           domainName: 'adewe.cloudfront.net',
@@ -45,6 +123,7 @@ describe('test fpjs-headers preparation', () => {
     const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req))
     expect(headers['fpjs-proxy-client-ip']).toBe('1.1.1.1')
     expect(headers['fpjs-proxy-secret']).toBe('qwertyuio1356767')
+    expect(headers['fpjs-proxy-forwarded-host']).toBe('fpjs.sh')
   })
 
   test('secret is not defined', async () => {
@@ -53,7 +132,86 @@ describe('test fpjs-headers preparation', () => {
       method: 'GET',
       uri: 'fpjs/agent',
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-      headers: {},
+      headers: {
+        'content-type': [
+          {
+            key: 'content-type',
+            value: 'application/json',
+          },
+        ],
+        'content-length': [
+          {
+            key: 'content-length',
+            value: '24354',
+          },
+        ],
+        host: [
+          {
+            key: 'host',
+            value: 'fpjs.sh',
+          },
+        ],
+        'transfer-encoding': [
+          {
+            key: 'transfer-encoding',
+            value: 'br',
+          },
+        ],
+        via: [
+          {
+            key: 'via',
+            value: 'cloudfront.net',
+          },
+        ],
+        cookie: [
+          {
+            key: 'cookie',
+            value: '_iidt=7A03Gwg; _vid_t=gEFRuIQlzYmv692/UL4GLA==',
+          },
+        ],
+        'x-amzn-cf-id': [
+          {
+            key: 'x-amzn-cf-id',
+            value: 'some value',
+          },
+        ],
+        'x-amz-cf-id': [
+          {
+            key: 'x-amz-cf-id',
+            value: 'some value',
+          },
+        ],
+        'x-amz-cf-yyy': [
+          {
+            key: 'x-amz-cf-yyy',
+            value: 'some value',
+          },
+        ],
+        'x-amzn-cf-zzz': [
+          {
+            key: 'x-amzn-cf-zzz',
+            value: 'some-value',
+          },
+        ],
+        'x-custom-header': [
+          {
+            key: 'x-custom-header',
+            value: 'value123899',
+          },
+        ],
+        'x-edge-qqq': [
+          {
+            key: 'x-edge-qqq',
+            value: 'some value',
+          },
+        ],
+        'strict-transport-security': [
+          {
+            key: 'strict-transport-security',
+            value: 'max-age=600',
+          },
+        ],
+      },
       origin: {
         custom: {
           domainName: 'adewe.cloudfront.net',
@@ -70,6 +228,7 @@ describe('test fpjs-headers preparation', () => {
     const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req))
     expect(headers['fpjs-proxy-client-ip']).toBe('1.1.1.1')
     expect(headers.hasOwnProperty('fpjs-proxy-secret')).toBeFalsy()
+    expect(headers['fpjs-proxy-forwarded-host']).toBe('fpjs.sh')
   })
 })
 
@@ -191,7 +350,7 @@ describe('updateResponseHeaders', () => {
       'content-type': 'application/json',
       'cross-origin-resource-policy': 'cross-origin',
       etag: 'dskjhfadsjk',
-      'set-cookie': ['_iidf', 'HttpOnly', 'Domain=cloudfront.net'],
+      'set-cookie': ['_iidf; HttpOnly; Domain=fpjs.sh'],
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
       'x-amz-cf-id': 'qwewrwer',
@@ -201,7 +360,7 @@ describe('updateResponseHeaders', () => {
       'x-edge-xxx': 'ery8u',
       'strict-transport-security': 'max-age=1000',
     }
-    const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
+    const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers)
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-amz-cf-id')).toBe(false)
@@ -225,11 +384,11 @@ describe('updateResponseHeaders', () => {
       'content-type': 'application/json',
       'cross-origin-resource-policy': 'cross-origin',
       etag: 'dskjhfadsjk',
-      'set-cookie': ['_iidf', 'HttpOnly', 'Domain=cloudfront.net'],
+      'set-cookie': ['_iidf; HttpOnly; Domain=fpjs.sh'],
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
     }
-    const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers, 'fpjs.sh')
+    const cfHeaders: CloudFrontHeaders = updateResponseHeaders(headers)
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('no-cache')
@@ -249,7 +408,7 @@ describe('updateResponseHeadersForAgentDownload', () => {
       'content-type': 'application/json',
       'cross-origin-resource-policy': 'cross-origin',
       etag: 'dskjhfadsjk',
-      'set-cookie': ['_iidf', 'HttpOnly', 'Domain=cloudfront.net'],
+      'set-cookie': ['_iidf; HttpOnly; Domain=fpjs.sh'],
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
       'x-amz-cf-id': 'qwewrwer',
@@ -259,7 +418,7 @@ describe('updateResponseHeadersForAgentDownload', () => {
       'x-edge-xxx': 'ery8u',
       'strict-transport-security': 'max-age=1000',
     }
-    const cfHeaders: CloudFrontHeaders = updateResponseHeadersForAgentDownload(headers, 'fpjs.sh')
+    const cfHeaders: CloudFrontHeaders = updateResponseHeadersForAgentDownload(headers)
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders.hasOwnProperty('x-amz-cf-id')).toBe(false)
@@ -283,11 +442,11 @@ describe('updateResponseHeadersForAgentDownload', () => {
       'content-type': 'application/json',
       'cross-origin-resource-policy': 'cross-origin',
       etag: 'dskjhfadsjk',
-      'set-cookie': ['_iidf', 'HttpOnly', 'Domain=cloudfront.net'],
+      'set-cookie': ['_iidf; HttpOnly; Domain=fpjs.sh'],
       vary: 'Accept-Encoding',
       'custom-header-1': 'gdfddfd',
     }
-    const cfHeaders: CloudFrontHeaders = updateResponseHeadersForAgentDownload(headers, 'fpjs.sh')
+    const cfHeaders: CloudFrontHeaders = updateResponseHeadersForAgentDownload(headers)
     expect(cfHeaders.hasOwnProperty('custom-header-1')).toBe(true)
     expect(cfHeaders.hasOwnProperty('content-length')).toBe(false)
     expect(cfHeaders['cache-control'][0].value).toBe('no-cache, max-age=3600, s-maxage=60')
@@ -344,7 +503,6 @@ describe('checkHostValues', () => {
     const host = getHost(req)
 
     expect(host).toBe('fpjs.sh')
-    expect(getDomainFromHostname(host)).toBe('fpjs.sh')
   })
 
   test('third-level domain', () => {
@@ -395,6 +553,5 @@ describe('checkHostValues', () => {
     const host = getHost(req)
 
     expect(host).toBe('anime.fpjs.sh')
-    expect(getDomainFromHostname(host)).toBe('fpjs.sh')
   })
 })

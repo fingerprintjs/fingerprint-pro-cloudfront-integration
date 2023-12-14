@@ -46,7 +46,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
           resolve({
             status: response.statusCode ? response.statusCode.toString() : '500',
             statusDescription: response.statusMessage,
-            headers: updateResponseHeaders(response.headers, options.domain),
+            headers: updateResponseHeaders(response.headers),
             bodyEncoding: 'base64',
             body: payload.toString('base64'),
           })

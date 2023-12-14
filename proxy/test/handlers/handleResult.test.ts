@@ -193,6 +193,7 @@ describe('Result Endpoint', function () {
       cookie: '',
       'fpjs-proxy-secret': request.origin.s3.customHeaders.fpjs_pre_shared_secret[0].value,
       'fpjs-proxy-client-ip': request.clientIp,
+      'fpjs-proxy-forwarded-host': request.headers['host'][0].value,
     })
   })
 
@@ -349,7 +350,7 @@ describe('Result Endpoint', function () {
     })
   })
 
-  test('Response cookies are the same except the domain, strict-transport-security is removed', async () => {
+  test('Response cookies are the same, strict-transport-security is removed', async () => {
     requestSpy.mockImplementation((_url: any, _options: any, callback) => {
       const emitter = new EventEmitter()
 
@@ -383,7 +384,7 @@ describe('Result Endpoint', function () {
         {
           key: 'set-cookie',
           value:
-            '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow==; Path=/; Domain=adewe.cloudfront.net; Expires=Fri, 19 Jan 2024 08:54:36 GMT; HttpOnly; Secure; SameSite=None, anotherCookie=anotherValue; Domain=adewe.cloudfront.net;',
+            '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow==; Path=/; Domain=fpjs.io; Expires=Fri, 19 Jan 2024 08:54:36 GMT; HttpOnly; Secure; SameSite=None, anotherCookie=anotherValue; Domain=fpjs.io;',
         },
       ],
       'access-control-allow-credentials': [
@@ -396,98 +397,6 @@ describe('Result Endpoint', function () {
         {
           key: 'access-control-expose-headers',
           value: 'Retry-After',
-        },
-      ],
-    })
-  })
-
-  test('cookies are first party for the req url whose TLD has wildcard, the domain is derived from the req url (not origin header)', async () => {
-    requestSpy.mockImplementation((_url: any, _options: any, callback) => {
-      const emitter = new EventEmitter()
-
-      Object.assign(emitter, {
-        statusCode: 200,
-        headers: {
-          'set-cookie': [
-            '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow==; Path=/; Domain=fpjs.io; Expires=Fri, 19 Jan 2024 08:54:36 GMT; HttpOnly; Secure; SameSite=None, anotherCookie=anotherValue; Domain=fpjs.io;',
-          ],
-          origin: ['https://some-other.com'],
-        },
-      })
-
-      callback(emitter)
-
-      emitter.emit('data', Buffer.from('data'))
-
-      emitter.emit('end')
-    })
-
-    const request = mockRequest('/behavior/result')
-
-    request.headers.host[0].value = 'sub2.sub1.some.alces.network'
-
-    const event = mockEvent(request)
-    const response = await handler(event)
-    expect(handleResult).toHaveBeenCalledTimes(1)
-
-    expect(response.headers).toEqual({
-      origin: [
-        {
-          key: 'origin',
-          value: 'https://some-other.com',
-        },
-      ],
-      'set-cookie': [
-        {
-          key: 'set-cookie',
-          value:
-            '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow==; Path=/; Domain=sub1.some.alces.network; Expires=Fri, 19 Jan 2024 08:54:36 GMT; HttpOnly; Secure; SameSite=None, anotherCookie=anotherValue; Domain=sub1.some.alces.network;',
-        },
-      ],
-    })
-  })
-
-  test('cookies are first party for the req url whose TLD has exception, the domain is derived from the req url (not origin header)', async () => {
-    requestSpy.mockImplementation((_url: any, _options: any, callback) => {
-      const emitter = new EventEmitter()
-
-      Object.assign(emitter, {
-        statusCode: 200,
-        headers: {
-          'set-cookie': [
-            '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow==; Path=/; Domain=fpjs.io; Expires=Fri, 19 Jan 2024 08:54:36 GMT; HttpOnly; Secure; SameSite=None, anotherCookie=anotherValue; Domain=fpjs.io;',
-          ],
-          origin: ['https://some-other.com'],
-        },
-      })
-
-      callback(emitter)
-
-      emitter.emit('data', Buffer.from('data'))
-
-      emitter.emit('end')
-    })
-
-    const request = mockRequest('/behavior/result')
-
-    request.headers.host[0].value = 'city.kawasaki.jp'
-
-    const event = mockEvent(request)
-    const response = await handler(event)
-    expect(handleResult).toHaveBeenCalledTimes(1)
-
-    expect(response.headers).toEqual({
-      origin: [
-        {
-          key: 'origin',
-          value: 'https://some-other.com',
-        },
-      ],
-      'set-cookie': [
-        {
-          key: 'set-cookie',
-          value:
-            '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow==; Path=/; Domain=city.kawasaki.jp; Expires=Fri, 19 Jan 2024 08:54:36 GMT; HttpOnly; Secure; SameSite=None, anotherCookie=anotherValue; Domain=city.kawasaki.jp;',
         },
       ],
     })

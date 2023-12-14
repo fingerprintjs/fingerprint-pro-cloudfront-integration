@@ -1,6 +1,6 @@
 import { CloudFrontHeaders, CloudFrontRequest } from 'aws-lambda'
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http'
-import { adjustCookies, filterCookie } from './cookie'
+import { filterCookie } from './cookie'
 import { updateCacheControlHeader } from './cache-control'
 import { CustomerVariables } from './customer-variables/customer-variables'
 import { getPreSharedSecret } from './customer-variables/selectors'
@@ -49,7 +49,6 @@ const READ_ONLY_RESPONSE_HEADERS = new Set([
 
 const READ_ONLY_REQUEST_HEADERS = new Set(['content-length', 'host', 'transfer-encoding', 'via'])
 
-const COOKIE_HEADER_NAME = 'set-cookie'
 const CACHE_CONTROL_HEADER_NAME = 'cache-control'
 
 export async function prepareHeadersForIngressAPI(
@@ -63,6 +62,7 @@ export async function prepareHeadersForIngressAPI(
   if (preSharedSecret) {
     headers['fpjs-proxy-secret'] = preSharedSecret
   }
+  headers['fpjs-proxy-forwarded-host'] = getHost(request)
 
   return headers
 }
@@ -86,14 +86,10 @@ export function filterRequestHeaders(request: CloudFrontRequest): OutgoingHttpHe
   }, {})
 }
 
-export const updateResponseHeadersForAgentDownload = (headers: IncomingHttpHeaders, domain: string) =>
-  updateResponseHeaders(headers, domain, true)
+export const updateResponseHeadersForAgentDownload = (headers: IncomingHttpHeaders) =>
+  updateResponseHeaders(headers, true)
 
-export function updateResponseHeaders(
-  headers: IncomingHttpHeaders,
-  domain: string,
-  overrideCacheControl = false,
-): CloudFrontHeaders {
+export function updateResponseHeaders(headers: IncomingHttpHeaders, overrideCacheControl = false): CloudFrontHeaders {
   const resultHeaders: CloudFrontHeaders = {}
 
   for (const [key, value] of Object.entries(headers)) {
@@ -103,14 +99,7 @@ export function updateResponseHeaders(
       continue
     }
 
-    if (key === COOKIE_HEADER_NAME && value !== undefined && Array.isArray(value)) {
-      resultHeaders[COOKIE_HEADER_NAME] = [
-        {
-          key: COOKIE_HEADER_NAME,
-          value: adjustCookies(value, domain),
-        },
-      ]
-    } else if (overrideCacheControl && key == CACHE_CONTROL_HEADER_NAME && typeof value === 'string') {
+    if (overrideCacheControl && key == CACHE_CONTROL_HEADER_NAME && typeof value === 'string') {
       resultHeaders[CACHE_CONTROL_HEADER_NAME] = [
         {
           key: CACHE_CONTROL_HEADER_NAME,

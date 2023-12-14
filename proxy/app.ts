@@ -14,7 +14,6 @@ import {
   getLoaderVersion,
   removeTrailingSlashes,
 } from './utils'
-import { getEffectiveTLDPlusOne } from './domain'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
 import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
 import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
@@ -57,7 +56,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
     if (suffix.length > 0 && !suffix.startsWith('/')) {
       suffix = '/' + suffix
     }
-    const eTLDPlusOneDomain = getEffectiveTLDPlusOne(getHost(request))
+    const eTLDPlusOneDomain = getHost(request)
     return handleResult({
       region: getRegion(request, logger),
       querystring: request.querystring,
