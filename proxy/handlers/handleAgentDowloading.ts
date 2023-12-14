@@ -35,7 +35,7 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
           resolve({
             status: response.statusCode ? response.statusCode.toString() : '500',
             statusDescription: response.statusMessage,
-            headers: updateResponseHeadersForAgentDownload(response.headers, options.domain),
+            headers: updateResponseHeadersForAgentDownload(response.headers),
             bodyEncoding: 'base64',
             body: body.toString('base64'),
           })

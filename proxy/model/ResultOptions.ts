@@ -8,7 +8,6 @@ export interface ResultOptions {
   method: string
   headers: OutgoingHttpHeaders
   body: string
-  domain: string
   logger: Logger
   suffix: string
 }

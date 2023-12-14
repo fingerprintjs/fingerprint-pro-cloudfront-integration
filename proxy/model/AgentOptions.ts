@@ -7,6 +7,5 @@ export interface AgentOptions {
   loaderVersion: string | undefined
   method: string
   headers: OutgoingHttpHeaders
-  domain: string
   logger: Logger
 }

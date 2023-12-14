@@ -20,7 +20,7 @@
                         "host": [
                             {
                                 "key": "Host",
-                                "value": "sample-on-cf.fpjs.sh"
+                                "value": "sample-on-cf.foo.bar"
                             }
                         ],
                         "cookie": [
@@ -161,7 +161,7 @@
                                     }
                                 ]
                             },
-                            "domainName": "sample-ws.fpjs.sh",
+                            "domainName": "sample-ws.foo.bar",
                             "keepaliveTimeout": 5,
                             "path": "",
                             "port": 443,

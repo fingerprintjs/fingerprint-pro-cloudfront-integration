@@ -20,7 +20,7 @@
                         "host": [
                             {
                                 "key": "Host",
-                                "value": "sample-on-cf.fpjs.sh"
+                                "value": "sample-on-cf.foo.bar"
                             }
                         ],
                         "cookie": [
@@ -44,7 +44,7 @@
                         "referer": [
                             {
                                 "key": "Referer",
-                                "value": "https://sample-on-cf.fpjs.sh/"
+                                "value": "https://sample-on-cf.foo.bar/"
                             }
                         ],
                         "cloudfront-forwarded-proto": [
@@ -116,7 +116,7 @@
                         "origin": [
                             {
                                 "key": "origin",
-                                "value": "https://sample-on-cf.fpjs.sh"
+                                "value": "https://sample-on-cf.foo.bar"
                             }
                         ],
                         "sec-fetch-site": [
@@ -185,7 +185,7 @@
                                     }
                                 ]
                             },
-                            "domainName": "sample-ws.fpjs.sh",
+                            "domainName": "sample-ws.foo.bar",
                             "keepaliveTimeout": 5,
                             "path": "",
                             "port": 443,

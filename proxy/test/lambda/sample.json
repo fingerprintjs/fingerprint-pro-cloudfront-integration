@@ -26,7 +26,7 @@
                       "host": [
                           {
                               "key": "Host",
-                              "value": "cloudfront-demo.fpjs.sh"
+                              "value": "cloudfront-demo.foo.bar"
                           }
                       ],
                       "cookie": [
@@ -50,7 +50,7 @@
                       "referer": [
                           {
                               "key": "Referer",
-                              "value": "https://cloudfront-demo.fpjs.sh/"
+                              "value": "https://cloudfront-demo.foo.bar/"
                           }
                       ],
                       "x-forwarded-for": [
