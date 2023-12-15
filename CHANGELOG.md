@@ -1,3 +1,10 @@
+## [1.4.1-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.4.0...v1.4.1-rc.1) (2023-12-15)
+
+
+### Bug Fixes
+
+* install node in the release buildspec ([c940d20](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/c940d20ce6a6352cd8f958203be270f37f0b6b2f))
+
 ## [1.4.0](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.3.3...v1.4.0) (2023-12-14)
 
 
