@@ -3,6 +3,7 @@ version: 0.2
 phases:
   build:
     commands:
+      - yarn install
       - node scripts/downloadGithubRelease.mjs
       - unzip package.zip -d dist
       - cd dist
