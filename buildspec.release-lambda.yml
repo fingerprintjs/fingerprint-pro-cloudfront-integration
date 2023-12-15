@@ -1,8 +1,13 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      nodejs: 20
   build:
     commands:
+      - npm i -g yarn
+      - yarn install
       - node scripts/downloadGithubRelease.mjs
       - unzip package.zip -d dist
       - cd dist
