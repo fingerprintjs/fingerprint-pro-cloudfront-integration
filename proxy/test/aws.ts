@@ -1,23 +1,9 @@
 import { CloudFrontRequest, CloudFrontRequestEvent } from 'aws-lambda'
-import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
-import { mockClient } from 'aws-sdk-client-mock'
 
 export function toAwsResponse<T>(value: T) {
   return {
     promise: () => Promise.resolve(value),
   }
-}
-
-export function createSecretManagerClientMock(secretName: string, secretString: string, secretBinary: Uint8Array) {
-  const mock = mockClient(SecretsManagerClient)
-  mock
-    .on(GetSecretValueCommand, {
-      SecretId: secretName,
-    })
-    .resolves({
-      SecretString: secretString,
-      SecretBinary: secretBinary,
-    })
 }
 
 export const mockRequest = (
