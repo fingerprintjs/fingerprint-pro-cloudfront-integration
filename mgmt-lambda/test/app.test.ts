@@ -7,6 +7,10 @@ import 'aws-sdk-client-mock-jest'
 
 const lambdaMock = mockClient(LambdaClient)
 const secretMock = mockClient(SecretsManagerClient)
+const secretName = 'fingerprint-mgmt-lambda-auth-settings'
+
+const correctToken = 'qazwsx123edc456'
+const wrongToken = 'wrong-token'
 
 describe('Basic test', () => {
   const OLD_ENV = process.env
@@ -18,21 +22,10 @@ describe('Basic test', () => {
   })
 
   test('basic auth test', async () => {
-    const secretName = 'fingerprint-mgmt-lambda-auth-settings'
-    process.env.SettingsSecretName = secretName
-    process.env.CFDistributionId = 'ABCDEF123456'
-    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    setConfigEnv()
+    mockSecret(correctToken)
 
-    secretMock
-      .on(GetSecretValueCommand, {
-        SecretId: secretName,
-      })
-      .resolves({
-        SecretString: '{"token": "qazwsx123edc456"}',
-      })
-
-    const event = generateStatusRequest('qazwsx123edc456')
+    const event = generateStatusRequest(correctToken)
 
     const result = await handler(event)
     expect(result.statusCode).toBe(200)
@@ -41,91 +34,74 @@ describe('Basic test', () => {
   test('wrong auth token', async () => {
     const secretName = 'fingerprint-mgmt-lambda-auth-settings'
     process.env.SettingsSecretName = secretName
-    process.env.CFDistributionId = 'ABCDEF123456'
-    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    setConfigEnv()
+    mockSecret(wrongToken)
 
-    secretMock
-      .on(GetSecretValueCommand, {
-        SecretId: secretName,
-      })
-      .resolves({
-        SecretString: '{"token": "wrong-token"}',
-      })
-
-    const event = generateStatusRequest('qazwsx123edc456')
+    const event = generateStatusRequest(correctToken)
 
     const result = await handler(event)
     expect(result.statusCode).toBe(401)
   })
 
   test('no secret env var', async () => {
-    const event = generateStatusRequest('qazwsx123edc456')
+    const event = generateStatusRequest(correctToken)
 
     const result = await handler(event)
     expect(result.statusCode).toBe(500)
   })
 
   test('no update configuration env vars', async () => {
-    const secretName = 'fingerprint-mgmt-lambda-auth-settings'
-    process.env.SettingsSecretName = secretName
+    setSecretEnv()
+    mockSecret(correctToken)
 
-    secretMock
-      .on(GetSecretValueCommand, {
-        SecretId: secretName,
-      })
-      .resolves({
-        SecretString: '{"token": "qazwsx123edc456"}',
-      })
-
-    const event = generateStatusRequest('qazwsx123edc456')
+    const event = generateStatusRequest(correctToken)
 
     const result = await handler(event)
     expect(result.statusCode).toBe(500)
   })
 
   test('status endpoint with POST', async () => {
-    const secretName = 'fingerprint-mgmt-lambda-auth-settings'
-    process.env.SettingsSecretName = secretName
-    process.env.CFDistributionId = 'ABCDEF123456'
-    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    setSecretEnv()
+    setConfigEnv()
+    mockSecret(correctToken)
 
-    secretMock
-      .on(GetSecretValueCommand, {
-        SecretId: secretName,
-      })
-      .resolves({
-        SecretString: '{"token": "qazwsx123edc456"}',
-      })
-
-    const event = generateStatusRequest('qazwsx123edc456', 'POST')
+    const event = generateStatusRequest(correctToken, 'POST')
 
     const result = await handler(event)
     expect(result.statusCode).toBe(404)
   })
 
   test('wrong endpoint', async () => {
-    const secretName = 'fingerprint-mgmt-lambda-auth-settings'
-    process.env.SettingsSecretName = secretName
-    process.env.CFDistributionId = 'ABCDEF123456'
-    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    setSecretEnv()
+    setConfigEnv()
+    mockSecret(correctToken)
 
-    secretMock
-      .on(GetSecretValueCommand, {
-        SecretId: secretName,
-      })
-      .resolves({
-        SecretString: '{"token": "qazwsx123edc456"}',
-      })
-
-    const event = generateStatusRequest('qazwsx123edc456', 'PUT', 'fsdkjlkj')
+    const event = generateStatusRequest(correctToken, 'PUT', 'fsdkjlkj')
 
     const result = await handler(event)
     expect(result.statusCode).toBe(404)
   })
 })
+
+function setSecretEnv() {
+  process.env.SettingsSecretName = secretName
+}
+
+function setConfigEnv() {
+  process.env.CFDistributionId = 'ABCDEF123456'
+  process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+  process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+}
+
+function mockSecret(tokenValue: string) {
+  secretMock
+    .on(GetSecretValueCommand, {
+      SecretId: secretName,
+    })
+    .resolves({
+      SecretString: `{"token": "${tokenValue}"}`,
+    })
+}
 
 function generateStatusRequest(
   token: string,
