@@ -28,7 +28,7 @@ export async function handleUpdate(
 
   const latestFunctionArn = await getLambdaLatestVersionArn(lambdaClient, settings.LambdaFunctionName)
   if (!latestFunctionArn) {
-    return handleResult('No lambda version')
+    return handleFailure('No lambda version')
   }
 
   try {
@@ -40,7 +40,7 @@ export async function handleUpdate(
       functionVersionArn,
     )
   } catch (error) {
-    return handleResult(error)
+    return handleFailure(error)
   }
 }
 
@@ -57,20 +57,20 @@ async function updateCloudFrontConfig(
   const cfConfig: GetDistributionConfigCommandOutput = await cloudFrontClient.send(getConfigCommand)
 
   if (!cfConfig.ETag || !cfConfig.DistributionConfig) {
-    return handleResult('CloudFront distribution not found')
+    return handleFailure('CloudFront distribution not found')
   }
 
   const cacheBehaviors = cfConfig.DistributionConfig.CacheBehaviors
   const fpCbs = cacheBehaviors?.Items?.filter((it) => it.TargetOriginId === 'fpcdn.io')
   if (!fpCbs || fpCbs?.length === 0) {
-    return handleResult('Cache behavior not found')
+    return handleFailure('Cache behavior not found')
   }
   const cacheBehavior = fpCbs[0]
   const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
     (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(lambdaFunctionName),
   )
   if (!lambdas || lambdas?.length === 0) {
-    return handleResult('Lambda function association not found')
+    return handleFailure('Lambda function association not found')
   }
   const lambda = lambdas[0]
   lambda.LambdaFunctionARN = latestFunctionArn
@@ -87,7 +87,7 @@ async function updateCloudFrontConfig(
 
   console.info('Going to invalidate routes for upgraded cache behavior')
   if (!cacheBehavior.PathPattern) {
-    return handleResult('Path pattern is not defined')
+    return handleFailure('Path pattern is not defined')
   }
 
   let pathPattern = cacheBehavior.PathPattern
@@ -108,7 +108,7 @@ async function updateCloudFrontConfig(
   const invalidationCommand = new CreateInvalidationCommand(invalidationParams)
   const invalidationResult = await cloudFrontClient.send(invalidationCommand)
   console.info(`Invalidation has finished, ${JSON.stringify(invalidationResult)}`)
-  return handleResult()
+  return handleSuccess()
 }
 
 async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName: string): Promise<string> {
@@ -146,10 +146,24 @@ async function getLambdaLatestVersionArn(client: LambdaClient, functionName: str
   return Promise.resolve(latest.FunctionArn)
 }
 
-async function handleResult(message?: any): Promise<APIGatewayProxyResult> {
+async function handleFailure(message?: any): Promise<APIGatewayProxyResult> {
   const body = {
     status: 'Update failed',
     error: message,
+  }
+  return {
+    statusCode: 500,
+    body: JSON.stringify(body),
+    headers: {
+      'content-type': 'application/json',
+    },
+  }
+}
+
+async function handleSuccess(): Promise<APIGatewayProxyResult> {
+  const body = {
+    status: 'Update completed',
+    error: null,
   }
   return {
     statusCode: 200,
