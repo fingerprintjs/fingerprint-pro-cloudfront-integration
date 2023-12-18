@@ -22,6 +22,7 @@ describe('Basic test', () => {
   })
 
   test('basic auth test', async () => {
+    setSecretEnv()
     setConfigEnv()
     mockSecret(correctToken)
 
