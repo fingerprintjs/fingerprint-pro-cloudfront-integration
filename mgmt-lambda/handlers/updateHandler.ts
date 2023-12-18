@@ -18,11 +18,13 @@ import {
   UpdateFunctionCodeCommand,
 } from '@aws-sdk/client-lambda'
 
-export async function handleUpdate(settings: DeploymentSettings): Promise<APIGatewayProxyResult> {
+export async function handleUpdate(
+  lambdaClient: LambdaClient,
+  cloudFrontClient: CloudFrontClient,
+  settings: DeploymentSettings,
+): Promise<APIGatewayProxyResult> {
   console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distbution.`)
   console.info(`Settings: ${settings}`)
-
-  const lambdaClient = new LambdaClient({ region: defaults.AWS_REGION })
 
   const latestFunctionArn = await getLambdaLatestVersionArn(lambdaClient, settings.LambdaFunctionName)
   if (!latestFunctionArn) {
@@ -31,19 +33,23 @@ export async function handleUpdate(settings: DeploymentSettings): Promise<APIGat
 
   try {
     const functionVersionArn = await updateLambdaFunctionCode(lambdaClient, settings.LambdaFunctionName)
-    return updateCloudFrontConfig(settings.CFDistributionId, settings.LambdaFunctionName, functionVersionArn)
+    return updateCloudFrontConfig(
+      cloudFrontClient,
+      settings.CFDistributionId,
+      settings.LambdaFunctionName,
+      functionVersionArn,
+    )
   } catch (error) {
     return handleResult(error)
   }
 }
 
 async function updateCloudFrontConfig(
+  cloudFrontClient: CloudFrontClient,
   cloudFrontDistributionId: string,
   lambdaFunctionName: string,
   latestFunctionArn: string,
 ) {
-  const cloudFrontClient = new CloudFrontClient({ region: defaults.AWS_REGION })
-
   const configParams = {
     Id: cloudFrontDistributionId,
   }
