@@ -5,20 +5,20 @@ import { handleStatus } from '../../handlers/statusHandler'
 import 'aws-sdk-client-mock-jest'
 
 const lambdaMock = mockClient(LambdaClient)
+const lambdaClient = new LambdaClient({ region: 'us-east-1' })
 const options: DeploymentSettings = {
   CFDistributionId: 'ABCDEF123456',
   LambdaFunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:1',
   LambdaFunctionName: 'fingerprint-pro-lambda-function',
 }
 
-describe('Handle status', () => {
+describe('Handle mgmt-status', () => {
   beforeEach(() => {
     jest.resetModules()
     lambdaMock.reset()
   })
 
   it('check correct output', async () => {
-    const lambdaClient = new LambdaClient({ region: 'us-east-1' })
     lambdaMock
       .on(GetFunctionCommand, {
         FunctionName: options.LambdaFunctionName,
