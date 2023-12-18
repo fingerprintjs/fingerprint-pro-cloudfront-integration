@@ -10,15 +10,16 @@ import { LambdaClient } from '@aws-sdk/client-lambda'
 import { CloudFrontClient } from '@aws-sdk/client-cloudfront'
 
 export async function handler(event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>) {
-  console.info(JSON.stringify(event))
-
   const secretManagerClient = new SecretsManagerClient({ region: defaults.AWS_REGION })
-  const authSettings = await getAuthSettings(secretManagerClient)
-  console.info(authSettings)
 
-  const authorization = event.headers['authorization']
-  if (authorization !== authSettings.token) {
-    return handleNoAthentication()
+  try {
+    const authSettings = await getAuthSettings(secretManagerClient)
+    const authorization = event.headers['authorization']
+    if (authorization !== authSettings.token) {
+      return handleNoAthentication()
+    }
+  } catch (error) {
+    return handleWrongConfiguration(error)
   }
 
   let deploymentSettings: DeploymentSettings
@@ -29,14 +30,13 @@ export async function handler(event: APIGatewayProxyEventV2WithRequestContext<AP
   }
 
   const path = event.rawPath
-  console.info(`path = ${path}`)
-
+  const method = event.requestContext.http.method
   const lambdaClient = new LambdaClient({ region: defaults.AWS_REGION })
   const cloudFrontClient = new CloudFrontClient({ region: defaults.AWS_REGION })
 
-  if (path.startsWith('/update')) {
+  if (path.startsWith('/update') && method === 'POST') {
     return handleUpdate(lambdaClient, cloudFrontClient, deploymentSettings)
-  } else if (path.startsWith('/status')) {
+  } else if (path.startsWith('/status') && method === 'GET') {
     return handleStatus(lambdaClient, deploymentSettings)
   } else {
     return handleNotFound()

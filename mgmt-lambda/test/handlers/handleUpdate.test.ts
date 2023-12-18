@@ -21,7 +21,7 @@ const cloudFrontMock = mockClient(CloudFrontClient)
 const cloudFrontClient = new CloudFrontClient({ region: 'us-east-1' })
 const settings: DeploymentSettings = {
   CFDistributionId: 'ABCDEF123456',
-  LambdaFunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:1',
+  LambdaFunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
   LambdaFunctionName: 'fingerprint-pro-lambda-function',
 }
 
