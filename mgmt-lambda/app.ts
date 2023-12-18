@@ -1,15 +1,19 @@
 import { APIGatewayProxyEventV2WithRequestContext, APIGatewayEventRequestContextV2 } from 'aws-lambda'
-import { SecretsManagerClient, GetSecretValueCommand, GetSecretValueResponse } from '@aws-sdk/client-secrets-manager'
-import type { AuthSettings } from './model/AuthSettings'
+import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { getAuthSettings } from './auth'
 import type { DeploymentSettings } from './model/DeploymentSettings'
 import { handleNoAthentication, handleWrongConfiguration, handleNotFound } from './handlers/errorHandlers'
+import { defaults } from './DefaultSettings'
 import { handleStatus } from './handlers/statusHandler'
 import { handleUpdate } from './handlers/updateHandler'
+import { LambdaClient } from '@aws-sdk/client-lambda'
+import { CloudFrontClient } from '@aws-sdk/client-cloudfront'
 
 export async function handler(event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>) {
   console.info(JSON.stringify(event))
 
-  const authSettings = await getAuthSettings()
+  const secretManagerClient = new SecretsManagerClient({ region: defaults.AWS_REGION })
+  const authSettings = await getAuthSettings(secretManagerClient)
   console.info(authSettings)
 
   const authorization = event.headers['authorization']
@@ -26,39 +30,16 @@ export async function handler(event: APIGatewayProxyEventV2WithRequestContext<AP
 
   const path = event.rawPath
   console.info(`path = ${path}`)
+
+  const lambdaClient = new LambdaClient({ region: defaults.AWS_REGION })
+  const cloudFrontClient = new CloudFrontClient({ region: defaults.AWS_REGION })
+
   if (path.startsWith('/update')) {
-    return handleUpdate(deploymentSettings)
+    return handleUpdate(lambdaClient, cloudFrontClient, deploymentSettings)
   } else if (path.startsWith('/status')) {
-    return handleStatus(deploymentSettings)
+    return handleStatus(lambdaClient, deploymentSettings)
   } else {
     return handleNotFound()
-  }
-}
-
-async function getAuthSettings(): Promise<AuthSettings> {
-  console.info(JSON.stringify(process.env))
-  const secretName = process.env.SettingsSecretName
-  if (!secretName) {
-    throw new Error('Unable to get secret name. ')
-  }
-
-  try {
-    const client = new SecretsManagerClient({
-      region: 'us-east-1',
-    })
-    const command = new GetSecretValueCommand({
-      SecretId: secretName,
-    })
-
-    const response: GetSecretValueResponse = await client.send(command)
-
-    if (!response.SecretString) {
-      throw new Error('Secret is empty')
-    }
-
-    return JSON.parse(response.SecretString)
-  } catch (error) {
-    throw new Error(`Unable to retrieve secret, ${error}`)
   }
 }
 
