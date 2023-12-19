@@ -19,9 +19,8 @@ export async function getAuthSettings(secretManagerClient: SecretsManagerClient)
     }
     if (response.SecretString) {
       return JSON.parse(response.SecretString)
-    } else {
-      throw new Error('secret is empty')
     }
+    throw new Error('secret is empty')
   } catch (error: any) {
     throw new Error(`Unable to retrieve secret. ${error}`)
   }
