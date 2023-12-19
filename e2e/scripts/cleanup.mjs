@@ -3,10 +3,17 @@ import SDK from 'aws-sdk'
 const lambda = new SDK.Lambda()
 const secretsManager = new SDK.SecretsManager()
 const cloudFront = new SDK.CloudFront()
+const s3 = new SDK.S3()
 
 const RESOURCE_PREFIX = 'fpjs-dev-e2e-cloudfront'
 
-const cleanupFns = [cleanupLambdas, cleanupSecrets, cleanupCloudFrontCachePolicies, cleanupCloudFrontOriginPolicies]
+const cleanupFns = [
+  cleanupLambdas,
+  cleanupSecrets,
+  cleanupCloudFrontCachePolicies,
+  cleanupCloudFrontOriginPolicies,
+  cleanupS3Buckets
+]
 
 async function main() {
   for (const cleanupFn of cleanupFns) {
@@ -58,6 +65,18 @@ async function cleanupCloudFrontOriginPolicies() {
       console.info(`Deleted Origin Request Policy ${policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name}`)
     } catch (error) {
       console.error(`Failed to delete Origin Request Policy ${policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name}`, error)
+    }
+  }
+}
+
+async function cleanupS3Buckets() {
+  for await(const bucket of listS3Buckets()) {
+    try {
+      await emptyS3Bucket(bucket.Name)
+      await s3.deleteBucket({ Bucket: bucket.Name }).promise()
+      console.info(`Deleted S3 bucket: ${bucket.Name}`)
+    } catch (error) {
+      console.error(`Failed to delete S3 bucket ${bucket.Name}`, error)
     }
   }
 }
@@ -134,6 +153,35 @@ async function* listCloudFrontOriginPolicies() {
 
     nextMarker = listResponse.OriginRequestPolicyList.NextMarker
   } while (nextMarker)
+}
+
+async function* listS3Buckets() {
+  const listBuckets = await s3.listBuckets().promise()
+  const buckets = listBuckets.Buckets
+  for (const bucket of buckets) {
+    if (bucket.Name.startsWith(RESOURCE_PREFIX)) {
+      yield bucket
+    }
+  }
+}
+
+async function emptyS3Bucket(bucketName) {
+  const listedObjects = await s3.listObjectsV2({ Bucket: bucketName }).promise()
+
+  if (listedObjects.Contents.length === 0) {
+    return
+  }
+
+  const deleteParams = {
+    Bucket: bucketName,
+    Delete: { Objects: listedObjects.Contents.map(({ Key }) => ({ Key })) },
+  }
+
+  await s3.deleteObjects(deleteParams).promise()
+
+  if (listedObjects.IsTruncated) {
+    await emptyS3Bucket(bucketName)
+  }
 }
 
 main().catch((error) => {
