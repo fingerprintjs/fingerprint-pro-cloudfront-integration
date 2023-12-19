@@ -42,6 +42,7 @@ async function cleanupCloudFrontCachePolicies() {
   for await(const policy of listCloudFrontCachePolicies()) {
     try {
       const getResponse = await cloudFront.getCachePolicy({ Id: policy.CachePolicy.Id }).promise()
+      console.info('debug', JSON.stringify(getResponse))
       await cloudFront.deleteCachePolicy({ Id: policy.CachePolicy.Id, IfMatch: getResponse.ETag }).promise()
       console.info(`Deleted Cache Policy ${policy.CachePolicy.CachePolicyConfig.Name}`)
     } catch (error) {
