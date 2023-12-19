@@ -32,8 +32,6 @@ phases:
       - cd infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../
       - cd infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../
     finally:
-      - export STATUS=$(sh ./e2e/scripts/get-codebuild-status.sh)
-      - echo $STATUS
       - |
         if [ "$CODEBUILD_BUILD_SUCCEEDING" -eq 0 ]; then
           curl \
@@ -42,7 +40,7 @@ phases:
             -H "Authorization: Bearer $GITHUB_TOKEN"\
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_SHA \
-            -d "{\"state\":\"$STATUS\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/708050157146/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests failed during the pre-build step\",\"context\":\"e2e\"}"
+            -d "{\"state\":\"error\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/708050157146/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests failed during the pre-build step\",\"context\":\"e2e\"}"
         fi
   build:
     commands:
