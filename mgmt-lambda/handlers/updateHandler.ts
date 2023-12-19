@@ -12,10 +12,10 @@ import {
 } from '@aws-sdk/client-cloudfront'
 import {
   LambdaClient,
-  ListVersionsByFunctionCommand,
-  ListVersionsByFunctionCommandInput,
-  ListVersionsByFunctionCommandOutput,
+  GetFunctionCommand,
   UpdateFunctionCodeCommand,
+  GetFunctionCommandInput,
+  GetFunctionCommandOutput,
 } from '@aws-sdk/client-lambda'
 
 export async function handleUpdate(
@@ -26,9 +26,9 @@ export async function handleUpdate(
   console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distbution.`)
   console.info(`Settings: ${settings}`)
 
-  const latestFunctionArn = await getLambdaLatestVersionArn(lambdaClient, settings.LambdaFunctionName)
-  if (!latestFunctionArn) {
-    return handleFailure('No lambda version')
+  const isLambdaFunctionExist = await checkLambdaFunctionExistance(lambdaClient, settings.LambdaFunctionName)
+  if (!isLambdaFunctionExist) {
+    return handleFailure(`Lambda function with name ${settings.LambdaFunctionName} not found`)
   }
 
   try {
@@ -67,7 +67,7 @@ async function updateCloudFrontConfig(
   }
   const cacheBehavior = fpCbs[0]
   const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
-    (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(lambdaFunctionName),
+    (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`),
   )
   if (!lambdas || lambdas?.length === 0) {
     return handleFailure('Lambda function association not found')
@@ -130,20 +130,16 @@ async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName
   return result.FunctionArn
 }
 
-async function getLambdaLatestVersionArn(client: LambdaClient, functionName: string): Promise<string | undefined> {
-  const params: ListVersionsByFunctionCommandInput = {
+async function checkLambdaFunctionExistance(client: LambdaClient, functionName: string): Promise<boolean> {
+  const params: GetFunctionCommandInput = {
     FunctionName: functionName,
   }
-  const command = new ListVersionsByFunctionCommand(params)
-  const result: ListVersionsByFunctionCommandOutput = await client.send(command)
-  if (!result.Versions || result.Versions?.length === 0) {
-    return Promise.resolve(undefined)
+  const command = new GetFunctionCommand(params)
+  const result: GetFunctionCommandOutput = await client.send(command)
+  if (!result.Configuration?.FunctionArn) {
+    return false
   }
-
-  const latest = result.Versions.filter((it) => it.Version && Number.isFinite(Number.parseInt(it.Version))).sort(
-    (a, b) => Number.parseInt(b.Version!!) - Number.parseInt(a.Version!!),
-  )[0]
-  return Promise.resolve(latest.FunctionArn)
+  return true
 }
 
 async function handleFailure(message?: any): Promise<APIGatewayProxyResult> {
