@@ -2,10 +2,11 @@ import SDK from 'aws-sdk'
 
 const lambda = new SDK.Lambda()
 const secretsManager = new SDK.SecretsManager()
+const cloudFront = new SDK.CloudFront()
 
 const RESOURCE_PREFIX = 'fpjs-dev-e2e-cloudfront'
 
-const cleanupFns = [cleanupLambdas, cleanupSecrets]
+const cleanupFns = [cleanupLambdas, cleanupSecrets, cleanupCloudFrontCachePolicies, cleanupCloudFrontOriginPolicies]
 
 async function main() {
   for (const cleanupFn of cleanupFns) {
@@ -33,6 +34,28 @@ async function cleanupSecrets() {
       console.info(`Deleted secret ${secret.ARN}`)
     } catch (error) {
       console.error(`Failed to delete secret ${secret.ARN}`, error)
+    }
+  }
+}
+
+async function cleanupCloudFrontCachePolicies() {
+  for await(const policy of listCloudFrontCachePolicies()) {
+    try {
+      await cloudFront.deleteCachePolicy({ Id: policy.CachePolicy.Id }).promise()
+      console.info(`Deleted Cache Policy ${policy.CachePolicy.CachePolicyConfig.Name}`)
+    } catch (error) {
+      console.error(`Failed to delete Cache Policy ${policy.CachePolicy.CachePolicyConfig.Name}`, error)
+    }
+  }
+}
+
+async function cleanupCloudFrontOriginPolicies() {
+  for await(const policy of listCloudFrontOriginPolicies()) {
+    try {
+      await cloudFront.deleteOriginRequestPolicy({ Id: policy.OriginRequestPolicy.Id }).promise()
+      console.info(`Deleted Origin Request Policy ${policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name}`)
+    } catch (error) {
+      console.error(`Failed to delete Origin Request Policy ${policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name}`, error)
     }
   }
 }
@@ -75,6 +98,40 @@ async function* listSecrets() {
 
     nextToken = response.NextToken
   } while (nextToken)
+}
+
+async function* listCloudFrontCachePolicies() {
+  let nextMarker
+
+  do {
+    const listResponse = await cloudFront.listCachePolicies({ Marker: nextMarker }).promise()
+    const policies = listResponse.CachePolicyList.Items
+
+    for (const policy of policies) {
+      if (policy.CachePolicy.CachePolicyConfig.Name.startsWith(RESOURCE_PREFIX)) {
+        yield policy
+      }
+    }
+
+    nextMarker = listResponse.CachePolicyList.NextMarker
+  } while (nextMarker)
+}
+
+async function* listCloudFrontOriginPolicies() {
+  let nextMarker
+
+  do {
+    const listResponse = await cloudFront.listOriginRequestPolicies({ Marker: nextMarker }).promise()
+    const policies = listResponse.OriginRequestPolicyList.Items
+
+    for (const policy of policies) {
+      if (policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name.startsWith(RESOURCE_PREFIX)) {
+        yield policy
+      }
+    }
+
+    nextMarker = listResponse.OriginRequestPolicyList.NextMarker
+  } while (nextMarker)
 }
 
 main().catch((error) => {
