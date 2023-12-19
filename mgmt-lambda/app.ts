@@ -44,17 +44,23 @@ export async function handler(event: APIGatewayProxyEventV2WithRequestContext<AP
 }
 
 function loadDeploymentSettings(): DeploymentSettings {
-  const cfDistributionId = process.env.CFDistributionId
-  if (!cfDistributionId) {
-    throw new Error('load failed: environment variable CFDistributionId not found')
+  const missedVariables = []
+  const cfDistributionId = process.env.CFDistributionId || ''
+  if (cfDistributionId === '') {
+    missedVariables.push('CFDistributionId')
   }
-  const lambdaFunctionName = process.env.LambdaFunctionName
-  if (!lambdaFunctionName) {
-    throw new Error('load failed: environment variable LambdaFunctionName not found')
+  const lambdaFunctionName = process.env.LambdaFunctionName || ''
+  if (lambdaFunctionName === '') {
+    missedVariables.push('LambdaFunctionName')
   }
-  const lambdaFunctionArn = process.env.LambdaFunctionArn
-  if (!lambdaFunctionArn) {
-    throw new Error('load failed: environment variable LambdaFunctionArn not found')
+  const lambdaFunctionArn = process.env.LambdaFunctionArn || ''
+  if (lambdaFunctionArn === '') {
+    missedVariables.push('LambdaFunctionArn')
+  }
+
+  if (missedVariables.length > 0) {
+    const vars = missedVariables.join(', ')
+    throw new Error(`environment variables not found: ${vars}`)
   }
 
   const settings: DeploymentSettings = {

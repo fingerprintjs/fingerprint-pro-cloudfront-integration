@@ -17,7 +17,7 @@ export async function handleWrongConfiguration(error: any): Promise<APIGatewayPr
   const body = {
     status:
       'Wrong function configuration. Check environment variables for Lambda@Edge function and CloudFront Distribution id',
-    error: error,
+    error: error.message || error,
   }
   return {
     statusCode: 500,
