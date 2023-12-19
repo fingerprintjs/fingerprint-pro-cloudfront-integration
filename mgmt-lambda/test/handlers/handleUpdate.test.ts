@@ -3,8 +3,6 @@ import {
   LambdaClient,
   GetFunctionCommand,
   GetFunctionResponse,
-  ListVersionsByFunctionCommand,
-  ListVersionsByFunctionResponse,
   UpdateFunctionCodeCommand,
 } from '@aws-sdk/client-lambda'
 import {
@@ -30,19 +28,10 @@ const settings: DeploymentSettings = {
   LambdaFunctionName: 'fingerprint-pro-lambda-function',
 }
 
-const existingLambdaVersions: ListVersionsByFunctionResponse = {
-  Versions: [
-    {
-      FunctionName: 'fingerprint-pro-lambda-function',
-      FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:2',
-      Version: '2',
-    },
-    {
-      FunctionName: 'fingerprint-pro-lambda-function',
-      FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:1',
-      Version: '1',
-    },
-  ],
+const existingLambda: GetFunctionResponse = {
+  Configuration: {
+    FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+  },
 }
 
 const functionInfo: GetFunctionResponse = {
@@ -81,7 +70,7 @@ const cloudFrontConfigBeforeUpdate: GetDistributionConfigResult = {
             Quantity: 1,
             Items: [
               {
-                LambdaFunctionARN: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+                LambdaFunctionARN: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:1',
                 EventType: 'origin-request',
                 IncludeBody: true,
               },
@@ -158,10 +147,10 @@ describe('Handle mgmt-update', () => {
 
   it('basic test', async () => {
     lambdaMock
-      .on(ListVersionsByFunctionCommand, {
+      .on(GetFunctionCommand, {
         FunctionName: settings.LambdaFunctionName,
       })
-      .resolves(existingLambdaVersions)
+      .resolves(existingLambda)
 
     lambdaMock
       .on(GetFunctionCommand, {
@@ -189,7 +178,7 @@ describe('Handle mgmt-update', () => {
     const result = await handleUpdate(lambdaClient, cloudFrontClient, settings)
     expect(result.statusCode).toBe(200)
 
-    expect(lambdaMock).toHaveReceivedCommandTimes(ListVersionsByFunctionCommand, 1)
+    expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(GetDistributionConfigCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(UpdateDistributionCommand, 1)
@@ -198,7 +187,7 @@ describe('Handle mgmt-update', () => {
 
   it('No lambda version', async () => {
     lambdaMock
-      .on(ListVersionsByFunctionCommand, {
+      .on(GetFunctionCommand, {
         FunctionName: settings.LambdaFunctionName,
       })
       .resolves({})
@@ -206,9 +195,9 @@ describe('Handle mgmt-update', () => {
     const result = await handleUpdate(lambdaClient, cloudFrontClient, settings)
     expect(result.statusCode).toBe(500)
     const error = JSON.parse(result.body)['error']
-    expect(error).toBe('No lambda version')
+    expect(error).toBe('Lambda function with name fingerprint-pro-lambda-function not found')
 
-    expect(lambdaMock).toHaveReceivedCommandTimes(ListVersionsByFunctionCommand, 1)
+    expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 0)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(GetDistributionConfigCommand, 0)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(UpdateDistributionCommand, 0)
@@ -217,10 +206,10 @@ describe('Handle mgmt-update', () => {
 
   it('CloudFront has no fpjs cache behavior', async () => {
     lambdaMock
-      .on(ListVersionsByFunctionCommand, {
+      .on(GetFunctionCommand, {
         FunctionName: settings.LambdaFunctionName,
       })
-      .resolves(existingLambdaVersions)
+      .resolves(existingLambda)
 
     lambdaMock
       .on(GetFunctionCommand, {
@@ -286,7 +275,7 @@ describe('Handle mgmt-update', () => {
     const error = JSON.parse(result.body)['error']
     expect(error).toBe('Cache behavior not found')
 
-    expect(lambdaMock).toHaveReceivedCommandTimes(ListVersionsByFunctionCommand, 1)
+    expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(GetDistributionConfigCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(UpdateDistributionCommand, 0)
@@ -295,10 +284,10 @@ describe('Handle mgmt-update', () => {
 
   it('CloudFront cache behavior without lambda association', async () => {
     lambdaMock
-      .on(ListVersionsByFunctionCommand, {
+      .on(GetFunctionCommand, {
         FunctionName: settings.LambdaFunctionName,
       })
-      .resolves(existingLambdaVersions)
+      .resolves(existingLambda)
 
     lambdaMock
       .on(GetFunctionCommand, {
@@ -354,7 +343,7 @@ describe('Handle mgmt-update', () => {
     const error = JSON.parse(result.body)['error']
     expect(error).toBe('Lambda function association not found')
 
-    expect(lambdaMock).toHaveReceivedCommandTimes(ListVersionsByFunctionCommand, 1)
+    expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(GetDistributionConfigCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(UpdateDistributionCommand, 0)
