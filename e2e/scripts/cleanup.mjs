@@ -41,7 +41,8 @@ async function cleanupSecrets() {
 async function cleanupCloudFrontCachePolicies() {
   for await(const policy of listCloudFrontCachePolicies()) {
     try {
-      await cloudFront.deleteCachePolicy({ Id: policy.CachePolicy.Id }).promise()
+      const getResponse = await cloudFront.getCachePolicy({ Id: policy.CachePolicy.Id }).promise()
+      await cloudFront.deleteCachePolicy({ Id: policy.CachePolicy.Id, IfMatch: getResponse.ETag }).promise()
       console.info(`Deleted Cache Policy ${policy.CachePolicy.CachePolicyConfig.Name}`)
     } catch (error) {
       console.error(`Failed to delete Cache Policy ${policy.CachePolicy.CachePolicyConfig.Name}`, error)
@@ -52,7 +53,8 @@ async function cleanupCloudFrontCachePolicies() {
 async function cleanupCloudFrontOriginPolicies() {
   for await(const policy of listCloudFrontOriginPolicies()) {
     try {
-      await cloudFront.deleteOriginRequestPolicy({ Id: policy.OriginRequestPolicy.Id }).promise()
+      const getResponse = await cloudFront.getOriginRequestPolicy({ Id: policy.OriginRequestPolicy.Id }).promise()
+      await cloudFront.deleteOriginRequestPolicy({ Id: policy.OriginRequestPolicy.Id, IfMatch: getResponse.ETag }).promise()
       console.info(`Deleted Origin Request Policy ${policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name}`)
     } catch (error) {
       console.error(`Failed to delete Origin Request Policy ${policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name}`, error)
