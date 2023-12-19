@@ -12,8 +12,9 @@ const secretName = 'fingerprint-mgmt-lambda-auth-settings'
 const correctToken = 'qazwsx123edc456'
 const wrongToken = 'wrong-token'
 
+const OLD_ENV = process.env
+
 describe('Basic test', () => {
-  const OLD_ENV = process.env
   beforeEach(() => {
     jest.resetModules()
     lambdaMock.reset()
@@ -41,13 +42,6 @@ describe('Basic test', () => {
 
     const result = await handler(event)
     expect(result.statusCode).toBe(401)
-  })
-
-  test('no secret env var', async () => {
-    const event = generateStatusRequest(correctToken)
-
-    const result = await handler(event)
-    expect(result.statusCode).toBe(500)
   })
 
   test('no update configuration env vars', async () => {
@@ -80,6 +74,74 @@ describe('Basic test', () => {
 
     const result = await handler(event)
     expect(result.statusCode).toBe(404)
+  })
+})
+
+describe('Check environment', () => {
+  beforeEach(() => {
+    jest.resetModules()
+    lambdaMock.reset()
+    secretMock.reset()
+    process.env = { ...OLD_ENV }
+  })
+
+  test('no secret env var', async () => {
+    const event = generateStatusRequest(correctToken)
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(500)
+  })
+
+  test('no deployment config', async () => {
+    setSecretEnv()
+    mockSecret(correctToken)
+
+    const event = generateStatusRequest(correctToken)
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(500)
+    const response = JSON.parse(result.body)
+    expect(response.status).toBe(
+      'Wrong function configuration. Check environment variables for Lambda@Edge function and CloudFront Distribution id',
+    )
+    expect(response.error).toBe(
+      'environment variables not found: CFDistributionId, LambdaFunctionName, LambdaFunctionArn',
+    )
+  })
+
+  test('CFDistributionConfig is not defined', async () => {
+    setSecretEnv()
+    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    mockSecret(correctToken)
+
+    const event = generateStatusRequest(correctToken)
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(500)
+    const response = JSON.parse(result.body)
+    expect(response.status).toBe(
+      'Wrong function configuration. Check environment variables for Lambda@Edge function and CloudFront Distribution id',
+    )
+    expect(response.error).toBe('environment variables not found: CFDistributionId')
+  })
+
+  test('CFDistributionConfig is defined, but empty', async () => {
+    setSecretEnv()
+    process.env.CFDistributionId = ''
+    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    mockSecret(correctToken)
+
+    const event = generateStatusRequest(correctToken)
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(500)
+    const response = JSON.parse(result.body)
+    expect(response.status).toBe(
+      'Wrong function configuration. Check environment variables for Lambda@Edge function and CloudFront Distribution id',
+    )
+    expect(response.error).toBe('environment variables not found: CFDistributionId')
   })
 })
 
