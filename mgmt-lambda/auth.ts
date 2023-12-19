@@ -4,7 +4,7 @@ import { SecretsManagerClient, GetSecretValueCommand, GetSecretValueResponse } f
 export async function getAuthSettings(secretManagerClient: SecretsManagerClient): Promise<AuthSettings> {
   const secretName = process.env.SettingsSecretName
   if (!secretName) {
-    throw new Error('Unable to retrieve secret. Error: unable to get secret name')
+    throw new Error('Unable to retrieve secret. Error: environment variable SettingsSecretName not found')
   }
 
   try {
@@ -16,7 +16,8 @@ export async function getAuthSettings(secretManagerClient: SecretsManagerClient)
 
     if (response.SecretBinary) {
       return JSON.parse(Buffer.from(response.SecretBinary).toString('utf8'))
-    } else if (response.SecretString) {
+    }
+    if (response.SecretString) {
       return JSON.parse(response.SecretString)
     } else {
       throw new Error('secret is empty')
