@@ -33,12 +33,11 @@ describe('Basic test', () => {
   })
 
   test('wrong auth token', async () => {
-    const secretName = 'fingerprint-mgmt-lambda-auth-settings'
-    process.env.SettingsSecretName = secretName
+    setSecretEnv()
     setConfigEnv()
-    mockSecret(wrongToken)
+    mockSecret(correctToken)
 
-    const event = generateStatusRequest(correctToken)
+    const event = generateStatusRequest(wrongToken)
 
     const result = await handler(event)
     expect(result.statusCode).toBe(401)
@@ -90,7 +89,7 @@ function setSecretEnv() {
 
 function setConfigEnv() {
   process.env.CFDistributionId = 'ABCDEF123456'
-  process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+  process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
   process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
 }
 

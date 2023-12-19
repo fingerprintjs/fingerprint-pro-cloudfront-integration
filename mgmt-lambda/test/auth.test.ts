@@ -74,7 +74,7 @@ describe('auth test', () => {
     try {
       await getAuthSettings(secretManagerClient)
     } catch (error: any) {
-      expect(error.message).toBe('Unable to retrieve secret. Error: unable to get secret name')
+      expect(error.message).toBe('Unable to retrieve secret. Error: environment variable SettingsSecretName not found')
     }
   })
 })

@@ -46,15 +46,15 @@ export async function handler(event: APIGatewayProxyEventV2WithRequestContext<AP
 function loadDeploymentSettings(): DeploymentSettings {
   const cfDistributionId = process.env.CFDistributionId
   if (!cfDistributionId) {
-    throw new Error('No CloudFront distribution Id')
+    throw new Error('load failed: environment variable CFDistributionId not found')
   }
-  const lambdaFunctionName = process.env.LambdaFunctionArn
+  const lambdaFunctionName = process.env.LambdaFunctionName
   if (!lambdaFunctionName) {
-    throw new Error('No lambda function name')
+    throw new Error('load failed: environment variable LambdaFunctionName not found')
   }
   const lambdaFunctionArn = process.env.LambdaFunctionArn
   if (!lambdaFunctionArn) {
-    throw new Error('No lambda function ARN')
+    throw new Error('load failed: environment variable LambdaFunctionArn not found')
   }
 
   const settings: DeploymentSettings = {
