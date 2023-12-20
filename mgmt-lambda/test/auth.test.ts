@@ -1,6 +1,11 @@
 import { mockClient } from 'aws-sdk-client-mock'
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
-import { getAuthSettings } from '../auth'
+import {
+  APIGatewayProxyEventV2WithRequestContext,
+  APIGatewayEventRequestContextV2,
+  APIGatewayProxyEventHeaders,
+} from 'aws-lambda'
+import { getAuthSettings, retrieveAuthToken } from '../auth'
 import 'aws-sdk-client-mock-jest'
 
 const secretMock = mockClient(SecretsManagerClient)
@@ -78,3 +83,81 @@ describe('auth test', () => {
     }
   })
 })
+
+describe('test token retrieving', () => {
+  it('correct scheme', () => {
+    const event = generateRequestEvent({
+      authorization: 'mgmt-token token-value',
+    })
+
+    const token = retrieveAuthToken(event)
+    expect(token).toBe('token-value')
+  })
+
+  it('correct scheme without value', () => {
+    const event = generateRequestEvent({
+      authorization: 'mgmt-token',
+    })
+
+    const token = retrieveAuthToken(event)
+    expect(token).toBe('')
+  })
+
+  it('wrong scheme', () => {
+    const event = generateRequestEvent({
+      authorization: 'basic token-value',
+    })
+
+    const token = retrieveAuthToken(event)
+    expect(token).toBe('')
+  })
+
+  it('no scheme', () => {
+    const event = generateRequestEvent({
+      authorization: 'some-string',
+    })
+
+    const token = retrieveAuthToken(event)
+    expect(token).toBe('')
+  })
+
+  it('no header', () => {
+    const event = generateRequestEvent({})
+
+    const token = retrieveAuthToken(event)
+    expect(token).toBe('')
+  })
+})
+
+function generateRequestEvent(
+  headers: APIGatewayProxyEventHeaders,
+): APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2> {
+  const requestContext: APIGatewayEventRequestContextV2 = {
+    accountId: '1234567890',
+    apiId: 'v3',
+    domainName: 'aws-lambda.amazonaws.com',
+    domainPrefix: 'xyz123-qwerttuii-fsfds',
+    http: {
+      method: 'GET',
+      path: 'status',
+      protocol: 'https',
+      sourceIp: '192.168.1.2',
+      userAgent: 'backend-app',
+    },
+    requestId: 'a70a6921-959a-40ea-8e2e-f5343b08588a',
+    routeKey: '',
+    stage: '',
+    time: '2023-12-18T15:57:15+0000',
+    timeEpoch: 1702915035000,
+  }
+
+  return {
+    version: 'v2',
+    routeKey: '',
+    rawPath: '',
+    rawQueryString: '',
+    headers: headers,
+    requestContext: requestContext,
+    isBase64Encoded: false,
+  }
+}
