@@ -134,7 +134,7 @@ Resources:
       Description: Lambda@Edge function definition
       FunctionName: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: fingerprintjs-pro-cloudfront-lambda-function.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs20.x
       CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip
       MemorySize: 128
       Timeout: 3
@@ -332,7 +332,7 @@ Resources:
     Properties:
       FunctionName: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: fingerprintjs-pro-cloudfront-mgmt-lambda-function.handler
-      Runtime: nodejs18.x
+      Runtime: nodejs20.x
       CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/release/mgmt_lambda_latest.zip
       MemorySize: 128
       Timeout: 120
