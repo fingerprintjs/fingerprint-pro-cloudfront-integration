@@ -94,6 +94,15 @@ describe('test token retrieving', () => {
     expect(token).toBe('token-value')
   })
 
+  it('corrent scheme without value', () => {
+    const event = generateRequestEvent({
+      authorization: 'mgmt-token',
+    })
+
+    const token = retrieveAuthToken(event)
+    expect(token).toBe('')
+  })
+
   it('wrong scheme', () => {
     const event = generateRequestEvent({
       authorization: 'basic token-value',
