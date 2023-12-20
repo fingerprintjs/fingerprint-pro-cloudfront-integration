@@ -196,7 +196,7 @@ function generateStatusRequest(
     rawQueryString: '',
     headers: {
       'content-type': 'application/json',
-      authorization: token,
+      authorization: `mgmt-token ${token}`,
     },
     requestContext: requestContext,
     isBase64Encoded: false,
