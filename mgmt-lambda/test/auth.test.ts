@@ -85,7 +85,7 @@ describe('auth test', () => {
 })
 
 describe('test token retrieving', () => {
-  it('corrent scheme', () => {
+  it('correct scheme', () => {
     const event = generateRequestEvent({
       authorization: 'mgmt-token token-value',
     })
@@ -94,7 +94,7 @@ describe('test token retrieving', () => {
     expect(token).toBe('token-value')
   })
 
-  it('corrent scheme without value', () => {
+  it('correct scheme without value', () => {
     const event = generateRequestEvent({
       authorization: 'mgmt-token',
     })
