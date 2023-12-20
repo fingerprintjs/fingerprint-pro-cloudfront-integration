@@ -10,6 +10,6 @@ jobs:
     name: 'Build project, run CI checks and publish new release'
     uses: fingerprintjs/dx-team-toolkit/.github/workflows/release-typescript-project.yml@v1
     with:
-      nodeVersion: 16
+      nodeVersion: 20
     secrets:
       GH_RELEASE_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
