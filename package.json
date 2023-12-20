@@ -27,9 +27,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.224.0",
-    "@aws-sdk/client-codepipeline": "^3.224.0",
     "@aws-sdk/client-lambda": "^3.224.0",
-    "aws-sdk": "^2.1234.0",
+    "@aws-sdk/client-secrets-manager": "^3.468.0",
     "punycode": "^2.1.1",
     "winston": "^3.8.2"
   },
@@ -47,6 +46,8 @@
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
     "adm-zip": "^0.5.10",
+    "aws-sdk-client-mock": "^3.0.0",
+    "aws-sdk-client-mock-jest": "^3.0.0",
     "commitizen": "^4.2.4",
     "conventional-changelog-conventionalcommits": "5.0.0",
     "cz-conventional-changelog": "^3.3.0",

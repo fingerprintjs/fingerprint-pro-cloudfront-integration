@@ -1,5 +1,5 @@
 import { CustomerVariableProvider, CustomerVariableType, CustomerVariableValue } from '../types'
-import { SecretsManager } from 'aws-sdk'
+import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
 import { CloudFrontRequest } from 'aws-lambda'
 import { getHeaderValue } from '../../headers'
 import { retrieveSecret } from './retrieve-secret'
@@ -16,23 +16,19 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
 
   private secretsInfo?: SecretsInfo
 
-  private readonly secretsManager?: SecretsManager
+  private readonly secretsManager?: SecretsManagerClient
 
   private headers: Record<keyof SecretsInfo, string> = {
     secretName: 'fpjs_secret_name',
     secretRegion: 'fpjs_secret_region',
   }
 
-  constructor(
-    private readonly request: CloudFrontRequest,
-    SecretsManagerImpl: typeof SecretsManager = SecretsManager,
-    private readonly logger = createLogger(),
-  ) {
+  constructor(private readonly request: CloudFrontRequest, private readonly logger = createLogger()) {
     this.readSecretsInfoFromHeaders()
 
     if (SecretsManagerVariables.isValidSecretInfo(this.secretsInfo)) {
       try {
-        this.secretsManager = new SecretsManagerImpl({ region: this.secretsInfo.secretRegion })
+        this.secretsManager = new SecretsManagerClient({ region: this.secretsInfo.secretRegion })
       } catch (error) {
         logger.error('Failed to create secrets manager', {
           error,

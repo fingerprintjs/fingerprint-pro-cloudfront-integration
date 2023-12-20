@@ -1,175 +1,72 @@
-import {
-  CloudFrontClient,
-  CreateInvalidationCommand,
-  CreateInvalidationCommandInput,
-  GetDistributionConfigCommand,
-  GetDistributionConfigCommandOutput,
-  UpdateDistributionCommand,
-  UpdateDistributionCommandInput,
-} from '@aws-sdk/client-cloudfront'
-import {
-  CodePipelineClient,
-  CodePipelineClientConfig,
-  FailureType,
-  PutJobFailureResultCommand,
-  PutJobFailureResultCommandInput,
-  PutJobSuccessResultCommand,
-  PutJobSuccessResultCommandInput,
-} from '@aws-sdk/client-codepipeline'
-import {
-  LambdaClient,
-  ListVersionsByFunctionCommand,
-  ListVersionsByFunctionCommandInput,
-  ListVersionsByFunctionCommandOutput,
-} from '@aws-sdk/client-lambda'
+import { APIGatewayProxyEventV2WithRequestContext, APIGatewayEventRequestContextV2 } from 'aws-lambda'
+import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { getAuthSettings } from './auth'
+import type { DeploymentSettings } from './model/DeploymentSettings'
+import { handleNoAthentication, handleWrongConfiguration, handleNotFound } from './handlers/errorHandlers'
+import { defaults } from './DefaultSettings'
+import { handleStatus } from './handlers/statusHandler'
+import { handleUpdate } from './handlers/updateHandler'
+import { LambdaClient } from '@aws-sdk/client-lambda'
+import { CloudFrontClient } from '@aws-sdk/client-cloudfront'
 
-const REGION = 'us-east-1'
+export async function handler(event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>) {
+  const secretManagerClient = new SecretsManagerClient({ region: defaults.AWS_REGION })
 
-export async function handler(event: any, ctx: any) {
-  console.info(JSON.stringify(event))
-
-  const job = event['CodePipeline.job']
-  if (!job) {
-    console.error('No job found')
-    return
-  }
-
-  const userInput = JSON.parse(job.data.actionConfiguration.configuration.UserParameters)
-  const lambdaFunctionName = userInput.LAMBDA_NAME
-  const cloudFrontDistrId = userInput.CF_DISTR_ID
-
-  console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distbution.`)
-  console.info(`Lambda function: ${lambdaFunctionName}. CloudFront ID: ${cloudFrontDistrId}`)
-
-  const latestFunctionArn = await getLambdaLatestVersionArn(lambdaFunctionName)
-  if (!latestFunctionArn) {
-    return publishJobFailure(ctx, job, 'No lambda versions')
-  }
-
-  if (latestFunctionArn.length === 1) {
-    console.info('No updates yet')
-    return publishJobSuccess(ctx, job)
-  }
-
-  const cloudFrontClient = new CloudFrontClient({ region: REGION })
-
-  const configParams = {
-    Id: cloudFrontDistrId,
-  }
-  const getConfigCommand = new GetDistributionConfigCommand(configParams)
-  const cfConfig: GetDistributionConfigCommandOutput = await cloudFrontClient.send(getConfigCommand)
-
-  if (!cfConfig.ETag || !cfConfig.DistributionConfig) {
-    return publishJobFailure(ctx, job, 'CloudFront distribution not found')
-  }
-
-  const cacheBehaviors = cfConfig.DistributionConfig.CacheBehaviors
-  const fpCbs = cacheBehaviors?.Items?.filter((it) => it.TargetOriginId === 'fpcdn.io')
-  if (!fpCbs || fpCbs?.length === 0) {
-    return publishJobFailure(ctx, job, 'Cache behavior not found')
-  }
-  const cacheBehavior = fpCbs[0]
-  const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
-    (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(lambdaFunctionName),
-  )
-  if (!lambdas || lambdas?.length === 0) {
-    return publishJobFailure(ctx, job, 'Lambda function association not found')
-  }
-  const lambda = lambdas[0]
-  lambda.LambdaFunctionARN = latestFunctionArn
-
-  const updateParams: UpdateDistributionCommandInput = {
-    DistributionConfig: cfConfig.DistributionConfig,
-    Id: cloudFrontDistrId,
-    IfMatch: cfConfig.ETag,
-  }
-
-  const updateConfigCommand = new UpdateDistributionCommand(updateParams)
-  const updateCFResult = await cloudFrontClient.send(updateConfigCommand)
-  console.info(`CloudFront update has finished, ${JSON.stringify(updateCFResult)}`)
-
-  console.info('Going to invalidate routes for upgraded cache behavior')
-  if (!cacheBehavior.PathPattern) {
-    return publishJobFailure(ctx, job, 'Path pattern is not defined')
-  }
-
-  let pathPattern = cacheBehavior.PathPattern
-  if (!pathPattern.startsWith('/')) {
-    pathPattern = '/' + pathPattern
-  }
-
-  const invalidationParams: CreateInvalidationCommandInput = {
-    DistributionId: cloudFrontDistrId,
-    InvalidationBatch: {
-      Paths: {
-        Quantity: 1,
-        Items: [pathPattern],
-      },
-      CallerReference: 'fingerprint-pro-management-lambda-function',
-    },
-  }
-  const invalidationCommand = new CreateInvalidationCommand(invalidationParams)
-  const invalidationResult = await cloudFrontClient.send(invalidationCommand)
-  console.info(`Invalidation has finished, ${JSON.stringify(invalidationResult)}`)
-
-  await publishJobSuccess(ctx, job)
-}
-
-async function getLambdaLatestVersionArn(functionName: string): Promise<string | undefined> {
-  const client = new LambdaClient({ region: REGION })
-  const params: ListVersionsByFunctionCommandInput = {
-    FunctionName: functionName,
-  }
-  const command = new ListVersionsByFunctionCommand(params)
-  const result: ListVersionsByFunctionCommandOutput = await client.send(command)
-  if (!result.Versions || result.Versions?.length === 0) {
-    return Promise.resolve(undefined)
-  }
-
-  const latest = result.Versions.filter((it) => it.Version && Number.isFinite(Number.parseInt(it.Version))).sort(
-    (a, b) => Number.parseInt(b.Version!!) - Number.parseInt(a.Version!!),
-  )[0]
-  return Promise.resolve(latest.FunctionArn)
-}
-
-function getCodePipelineClient(): CodePipelineClient {
-  const config: CodePipelineClientConfig = {
-    region: REGION,
-    defaultsMode: 'standard',
-  }
-
-  return new CodePipelineClient(config)
-}
-
-async function publishJobSuccess(ctx: any, job: any) {
-  const params: PutJobSuccessResultCommandInput = {
-    jobId: job.id,
-  }
   try {
-    const command = new PutJobSuccessResultCommand(params)
-    const result = await getCodePipelineClient().send(command)
-    console.info(`Job successfully finished with ${JSON.stringify(result)}`)
-    ctx.succeed()
-  } catch (err) {
-    ctx.fail(err)
+    const authSettings = await getAuthSettings(secretManagerClient)
+    const authorization = event.headers['authorization']
+    if (authorization !== authSettings.token) {
+      return handleNoAthentication()
+    }
+  } catch (error) {
+    return handleWrongConfiguration(error)
+  }
+
+  let deploymentSettings: DeploymentSettings
+  try {
+    deploymentSettings = loadDeploymentSettings()
+  } catch (error) {
+    return handleWrongConfiguration(error)
+  }
+
+  const path = event.rawPath
+  const method = event.requestContext.http.method
+  const lambdaClient = new LambdaClient({ region: defaults.AWS_REGION })
+  const cloudFrontClient = new CloudFrontClient({ region: defaults.AWS_REGION })
+
+  if (path.startsWith('/update') && method === 'POST') {
+    return handleUpdate(lambdaClient, cloudFrontClient, deploymentSettings)
+  } else if (path.startsWith('/status') && method === 'GET') {
+    return handleStatus(lambdaClient, deploymentSettings)
+  } else {
+    return handleNotFound()
   }
 }
 
-async function publishJobFailure(ctx: any, job: any, message: string) {
-  console.info(`Publishing failure status with message=${message}`)
-  const params: PutJobFailureResultCommandInput = {
-    jobId: job.id,
-    failureDetails: {
-      message: message,
-      type: FailureType.ConfigurationError,
-    },
+function loadDeploymentSettings(): DeploymentSettings {
+  const missedVariables = []
+  const cfDistributionId = process.env.CFDistributionId || ''
+  if (cfDistributionId === '') {
+    missedVariables.push('CFDistributionId')
   }
-  try {
-    const command = new PutJobFailureResultCommand(params)
-    const result = await getCodePipelineClient().send(command)
-    console.info(`Job failed with ${JSON.stringify(result)}`)
-    ctx.fail(message)
-  } catch (err) {
-    ctx.fail(err)
+  const lambdaFunctionName = process.env.LambdaFunctionName || ''
+  if (lambdaFunctionName === '') {
+    missedVariables.push('LambdaFunctionName')
   }
+  const lambdaFunctionArn = process.env.LambdaFunctionArn || ''
+  if (lambdaFunctionArn === '') {
+    missedVariables.push('LambdaFunctionArn')
+  }
+
+  if (missedVariables.length > 0) {
+    const vars = missedVariables.join(', ')
+    throw new Error(`environment variables not found: ${vars}`)
+  }
+
+  const settings: DeploymentSettings = {
+    CFDistributionId: cfDistributionId,
+    LambdaFunctionArn: lambdaFunctionArn,
+    LambdaFunctionName: lambdaFunctionName,
+  }
+  return settings
 }
