@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2WithRequestContext, APIGatewayEventRequestContextV2 } from 'aws-lambda'
 import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
-import { getAuthSettings } from './auth'
+import { getAuthSettings, retrieveAuthToken } from './auth'
 import type { DeploymentSettings } from './model/DeploymentSettings'
 import { handleNoAthentication, handleWrongConfiguration, handleNotFound } from './handlers/errorHandlers'
 import { defaults } from './DefaultSettings'
@@ -14,8 +14,8 @@ export async function handler(event: APIGatewayProxyEventV2WithRequestContext<AP
 
   try {
     const authSettings = await getAuthSettings(secretManagerClient)
-    const authorization = event.headers['authorization']
-    if (authorization !== authSettings.token) {
+    const authToken = retrieveAuthToken(event)
+    if (authToken !== authSettings.token) {
       return handleNoAthentication()
     }
   } catch (error) {
@@ -36,11 +36,11 @@ export async function handler(event: APIGatewayProxyEventV2WithRequestContext<AP
 
   if (path.startsWith('/update') && method === 'POST') {
     return handleUpdate(lambdaClient, cloudFrontClient, deploymentSettings)
-  } else if (path.startsWith('/status') && method === 'GET') {
-    return handleStatus(lambdaClient, deploymentSettings)
-  } else {
-    return handleNotFound()
   }
+  if (path.startsWith('/status') && method === 'GET') {
+    return handleStatus(lambdaClient, deploymentSettings)
+  }
+  return handleNotFound()
 }
 
 function loadDeploymentSettings(): DeploymentSettings {
