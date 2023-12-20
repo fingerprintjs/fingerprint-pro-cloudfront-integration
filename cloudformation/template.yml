@@ -137,7 +137,7 @@ Resources:
       Runtime: nodejs20.x
       CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip
       MemorySize: 128
-      Timeout: 3
+      Timeout: 10
       Role: !GetAtt FpIntLambdaFunctionExecutionRole.Arn
 
   FingerprintProCloudfrontLambdaVersion:  
