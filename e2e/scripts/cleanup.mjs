@@ -177,6 +177,8 @@ async function emptyS3Bucket(bucketName) {
     Delete: { Objects: listedObjects.Contents.map(({ Key }) => ({ Key })) },
   }
 
+  console.info(`Removing objects from S3 bucket: ${JSON.stringify(deleteParams)}. `);
+
   await s3.deleteObjects(deleteParams).promise()
 
   if (listedObjects.IsTruncated) {
