@@ -27,8 +27,9 @@ rule check_lambda {
         Type == "AWS::Serverless::Function"
         Properties {
             Handler == "fingerprintjs-pro-cloudfront-lambda-function.handler"
-            Runtime == "nodejs16.x"
+            Runtime == "nodejs20.x"
             CodeUri == "s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip"
+            Timeout == 10
         }
     }
 }
@@ -55,7 +56,7 @@ rule check_mgmt_lambda {
         Type == "AWS::Serverless::Function"
         Properties {
             Handler == "fingerprintjs-pro-cloudfront-mgmt-lambda-function.handler"
-            Runtime == "nodejs18.x"
+            Runtime == "nodejs20.x"
             CodeUri == "s3://fingerprint-pro-cloudfront-integration-lambda-function/release/mgmt_lambda_latest.zip"
             Timeout == 120
         }
