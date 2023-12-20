@@ -231,6 +231,8 @@ Resources:
 
   FpMgmtLambdaFunctionExecutionRole:
     Type: AWS::IAM::Role
+    DependsOn:
+      - MgmtSettingsSecret
     Metadata:
       SamResourceId: FpMgmtLambdaFunctionExecutionRole
     Properties:
@@ -255,6 +257,24 @@ Resources:
               - logs:CreateLogStream
               - logs:PutLogEvents
             Resource: arn:aws:logs:*:*:*
+      - PolicyName: AWSSecretAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource:
+              Fn::Sub: ${MgmtSettingsSecret}
+      - PolicyName: S3LambdaDistributionAccess
+        PolicyDocument:      
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+            Resource: arn:aws:s3:::fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip
       - PolicyName: FpLambdaUpdate
         PolicyDocument:
           Version: '2012-10-17'
@@ -265,6 +285,8 @@ Resources:
               - lambda:GetFunction
               - lambda:GetFunctionConfiguration
               - lambda:EnableReplication
+              - lambda:UpdateFunctionCode
+              - lambda:PublishVersion
             Resource:
               - !Join
                   - ''
@@ -288,21 +310,25 @@ Resources:
               - cloudfront:GetDistributionConfig
               - cloudfront:CreateInvalidation
             Resource: !Join ['', [!Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/', !If [CreateCloudFrontDistribution, !Ref CloudFrontDistribution, !Ref DistributionId]]]
-      - PolicyName: CodePipelinePublishingResults
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - codepipeline:PutJobFailureResult
-              - codepipeline:PutJobSuccessResult
-            Resource: "*"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
+  MgmtSettingsSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Join ['-', ['fingerprint-pro-mgmt-settings-secret', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      GenerateSecretString:
+        IncludeSpace: false
+        ExcludePunctuation: true
+        PasswordLength: 30
+        GenerateStringKey: token
+        SecretStringTemplate: !Sub '{}'
+
   FingerprintProMgmtLambda:
     Type: AWS::Serverless::Function
-    DependsOn: FpMgmtLambdaFunctionExecutionRole
+    DependsOn:
+      - FpMgmtLambdaFunctionExecutionRole
+      - MgmtSettingsSecret
     Properties:
       FunctionName: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: fingerprintjs-pro-cloudfront-mgmt-lambda-function.handler
@@ -311,287 +337,32 @@ Resources:
       MemorySize: 128
       Timeout: 120
       Role: !GetAtt FpMgmtLambdaFunctionExecutionRole.Arn
+      Environment:
+        Variables:
+          SettingsSecretName: !Ref MgmtSettingsSecret
+          LambdaFunctionName: !Ref FingerprintProCloudfrontLambda
+          LambdaFunctionArn: !GetAtt FingerprintProCloudfrontLambda.Arn
+          CFDistributionId: !If [CreateCloudFrontDistribution, !Ref CloudFrontDistribution, !Ref DistributionId]
 
-  # Automatic updates infrastructure
-
-  FpCodePipelineExecutionRole:
-    Type: AWS::IAM::Role
-    Metadata:
-      SamResourceId: FpCodePipelineExecutionRole
-    Properties:
-      Description: CodePipeline execution role
-      RoleName: !Join ['-', ['fingerprint-pro-codepipeline-role', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Action: sts:AssumeRole
-          Principal:
-            Service:
-              - codepipeline.amazonaws.com
-      Policies:
-      - PolicyName: S3DistributionAccess
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - s3:*
-            Resource: "*"
-      - PolicyName: Builds
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - codebuild:BatchGetBuilds
-              - codebuild:StartBuild
-              - codebuild:BatchGetBuildBatches
-              - codebuild:StartBuildBatch
-            Resource: "*"
-      - PolicyName: Devices
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - devicefarm:ListProjects
-              - devicefarm:ListDevicePools
-              - devicefarm:GetRun
-              - devicefarm:GetUpload
-              - devicefarm:CreateUpload
-              - devicefarm:ScheduleRun
-            Resource: "*"
-      - PolicyName: ECR
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - ecr:DescribeImages
-            Resource: "*"
-      - PolicyName: States
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - states:DescribeExecution
-              - states:DescribeStateMachine
-              - states:StartExecution
-            Resource: "*"
-      - PolicyName: Deployments
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - appconfig:StartDeployment
-              - appconfig:StopDeployment
-              - appconfig:GetDeployment
-            Resource: "*"
-      - PolicyName: InvokeLambda
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - lambda:ListFunctions
-              - lambda:InvokeFunction
-            Resource:
-              !Join
-                - ''
-                - - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:'
-                  - 'fingerprint-pro-mgmt-lambda-'
-                  - !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]
-
-  CodeBuildServiceRole:
-    Type: AWS::IAM::Role
-    Metadata:
-      SamResourceId: CodeBuildServiceRole
-    Properties:
-      RoleName: !Join ['-', ['fingerprint-pro-codebuild-service-role', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Action: sts:AssumeRole
-          Principal:
-            Service:
-              - codebuild.amazonaws.com
-      Policies:
-      - PolicyName: LogsPolicy
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - logs:CreateLogGroup
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              - !Sub arn:aws:logs:*:${AWS::AccountId}:log-group:/aws/codebuild/LambdaUpdateCodeBuild*
-              - !Sub arn:aws:logs:*:${AWS::AccountId}:log-group:/aws/codebuild/LambdaUpdateCodeBuild:*
-      - PolicyName: S3Resources
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - s3:PutObject
-              - s3:GetObject
-              - s3:GetObjectVersion
-              - s3:GetBucketAcl
-              - s3:GetBucketLocation
-              - s3:ListBucket
-              - s3:DeleteObject
-            Resource:
-              - arn:aws:s3:::fingerprint-pro-code-pipeline-storage-*
-      - PolicyName: Reporting
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - codebuild:CreateReportGroup
-              - codebuild:CreateReport
-              - codebuild:UpdateReport
-              - codebuild:BatchPutTestCases
-              - codebuild:BatchPutCodeCoverages
-            Resource:
-              - !Sub arn:aws:codebuild:*:${AWS::AccountId}:report-group/LambdaUpdateCodeBuild-*
-      - PolicyName: UpdateLambda
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-              - lambda:UpdateFunctionCode
-              - lambda:PublishVersion
-            Resource:
-              !Join
-                - ''
-                - - !Sub 'arn:aws:lambda:*:${AWS::AccountId}:function:'
-                  - 'fingerprint-pro-cloudfront-lambda-'
-                  - !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]
-
-  FpCodePipelineArtifactStorage:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Join ['-', ['fingerprint-pro-code-pipeline-storage', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-
-  LambdaUpdateCodeBuild:
-    Type: AWS::CodeBuild::Project
+  MgmtFunctionURL:
+    Type: AWS::Lambda::Url
     DependsOn:
-      - CodeBuildServiceRole
-      - FpCodePipelineArtifactStorage
-      - FingerprintProCloudfrontLambda
       - FingerprintProMgmtLambda
     Properties:
-      Name: !Join ['-', ['LambdaUpdateCodeBuild', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
-      Artifacts:
-        Type: CODEPIPELINE
-        Name: LambdaUpdateCodeBuild
-        Packaging: none
-      Environment:
-        Type: LINUX_CONTAINER
-        ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/amazonlinux2-x86_64-standard:4.0
-        PrivilegedMode: false
-        EnvironmentVariables:
-        - Name: LAMBDA_FUNCTION_NAME
-          Type: PLAINTEXT
-          Value: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-        - Name: ARTIFACT_STORAGE_BUCKET_NAME
-          Type: PLAINTEXT
-          Value: !Join ['-', ['fingerprint-pro-code-pipeline-storage', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-      Source:
-        Type: CODEPIPELINE
-        BuildSpec: |          
-          version: 0.2
-          phases:
-            build:
-              commands:
-                - zip -r lambda.zip fingerprintjs-pro-cloudfront-lambda-function.js
-                - echo $LAMBDA_FUNCTION_NAME
-                - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://lambda.zip --publish
-            post_build:
-              commands:
-                - aws s3 rm s3://${ARTIFACT_STORAGE_BUCKET_NAME} --recursive
+      AuthType: NONE
+      TargetFunctionArn: !GetAtt FingerprintProMgmtLambda.Arn
 
-  Pipeline:
-    Type: AWS::CodePipeline::Pipeline
+  MgmtFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
     DependsOn:
-      - LambdaUpdateCodeBuild
+      - FingerprintProMgmtLambda
     Properties:
-      ArtifactStore:
-        Type: S3
-        Location: !Join ['-', ['fingerprint-pro-code-pipeline-storage', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-      RoleArn: !GetAtt FpCodePipelineExecutionRole.Arn
-      Stages:
-        -
-          Name: Source
-          Actions:
-            -
-              Name: SourceAction
-              ActionTypeId:
-                Category: Source
-                Owner: AWS
-                Provider: S3
-                Version: 1
-              RunOrder: 1
-              Configuration:
-                PollForSourceChanges: true
-                S3Bucket: fingerprint-pro-cloudfront-integration-lambda-function
-                S3ObjectKey: release/lambda_latest.zip
-              OutputArtifacts:
-                -
-                  Name: SourceArtifact
-        -
-          Name: Build
-          Actions:
-            -
-              Name: BuildAction
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: 1
-              Region: us-east-1
-              Namespace: BuildVariables
-              Configuration:
-                ProjectName: !Join ['-', ['LambdaUpdateCodeBuild', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-              InputArtifacts:
-                -
-                  Name: SourceArtifact
-              OutputArtifacts:
-                -
-                  Name: BuildArtifact
-        -
-          Name: Deploy
-          Actions:
-            -
-              Name: UpdateCloudFront
-              ActionTypeId:
-                Category: Invoke
-                Owner: AWS
-                Provider: Lambda
-                Version: 1
-              Region: us-east-1
-              Configuration:
-                FunctionName: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-                UserParameters:
-                  !Join
-                    - ''
-                    - - '{"CF_DISTR_ID": '
-                      - !Sub
-                          - '"${CFDistributionId}"'
-                          - CFDistributionId: !If [CreateCloudFrontDistribution, !Ref CloudFrontDistribution, !Ref DistributionId]
-                      - ', '
-                      - '"LAMBDA_NAME": "'
-                      - !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
-                      - '"}'
+      Action: lambda:InvokeFunctionUrl
+      FunctionName: !Ref FingerprintProMgmtLambda
+      FunctionUrlAuthType: NONE
+      Principal: "*"
+
+
 Outputs:
   LambdaFunctionName:
     Description: Fingerprint Pro Lambda function name
@@ -617,3 +388,15 @@ Outputs:
       Fn::If: [CreateCloudFrontDistribution, "true", "false"]
     Export:
       Name: !Join ['-', ['is-cloudfront-distribution-created-by-deployment', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  FingerprintProMgmtLambda:
+    Description: Fingerprint Pro Lambda function name
+    Value:
+      Ref: FingerprintProMgmtLambda
+    Export:
+      Name: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  MgmtLambdaFunctionUrl:
+    Description: Fingerprint Pro management Lambda function name
+    Value:
+      Fn::GetAtt: MgmtFunctionURL.FunctionUrl
+    Export:
+      Name: !Join ['-', ['fingerprint-pro-mgmt-lambda-url', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
