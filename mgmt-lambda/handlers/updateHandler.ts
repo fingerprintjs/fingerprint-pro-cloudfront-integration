@@ -26,12 +26,12 @@ export async function handleUpdate(
   console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distbution.`)
   console.info(`Settings: ${settings}`)
 
-  const isLambdaFunctionExist = await checkLambdaFunctionExistance(lambdaClient, settings.LambdaFunctionName)
-  if (!isLambdaFunctionExist) {
-    return handleFailure(`Lambda function with name ${settings.LambdaFunctionName} not found`)
-  }
-
   try {
+    const isLambdaFunctionExist = await checkLambdaFunctionExistence(lambdaClient, settings.LambdaFunctionName)
+    if (!isLambdaFunctionExist) {
+      return handleFailure(`Lambda function with name ${settings.LambdaFunctionName} not found`)
+    }
+
     const functionVersionArn = await updateLambdaFunctionCode(lambdaClient, settings.LambdaFunctionName)
     return updateCloudFrontConfig(
       cloudFrontClient,
@@ -39,8 +39,14 @@ export async function handleUpdate(
       settings.LambdaFunctionName,
       functionVersionArn,
     )
-  } catch (error) {
-    return handleFailure(error)
+  } catch (error: any) {
+    if (error.name === 'ResourceNotFoundException') {
+      return handleException('Resource not found', error.message)
+    } else if (error.name === 'ResourceNotFoundException') {
+      return handleException('No permission', error.message)
+    } else {
+      return handleFailure(error)
+    }
   }
 }
 
@@ -130,7 +136,7 @@ async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName
   return result.FunctionArn
 }
 
-async function checkLambdaFunctionExistance(client: LambdaClient, functionName: string): Promise<boolean> {
+async function checkLambdaFunctionExistence(client: LambdaClient, functionName: string): Promise<boolean> {
   const params: GetFunctionCommandInput = {
     FunctionName: functionName,
   }
@@ -140,6 +146,20 @@ async function checkLambdaFunctionExistance(client: LambdaClient, functionName: 
     return false
   }
   return true
+}
+
+async function handleException(status: string, message: string): Promise<APIGatewayProxyResult> {
+  const body = {
+    status: status,
+    error: message,
+  }
+  return {
+    statusCode: 500,
+    body: JSON.stringify(body),
+    headers: {
+      'content-type': 'application/json',
+    },
+  }
 }
 
 async function handleFailure(message?: any): Promise<APIGatewayProxyResult> {
