@@ -42,7 +42,7 @@ export async function handleUpdate(
   } catch (error: any) {
     if (error.name === 'ResourceNotFoundException') {
       return handleException('Resource not found', error.message)
-    } else if (error.name === 'ResourceNotFoundException') {
+    } else if (error.name === 'AccessDeniedException') {
       return handleException('No permission', error.message)
     } else {
       return handleFailure(error)
