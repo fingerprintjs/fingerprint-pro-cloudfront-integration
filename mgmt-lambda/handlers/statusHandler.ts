@@ -7,13 +7,23 @@ export async function handleStatus(
   settings: DeploymentSettings,
 ): Promise<APIGatewayProxyResult> {
   const command = new GetFunctionCommand({ FunctionName: settings.LambdaFunctionName })
-  const functionResult = await lambdaClient.send(command)
+  try {
+    const functionResult = await lambdaClient.send(command)
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(functionResult),
-    headers: {
-      'content-type': 'application/json',
-    },
+    return {
+      statusCode: 200,
+      body: JSON.stringify(functionResult),
+      headers: {
+        'content-type': 'application/json',
+      },
+    }
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify(error),
+      headers: {
+        'content-type': 'application/json',
+      },
+    }
   }
 }
