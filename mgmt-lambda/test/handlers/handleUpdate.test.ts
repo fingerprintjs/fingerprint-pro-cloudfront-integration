@@ -1,8 +1,8 @@
 import { mockClient } from 'aws-sdk-client-mock'
 import {
-  LambdaClient,
   GetFunctionCommand,
   GetFunctionResponse,
+  LambdaClient,
   UpdateFunctionCodeCommand,
 } from '@aws-sdk/client-lambda'
 import {
@@ -17,6 +17,7 @@ import {
 import { handleUpdate } from '../../handlers/updateHandler'
 import type { DeploymentSettings } from '../../model/DeploymentSettings'
 import 'aws-sdk-client-mock-jest'
+import { ErrorCode } from '../../exceptions'
 
 const lambdaMock = mockClient(LambdaClient)
 const lambdaClient = new LambdaClient({ region: 'us-east-1' })
@@ -192,10 +193,13 @@ describe('Handle mgmt-update', () => {
       })
       .resolves({})
 
-    const result = await handleUpdate(lambdaClient, cloudFrontClient, settings)
-    expect(result.statusCode).toBe(500)
-    const error = JSON.parse(result.body)['error']
-    expect(error).toBe('Lambda function with name fingerprint-pro-lambda-function not found')
+    expect.assertions(6)
+
+    try {
+      await handleUpdate(lambdaClient, cloudFrontClient, settings)
+    } catch (e: any) {
+      expect(e.code).toEqual(ErrorCode.LambdaFunctionNotFound)
+    }
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 0)
@@ -270,10 +274,13 @@ describe('Handle mgmt-update', () => {
       },
     })
 
-    const result = await handleUpdate(lambdaClient, cloudFrontClient, settings)
-    expect(result.statusCode).toBe(500)
-    const error = JSON.parse(result.body)['error']
-    expect(error).toBe('Cache behavior not found')
+    expect.assertions(6)
+
+    try {
+      await handleUpdate(lambdaClient, cloudFrontClient, settings)
+    } catch (e: any) {
+      expect(e.code).toBe(ErrorCode.CacheBehaviorNotFound)
+    }
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 1)
@@ -338,10 +345,13 @@ describe('Handle mgmt-update', () => {
       },
     })
 
-    const result = await handleUpdate(lambdaClient, cloudFrontClient, settings)
-    expect(result.statusCode).toBe(500)
-    const error = JSON.parse(result.body)['error']
-    expect(error).toBe('Lambda function association not found')
+    expect.assertions(6)
+
+    try {
+      await handleUpdate(lambdaClient, cloudFrontClient, settings)
+    } catch (e: any) {
+      expect(e.code).toBe(ErrorCode.LambdaFunctionAssociationNotFound)
+    }
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 1)

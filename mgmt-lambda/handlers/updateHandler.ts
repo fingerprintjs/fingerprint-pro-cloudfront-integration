@@ -11,45 +11,50 @@ import {
   UpdateDistributionCommandInput,
 } from '@aws-sdk/client-cloudfront'
 import {
-  LambdaClient,
   GetFunctionCommand,
-  UpdateFunctionCodeCommand,
-  GetFunctionCommandInput,
   GetFunctionCommandOutput,
+  LambdaClient,
+  UpdateFunctionCodeCommand,
 } from '@aws-sdk/client-lambda'
+import { ApiException, ErrorCode } from '../exceptions'
 
+/**
+ * @throws {ApiException}
+ * @throws {import('@aws-sdk/client-lambda').LambdaServiceException}
+ */
 export async function handleUpdate(
   lambdaClient: LambdaClient,
   cloudFrontClient: CloudFrontClient,
   settings: DeploymentSettings,
 ): Promise<APIGatewayProxyResult> {
-  console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distbution.`)
+  console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distribution.`)
   console.info(`Settings: ${settings}`)
 
-  try {
-    const isLambdaFunctionExist = await checkLambdaFunctionExistence(lambdaClient, settings.LambdaFunctionName)
-    if (!isLambdaFunctionExist) {
-      return handleFailure(`Lambda function with name ${settings.LambdaFunctionName} not found`)
-    }
+  const isLambdaFunctionExist = await checkIfLambdaFunctionWithNameExists(lambdaClient, settings.LambdaFunctionName)
+  if (!isLambdaFunctionExist) {
+    throw new ApiException(ErrorCode.LambdaFunctionNotFound)
+  }
 
-    const functionVersionArn = await updateLambdaFunctionCode(lambdaClient, settings.LambdaFunctionName)
-    return updateCloudFrontConfig(
-      cloudFrontClient,
-      settings.CFDistributionId,
-      settings.LambdaFunctionName,
-      functionVersionArn,
-    )
-  } catch (error: any) {
-    if (error.name === 'ResourceNotFoundException') {
-      return handleException('Resource not found', error.message)
-    } else if (error.name === 'AccessDeniedException') {
-      return handleException('No permission', error.message)
-    } else {
-      return handleFailure(error)
-    }
+  const functionVersionArn = await updateLambdaFunctionCode(lambdaClient, settings.LambdaFunctionName)
+  await updateCloudFrontConfig(
+    cloudFrontClient,
+    settings.CFDistributionId,
+    settings.LambdaFunctionName,
+    functionVersionArn,
+  )
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ status: 'Update completed' }),
+    headers: {
+      'content-type': 'application/json',
+    },
   }
 }
 
+/**
+ * @throws {ApiException}
+ */
 async function updateCloudFrontConfig(
   cloudFrontClient: CloudFrontClient,
   cloudFrontDistributionId: string,
@@ -63,20 +68,20 @@ async function updateCloudFrontConfig(
   const cfConfig: GetDistributionConfigCommandOutput = await cloudFrontClient.send(getConfigCommand)
 
   if (!cfConfig.ETag || !cfConfig.DistributionConfig) {
-    return handleFailure('CloudFront distribution not found')
+    throw new ApiException(ErrorCode.CloudFrontDistributionNotFound)
   }
 
   const cacheBehaviors = cfConfig.DistributionConfig.CacheBehaviors
   const fpCbs = cacheBehaviors?.Items?.filter((it) => it.TargetOriginId === 'fpcdn.io')
   if (!fpCbs || fpCbs?.length === 0) {
-    return handleFailure('Cache behavior not found')
+    throw new ApiException(ErrorCode.CacheBehaviorNotFound)
   }
   const cacheBehavior = fpCbs[0]
   const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
     (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`),
   )
   if (!lambdas || lambdas?.length === 0) {
-    return handleFailure('Lambda function association not found')
+    throw new ApiException(ErrorCode.LambdaFunctionAssociationNotFound)
   }
   const lambda = lambdas[0]
   lambda.LambdaFunctionARN = latestFunctionArn
@@ -93,7 +98,7 @@ async function updateCloudFrontConfig(
 
   console.info('Going to invalidate routes for upgraded cache behavior')
   if (!cacheBehavior.PathPattern) {
-    return handleFailure('Path pattern is not defined')
+    throw new ApiException(ErrorCode.CacheBehaviorPatternNotDefined)
   }
 
   let pathPattern = cacheBehavior.PathPattern
@@ -114,9 +119,12 @@ async function updateCloudFrontConfig(
   const invalidationCommand = new CreateInvalidationCommand(invalidationParams)
   const invalidationResult = await cloudFrontClient.send(invalidationCommand)
   console.info(`Invalidation has finished, ${JSON.stringify(invalidationResult)}`)
-  return handleSuccess()
 }
 
+/**
+ * @throws {import('@aws-sdk/client-lambda').LambdaServiceException}
+ * @throws {ApiException}
+ */
 async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName: string): Promise<string> {
   console.info('Preparing command to update function code')
   const command = new UpdateFunctionCodeCommand({
@@ -127,65 +135,22 @@ async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName
   })
   console.info('Sending update command to Lambda runtime')
   const result = await lambdaClient.send(command)
-  console.info(`Got Lambda function update result, functionARN: ${result.FunctionArn}`)
 
   if (!result.FunctionArn) {
-    throw new Error('Function ARN not found after update')
+    throw new ApiException(ErrorCode.FunctionARNNotFound)
   }
+
+  console.info(`Got Lambda function update result, functionARN: ${result.FunctionArn}`)
 
   return result.FunctionArn
 }
 
-async function checkLambdaFunctionExistence(client: LambdaClient, functionName: string): Promise<boolean> {
-  const params: GetFunctionCommandInput = {
-    FunctionName: functionName,
-  }
-  const command = new GetFunctionCommand(params)
+/**
+ * @throws {import('@aws-sdk/client-lambda').LambdaServiceException}
+ */
+async function checkIfLambdaFunctionWithNameExists(client: LambdaClient, functionName: string): Promise<boolean> {
+  const command = new GetFunctionCommand({ FunctionName: functionName })
   const result: GetFunctionCommandOutput = await client.send(command)
-  if (!result.Configuration?.FunctionArn) {
-    return false
-  }
-  return true
-}
 
-async function handleException(status: string, message: string): Promise<APIGatewayProxyResult> {
-  const body = {
-    status: status,
-    error: message,
-  }
-  return {
-    statusCode: 500,
-    body: JSON.stringify(body),
-    headers: {
-      'content-type': 'application/json',
-    },
-  }
-}
-
-async function handleFailure(message?: any): Promise<APIGatewayProxyResult> {
-  const body = {
-    status: 'Update failed',
-    error: message,
-  }
-  return {
-    statusCode: 500,
-    body: JSON.stringify(body),
-    headers: {
-      'content-type': 'application/json',
-    },
-  }
-}
-
-async function handleSuccess(): Promise<APIGatewayProxyResult> {
-  const body = {
-    status: 'Update completed',
-    error: null,
-  }
-  return {
-    statusCode: 200,
-    body: JSON.stringify(body),
-    headers: {
-      'content-type': 'application/json',
-    },
-  }
+  return typeof result.Configuration?.FunctionArn !== 'undefined'
 }
