@@ -1,6 +1,8 @@
 import { APIGatewayProxyResult } from 'aws-lambda'
+import { ErrorCode } from '../exceptions'
+import { ResourceNotFoundException } from '@aws-sdk/client-lambda'
 
-export async function handleNoAthentication(): Promise<APIGatewayProxyResult> {
+export async function handleNoAuthentication(): Promise<APIGatewayProxyResult> {
   const body = {
     status: 'Token is not specified or not valid',
   }
@@ -22,6 +24,21 @@ export async function handleWrongConfiguration(error: any): Promise<APIGatewayPr
   return {
     statusCode: 500,
     body: JSON.stringify(body),
+    headers: {
+      'content-type': 'application/json',
+    },
+  }
+}
+
+export function handleError(error: any): APIGatewayProxyResult {
+  if (error.name?.includes('AccessDenied')) {
+    error.code = ErrorCode.AWSAccessDenied
+  } else if (error.name === ResourceNotFoundException.name) {
+    error.code = ErrorCode.AWSResourceNotFound
+  }
+  return {
+    statusCode: 500,
+    body: JSON.stringify({ status: 'Error occurred', errorCode: error.code || ErrorCode.UnknownError }),
     headers: {
       'content-type': 'application/json',
     },
