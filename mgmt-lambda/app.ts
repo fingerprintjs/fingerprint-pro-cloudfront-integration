@@ -36,7 +36,7 @@ export async function handler(event: APIGatewayProxyEventV2WithRequestContext<AP
 
   if (path.startsWith('/update') && method === 'POST') {
     try {
-      return handleUpdate(lambdaClient, cloudFrontClient, deploymentSettings)
+      return await handleUpdate(lambdaClient, cloudFrontClient, deploymentSettings)
     } catch (e: any) {
       return handleError(e)
     }
