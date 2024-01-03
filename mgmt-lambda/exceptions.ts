@@ -3,24 +3,24 @@ export enum ErrorCode {
   AWSResourceNotFound = 'E2100',
   AWSAccessDenied = 'E2200',
   LambdaFunctionNotFound = 'E3100',
-  LambdaFunctionAssociationNotFound = 'E6100',
   CloudFrontDistributionNotFound = 'E4100',
   CacheBehaviorNotFound = 'E5100',
   CacheBehaviorPatternNotDefined = 'E5200',
+  LambdaFunctionAssociationNotFound = 'E6100',
   FunctionARNNotFound = 'E7100',
 }
 
 export class ApiException extends Error {
-  protected _code: ErrorCode
+  protected _xErrorCode: ErrorCode
   constructor(code: ErrorCode = ErrorCode.UnknownError) {
     super()
-    this._code = code
+    this._xErrorCode = code
   }
 
-  get code() {
-    return this._code
+  get xErrorCode() {
+    return this._xErrorCode
   }
   get name() {
-    return this._code
+    return this._xErrorCode
   }
 }

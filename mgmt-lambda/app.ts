@@ -1,4 +1,8 @@
-import { APIGatewayEventRequestContextV2, APIGatewayProxyEventV2WithRequestContext } from 'aws-lambda'
+import {
+  APIGatewayEventRequestContextV2,
+  APIGatewayProxyEventV2WithRequestContext,
+  APIGatewayProxyResult,
+} from 'aws-lambda'
 import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
 import { getAuthSettings, retrieveAuthToken } from './auth'
 import type { DeploymentSettings } from './model/DeploymentSettings'
@@ -9,12 +13,17 @@ import { handleUpdate } from './handlers/updateHandler'
 import { LambdaClient } from '@aws-sdk/client-lambda'
 import { CloudFrontClient } from '@aws-sdk/client-cloudfront'
 
-export async function handler(event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>) {
+export async function handler(
+  event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>,
+): Promise<APIGatewayProxyResult> {
   const secretManagerClient = new SecretsManagerClient({ region: defaults.AWS_REGION })
 
   try {
     const authSettings = await getAuthSettings(secretManagerClient)
     const authToken = retrieveAuthToken(event)
+    if (!authToken || !authSettings.token) {
+      return handleNoAuthentication()
+    }
     if (authToken !== authSettings.token) {
       return handleNoAuthentication()
     }

@@ -156,5 +156,5 @@ async function checkIfLambdaFunctionWithNameExists(client: LambdaClient, functio
   const command = new GetFunctionCommand({ FunctionName: functionName })
   const result: GetFunctionCommandOutput = await client.send(command)
 
-  return typeof result?.Configuration?.FunctionArn !== 'undefined'
+  return typeof result?.Configuration?.FunctionArn !== 'undefined' && result?.Configuration?.FunctionArn !== null
 }
