@@ -137,11 +137,11 @@ async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName
   const result = await lambdaClient.send(command)
 
   if (!result) {
-    throw new ApiException(ErrorCode.FunctionARNNotFound)
+    throw new ApiException(ErrorCode.LambdaFunctionARNNotFound)
   }
 
   if (!result.FunctionArn) {
-    throw new ApiException(ErrorCode.FunctionARNNotFound)
+    throw new ApiException(ErrorCode.LambdaFunctionARNNotFound)
   }
 
   console.info(`Got Lambda function update result, functionARN: ${result.FunctionArn}`)

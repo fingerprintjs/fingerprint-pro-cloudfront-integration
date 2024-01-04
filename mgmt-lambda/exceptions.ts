@@ -7,20 +7,20 @@ export enum ErrorCode {
   CacheBehaviorNotFound = 'E5100',
   CacheBehaviorPatternNotDefined = 'E5200',
   LambdaFunctionAssociationNotFound = 'E6100',
-  FunctionARNNotFound = 'E7100',
+  LambdaFunctionARNNotFound = 'E7100',
 }
 
 export class ApiException extends Error {
-  protected _xErrorCode: ErrorCode
+  protected _code: ErrorCode
   constructor(code: ErrorCode = ErrorCode.UnknownError) {
     super()
-    this._xErrorCode = code
+    this._code = code
   }
 
-  get xErrorCode() {
-    return this._xErrorCode
+  get code() {
+    return this._code
   }
   get name() {
-    return this._xErrorCode
+    return this._code
   }
 }

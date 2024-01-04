@@ -198,7 +198,7 @@ describe('Handle mgmt-update', () => {
     try {
       await handleUpdate(lambdaClient, cloudFrontClient, settings)
     } catch (e: any) {
-      expect(e.xErrorCode).toEqual(ErrorCode.LambdaFunctionNotFound)
+      expect(e.code).toEqual(ErrorCode.LambdaFunctionNotFound)
     }
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
@@ -279,7 +279,7 @@ describe('Handle mgmt-update', () => {
     try {
       await handleUpdate(lambdaClient, cloudFrontClient, settings)
     } catch (e: any) {
-      expect(e.xErrorCode).toBe(ErrorCode.CacheBehaviorNotFound)
+      expect(e.code).toBe(ErrorCode.CacheBehaviorNotFound)
     }
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
@@ -350,7 +350,7 @@ describe('Handle mgmt-update', () => {
     try {
       await handleUpdate(lambdaClient, cloudFrontClient, settings)
     } catch (e: any) {
-      expect(e.xErrorCode).toBe(ErrorCode.LambdaFunctionAssociationNotFound)
+      expect(e.code).toBe(ErrorCode.LambdaFunctionAssociationNotFound)
     }
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)

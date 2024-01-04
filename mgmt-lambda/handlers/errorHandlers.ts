@@ -32,13 +32,13 @@ export async function handleWrongConfiguration(error: any): Promise<APIGatewayPr
 
 export function handleError(error: any): APIGatewayProxyResult {
   if (error.name?.includes('AccessDenied')) {
-    error.xErrorCode = ErrorCode.AWSAccessDenied
+    error.code = ErrorCode.AWSAccessDenied
   } else if (error.name === ResourceNotFoundException.name) {
-    error.xErrorCode = ErrorCode.AWSResourceNotFound
+    error.code = ErrorCode.AWSResourceNotFound
   }
   return {
     statusCode: 500,
-    body: JSON.stringify({ status: 'Error occurred', errorCode: error.xErrorCode || ErrorCode.UnknownError }),
+    body: JSON.stringify({ status: 'Error occurred', errorCode: error.code || ErrorCode.UnknownError }),
     headers: {
       'content-type': 'application/json',
     },
