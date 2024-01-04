@@ -380,7 +380,7 @@ describe('Update endpoint', () => {
     const result = await handler(event)
     console.info({ result })
     expect(result.statusCode).toBe(500)
-    expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.FunctionARNNotFound)
+    expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.LambdaFunctionARNNotFound)
   })
 })
 
