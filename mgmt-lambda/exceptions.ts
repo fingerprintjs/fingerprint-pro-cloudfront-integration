@@ -11,7 +11,7 @@ export enum ErrorCode {
 }
 
 export class ApiException extends Error {
-  protected readonly code: ErrorCode
+  public readonly code: ErrorCode
   constructor(code: ErrorCode = ErrorCode.UnknownError) {
     super()
     this.code = code
