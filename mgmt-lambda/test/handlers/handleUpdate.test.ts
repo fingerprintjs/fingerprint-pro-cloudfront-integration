@@ -193,13 +193,11 @@ describe('Handle mgmt-update', () => {
       })
       .resolves({})
 
-    expect.assertions(6)
-
-    try {
-      await handleUpdate(lambdaClient, cloudFrontClient, settings)
-    } catch (e: any) {
-      expect(e.code).toEqual(ErrorCode.LambdaFunctionNotFound)
-    }
+    await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
+      expect.objectContaining({
+        code: ErrorCode.LambdaFunctionNotFound,
+      }),
+    )
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 0)
@@ -274,13 +272,11 @@ describe('Handle mgmt-update', () => {
       },
     })
 
-    expect.assertions(6)
-
-    try {
-      await handleUpdate(lambdaClient, cloudFrontClient, settings)
-    } catch (e: any) {
-      expect(e.code).toBe(ErrorCode.CacheBehaviorNotFound)
-    }
+    await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
+      expect.objectContaining({
+        code: ErrorCode.CacheBehaviorNotFound,
+      }),
+    )
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 1)
@@ -345,13 +341,11 @@ describe('Handle mgmt-update', () => {
       },
     })
 
-    expect.assertions(6)
-
-    try {
-      await handleUpdate(lambdaClient, cloudFrontClient, settings)
-    } catch (e: any) {
-      expect(e.code).toBe(ErrorCode.LambdaFunctionAssociationNotFound)
-    }
+    await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
+      expect.objectContaining({
+        code: ErrorCode.LambdaFunctionAssociationNotFound,
+      }),
+    )
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 1)
