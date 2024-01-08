@@ -1,22 +1,31 @@
-import { APIGatewayProxyEventV2WithRequestContext, APIGatewayEventRequestContextV2 } from 'aws-lambda'
+import {
+  APIGatewayEventRequestContextV2,
+  APIGatewayProxyEventV2WithRequestContext,
+  APIGatewayProxyResult,
+} from 'aws-lambda'
 import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
 import { getAuthSettings, retrieveAuthToken } from './auth'
 import type { DeploymentSettings } from './model/DeploymentSettings'
-import { handleNoAthentication, handleWrongConfiguration, handleNotFound } from './handlers/errorHandlers'
+import { handleError, handleNoAuthentication, handleNotFound, handleWrongConfiguration } from './handlers/errorHandlers'
 import { defaults } from './DefaultSettings'
 import { handleStatus } from './handlers/statusHandler'
 import { handleUpdate } from './handlers/updateHandler'
 import { LambdaClient } from '@aws-sdk/client-lambda'
 import { CloudFrontClient } from '@aws-sdk/client-cloudfront'
 
-export async function handler(event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>) {
+export async function handler(
+  event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>,
+): Promise<APIGatewayProxyResult> {
   const secretManagerClient = new SecretsManagerClient({ region: defaults.AWS_REGION })
 
   try {
     const authSettings = await getAuthSettings(secretManagerClient)
     const authToken = retrieveAuthToken(event)
+    if (!authToken || !authSettings.token) {
+      return handleNoAuthentication()
+    }
     if (authToken !== authSettings.token) {
-      return handleNoAthentication()
+      return handleNoAuthentication()
     }
   } catch (error) {
     return handleWrongConfiguration(error)
@@ -35,7 +44,11 @@ export async function handler(event: APIGatewayProxyEventV2WithRequestContext<AP
   const cloudFrontClient = new CloudFrontClient({ region: defaults.AWS_REGION })
 
   if (path.startsWith('/update') && method === 'POST') {
-    return handleUpdate(lambdaClient, cloudFrontClient, deploymentSettings)
+    try {
+      return await handleUpdate(lambdaClient, cloudFrontClient, deploymentSettings)
+    } catch (e: any) {
+      return handleError(e)
+    }
   }
   if (path.startsWith('/status') && method === 'GET') {
     return handleStatus(lambdaClient, deploymentSettings)
@@ -63,10 +76,9 @@ function loadDeploymentSettings(): DeploymentSettings {
     throw new Error(`environment variables not found: ${vars}`)
   }
 
-  const settings: DeploymentSettings = {
+  return {
     CFDistributionId: cfDistributionId,
     LambdaFunctionArn: lambdaFunctionArn,
     LambdaFunctionName: lambdaFunctionName,
   }
-  return settings
 }
