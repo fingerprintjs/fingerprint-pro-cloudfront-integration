@@ -11,16 +11,12 @@ export enum ErrorCode {
 }
 
 export class ApiException extends Error {
-  protected _code: ErrorCode
+  protected readonly code: ErrorCode
   constructor(code: ErrorCode = ErrorCode.UnknownError) {
     super()
-    this._code = code
-  }
-
-  get code() {
-    return this._code
+    this.code = code
   }
   get name() {
-    return this._code
+    return this.code
   }
 }
