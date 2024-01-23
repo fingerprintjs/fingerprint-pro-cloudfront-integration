@@ -12,6 +12,7 @@ import {
   getApiKey,
   getLoaderVersion,
   removeTrailingSlashes,
+  setLogLevel,
 } from './utils'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
 import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
@@ -19,6 +20,7 @@ import { SecretsManagerVariables } from './utils/customer-variables/secrets-mana
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   const request = event.Records[0].cf.request
+  setLogLevel(request)
 
   const customerVariables = new CustomerVariables([
     new SecretsManagerVariables(request),
