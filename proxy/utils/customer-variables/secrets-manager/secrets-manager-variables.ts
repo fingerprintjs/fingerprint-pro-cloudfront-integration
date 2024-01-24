@@ -4,7 +4,6 @@ import { CloudFrontRequest } from 'aws-lambda'
 import { getHeaderValue } from '../../headers'
 import { retrieveSecret } from './retrieve-secret'
 import { NonNullableObject } from '../../types'
-import { createLogger } from '../../../logger'
 
 interface SecretsInfo {
   secretName: string | null
@@ -23,14 +22,14 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
     secretRegion: 'fpjs_secret_region',
   }
 
-  constructor(private readonly request: CloudFrontRequest, private readonly logger = createLogger()) {
+  constructor(private readonly request: CloudFrontRequest) {
     this.readSecretsInfoFromHeaders()
 
     if (SecretsManagerVariables.isValidSecretInfo(this.secretsInfo)) {
       try {
         this.secretsManager = new SecretsManagerClient({ region: this.secretsInfo.secretRegion })
       } catch (error) {
-        logger.error('Failed to create secrets manager', {
+        console.error('Failed to create secrets manager', {
           error,
           secretsInfo: this.secretsInfo,
         })
@@ -50,9 +49,9 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
     }
 
     try {
-      return await retrieveSecret(this.secretsManager, this.secretsInfo!.secretName!, this.logger)
+      return await retrieveSecret(this.secretsManager, this.secretsInfo!.secretName!)
     } catch (error) {
-      this.logger.error('Error retrieving secret from secrets manager', {
+      console.error('Error retrieving secret from secrets manager', {
         error,
         secretsInfo: this.secretsInfo,
       })

@@ -6,7 +6,6 @@ import {
 } from '@aws-sdk/client-secrets-manager'
 import { arrayBufferToString } from '../../buffer'
 import { validateSecret } from './validate-secret'
-import { Logger } from '../../../logger'
 
 interface CacheEntry {
   value: CustomerVariablesRecord | null
@@ -20,14 +19,14 @@ const cache = new Map<string, CacheEntry>()
 /**
  * Retrieves a secret from Secrets Manager and caches it or returns it from cache if it's still valid.
  * */
-export async function retrieveSecret(secretsManager: SecretsManagerClient, key: string, logger: Logger) {
+export async function retrieveSecret(secretsManager: SecretsManagerClient, key: string) {
   if (cache.has(key)) {
     const entry = cache.get(key)!
 
     return entry.value
   }
 
-  const result = await fetchSecret(secretsManager, key, logger)
+  const result = await fetchSecret(secretsManager, key)
 
   cache.set(key, {
     value: result,
@@ -44,11 +43,7 @@ function convertSecretToString(result: GetSecretValueCommandOutput): string {
   }
 }
 
-async function fetchSecret(
-  secretsManager: SecretsManagerClient,
-  key: string,
-  logger: Logger
-): Promise<CustomerVariablesRecord | null> {
+async function fetchSecret(secretsManager: SecretsManagerClient, key: string): Promise<CustomerVariablesRecord | null> {
   try {
     const command = new GetSecretValueCommand({
       SecretId: key,
@@ -65,7 +60,7 @@ async function fetchSecret(
     validateSecret(parsedSecret)
     return parsedSecret
   } catch (error) {
-    logger.error(`Failed to fetch and parse secret ${key}`, { error })
+    console.error(`Failed to fetch and parse secret ${key}`, { error })
 
     return null
   }

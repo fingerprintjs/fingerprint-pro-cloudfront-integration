@@ -12,6 +12,7 @@ import {
 } from './traffic'
 import { getAgentUri, getResultUri, getStatusUri } from './customer-variables/selectors'
 import { removeTrailingSlashes } from './routing'
+import { setLogLevel } from './log'
 
 export {
   getAgentUri,
@@ -29,4 +30,5 @@ export {
   addTrafficMonitoringSearchParamsForVisitorIdRequest,
   addTrafficMonitoringSearchParamsForProCDN,
   removeTrailingSlashes,
+  setLogLevel,
 }
