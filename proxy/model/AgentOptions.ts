@@ -1,5 +1,4 @@
 import { OutgoingHttpHeaders } from 'http'
-import { Logger } from '../logger'
 
 export interface AgentOptions {
   apiKey: string | undefined
@@ -7,5 +6,4 @@ export interface AgentOptions {
   loaderVersion: string | undefined
   method: string
   headers: OutgoingHttpHeaders
-  logger: Logger
 }
