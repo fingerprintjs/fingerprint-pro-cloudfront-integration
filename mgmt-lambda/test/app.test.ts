@@ -322,7 +322,7 @@ describe('Update endpoint', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
         Publish: true,
       })
@@ -363,7 +363,7 @@ describe('Update endpoint', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'incorrect',
         Publish: true,
       })
@@ -444,7 +444,7 @@ describe('Update endpoint', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
         Publish: true,
       })
@@ -486,7 +486,7 @@ describe('Update endpoint', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
         Publish: true,
       })
@@ -554,7 +554,7 @@ describe('Update endpoint', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
         Publish: true,
       })
