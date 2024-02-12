@@ -332,7 +332,7 @@ Resources:
       FunctionName: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: fingerprintjs-pro-cloudfront-mgmt-lambda-function.handler
       Runtime: nodejs20.x
-      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/mgmt_lambda_latest.zip
+      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/mgmt_lambda_latest.zip
       MemorySize: 128
       Timeout: 120
       Role: !GetAtt FpMgmtLambdaFunctionExecutionRole.Arn
