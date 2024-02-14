@@ -28,7 +28,7 @@ rule check_lambda {
         Properties {
             Handler == "fingerprintjs-pro-cloudfront-lambda-function.handler"
             Runtime == "nodejs20.x"
-            CodeUri == "s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/lambda-edge-latest.zip"
+            CodeUri == "s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/lambda_latest.zip"
             Timeout == 10
         }
     }
@@ -57,7 +57,7 @@ rule check_mgmt_lambda {
         Properties {
             Handler == "fingerprintjs-pro-cloudfront-mgmt-lambda-function.handler"
             Runtime == "nodejs20.x"
-            CodeUri == "s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/mgmt-lambda-latest.zip"
+            CodeUri == "s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/mgmt_lambda_latest.zip"
             Timeout == 120
         }
     }
