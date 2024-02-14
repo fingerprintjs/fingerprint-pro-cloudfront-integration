@@ -11,8 +11,6 @@ Parameters:
     Description: CloudFront distribution ID. Leave it empty to create a new distribution
     Default: ""
     Type: String
-  # Refer to the step 3 in the integration guide for these 4 parameters
-  # https://dev.fingerprint.com/docs/cloudfront-proxy-integration#step-3---create-a-new-secret-in-the-aws-secrets-manager
   FpjsBehaviorPath:
     AllowedPattern: ^([a-zA-Z0-9\-])+$
     Description: FPJS_BEHAVIOR_PATH value
@@ -29,12 +27,13 @@ Parameters:
     AllowedPattern: ^([a-zA-Z0-9\-])+$
     Description: FPJS_PRE_SHARED_SECRET value
     Type: String
+    NoEcho: true
   DomainNames:
-    Description: Domain names to attach to CloudFront distribution. Several domains names should be separated by plus sign (domain1.com+domain2.com)
+    Description: (Optional) Domain names to attach to CloudFront distribution. Several domains names should be separated by plus sign (domain1.com+domain2.com)
     Default: ""
     Type: String
   ACMCertificateARN:
-    Description: ARN of SSL certificate in AWS Certificate Manager (the certificate could be requested in the AWS Certifucate Manager or uploaded from the third-party service to AWS)
+    Description: (Optinal) ARN of SSL certificate in AWS Certificate Manager (the certificate could be requested in the AWS Certifucate Manager or uploaded from the third-party service to AWS).
     Default: ""
     Type: String
 
@@ -135,7 +134,7 @@ Resources:
       FunctionName: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: fingerprintjs-pro-cloudfront-lambda-function.handler
       Runtime: nodejs20.x
-      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/lambda-edge-latest.zip
+      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/lambda_latest.zip
       MemorySize: 128
       Timeout: 10
       Role: !GetAtt FpIntLambdaFunctionExecutionRole.Arn
@@ -267,14 +266,14 @@ Resources:
             Resource:
               Fn::Sub: ${MgmtSettingsSecret}
       - PolicyName: S3LambdaDistributionAccess
-        PolicyDocument:      
+        PolicyDocument:
           Version: '2012-10-17'
           Statement:
           - Effect: Allow
             Action:
               - s3:GetObject
               - s3:GetObjectVersion
-            Resource: arn:aws:s3:::fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip
+            Resource: arn:aws:s3:::fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/lambda_latest.zip
       - PolicyName: FpLambdaUpdate
         PolicyDocument:
           Version: '2012-10-17'
@@ -333,7 +332,7 @@ Resources:
       FunctionName: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: fingerprintjs-pro-cloudfront-mgmt-lambda-function.handler
       Runtime: nodejs20.x
-      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/mgmt-lambda-latest.zip
+      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/mgmt_lambda_latest.zip
       MemorySize: 128
       Timeout: 120
       Role: !GetAtt FpMgmtLambdaFunctionExecutionRole.Arn
