@@ -164,7 +164,7 @@ describe('Handle mgmt-update', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         Publish: true,
       })
@@ -224,7 +224,7 @@ describe('Handle mgmt-update', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         Publish: true,
       })
@@ -303,7 +303,7 @@ describe('Handle mgmt-update', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         Publish: true,
       })
@@ -400,7 +400,7 @@ describe('Handle mgmt-update', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         Publish: true,
       })
@@ -433,7 +433,7 @@ describe('Handle mgmt-update', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         Publish: true,
       })
@@ -496,7 +496,7 @@ describe('Handle mgmt-update', () => {
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'release/lambda_latest.zip',
+        S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         Publish: true,
       })

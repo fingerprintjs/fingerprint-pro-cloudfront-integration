@@ -47,6 +47,7 @@ export async function handler(
     try {
       return await handleUpdate(lambdaClient, cloudFrontClient, deploymentSettings)
     } catch (e: any) {
+      console.error(e)
       return handleError(e)
     }
   }
