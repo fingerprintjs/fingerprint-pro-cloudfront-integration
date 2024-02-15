@@ -2,6 +2,7 @@ import typescript from '@rollup/plugin-typescript'
 import jsonPlugin from '@rollup/plugin-json'
 import external from 'rollup-plugin-peer-deps-external'
 import licensePlugin from 'rollup-plugin-license'
+import dtsPlugin from 'rollup-plugin-dts'
 import replace from '@rollup/plugin-replace'
 import { join } from 'path'
 import nodeResolve from '@rollup/plugin-node-resolve'
@@ -80,6 +81,14 @@ function makeConfig(entryFile, artifactName) {
           inlineDynamicImports: true,
         },
       ],
+    },
+    {
+      ...commonInput,
+      plugins: [dtsPlugin(), commonBanner],
+      output: {
+        file: `${outputDirectory}/${artifactName}.d.ts`,
+        format: 'es',
+      },
     },
   ]
 }

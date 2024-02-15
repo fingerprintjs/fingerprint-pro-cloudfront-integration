@@ -59,6 +59,7 @@
     "prettier": "^2.8.8",
     "rimraf": "^5.0.5",
     "rollup": "^2.79.1",
+    "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-license": "^2.9.1",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "ts-jest": "^29.1.2",
