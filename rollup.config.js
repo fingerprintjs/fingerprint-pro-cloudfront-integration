@@ -11,6 +11,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+const { dependencies } = require('./package.json')
 const outputDirectory = 'dist'
 
 function getEnv(key, defaultValue) {
@@ -43,7 +44,7 @@ function makeConfig(entryFile, artifactName) {
    * */
   const commonInput = {
     input: entryFile,
-    external: ['aws-sdk', 'https'],
+    external: Object.keys(dependencies),
     plugins: [
       jsonPlugin(),
       typescript(),
