@@ -32,7 +32,11 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^18.6.1",
-    "@commitlint/config-conventional": "^18.6.2",
+    "@fingerprintjs/commit-lint-dx-team": "^0.0.2",
+    "@fingerprintjs/conventional-changelog-dx-team": "^0.1.0",
+    "@fingerprintjs/eslint-config-dx-team": "^0.1.0",
+    "@fingerprintjs/prettier-config-dx-team": "^0.1.0",
+    "@fingerprintjs/tsconfig-dx-team": "^0.0.2",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
