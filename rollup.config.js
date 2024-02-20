@@ -1,7 +1,8 @@
 import typescript from '@rollup/plugin-typescript'
 import jsonPlugin from '@rollup/plugin-json'
+import external from 'rollup-plugin-peer-deps-external'
 import licensePlugin from 'rollup-plugin-license'
-import dtsPlugin from 'rollup-plugin-dts'
+import { dts } from 'rollup-plugin-dts'
 import replace from '@rollup/plugin-replace'
 import { join } from 'path'
 import nodeResolve from '@rollup/plugin-node-resolve'
@@ -11,6 +12,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+const { dependencies } = require('./package.json')
 const outputDirectory = 'dist'
 
 function getEnv(key, defaultValue) {
@@ -43,10 +45,11 @@ function makeConfig(entryFile, artifactName) {
    * */
   const commonInput = {
     input: entryFile,
-    external: ['aws-sdk', 'https'],
+    external: Object.keys(dependencies),
     plugins: [
       jsonPlugin(),
       typescript(),
+      external(),
       nodeResolve({ preferBuiltins: false }),
       commonjs(),
       replace({
@@ -75,12 +78,13 @@ function makeConfig(entryFile, artifactName) {
           ...commonOutput,
           file: `${outputDirectory}/${artifactName}.js`,
           format: 'cjs',
+          inlineDynamicImports: true,
         },
       ],
     },
     {
       ...commonInput,
-      plugins: [dtsPlugin(), commonBanner],
+      plugins: [dts(), commonBanner],
       output: {
         file: `${outputDirectory}/${artifactName}.d.ts`,
         format: 'es',
