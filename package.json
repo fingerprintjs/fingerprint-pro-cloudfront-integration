@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "prepare": "husky install",
-    "build": "rimraf dist && NODE_OPTIONS=\"--max_old_space_size=4098\" rollup -c rollup.config.js",
+    "build": "rimraf dist && NODE_OPTIONS=\"--max_old_space_size=4098\" rollup -c rollup.config.js --bundleConfigAsCjs",
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore --max-warnings 0 .",
     "lint:fix": "pnpm lint --fix",
     "test": "jest",
@@ -34,6 +34,7 @@
     "winston": "^3.8.2"
   },
   "devDependencies": {
+    "@aws-sdk/types": "^3.515.0",
     "@commitlint/config-conventional": "^17.0.3",
     "@fingerprintjs/commit-lint-dx-team": "^0.0.2",
     "@fingerprintjs/conventional-changelog-dx-team": "^0.1.0",
@@ -59,7 +60,7 @@
     "jest-environment-jsdom": "^29.2.2",
     "lint-staged": "^13.0.3",
     "rimraf": "^5.0.5",
-    "rollup": "^2.70.1",
+    "rollup": "^3.29.4",
     "rollup-plugin-dts": "^5.0.0",
     "rollup-plugin-license": "^2.8.1",
     "rollup-plugin-peer-deps-external": "^2.2.4",
