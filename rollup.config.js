@@ -1,7 +1,8 @@
 import typescript from '@rollup/plugin-typescript'
 import jsonPlugin from '@rollup/plugin-json'
+import external from 'rollup-plugin-peer-deps-external'
 import licensePlugin from 'rollup-plugin-license'
-import dtsPlugin from 'rollup-plugin-dts'
+import { dts } from 'rollup-plugin-dts'
 import replace from '@rollup/plugin-replace'
 import { join } from 'path'
 import nodeResolve from '@rollup/plugin-node-resolve'
@@ -43,10 +44,11 @@ function makeConfig(entryFile, artifactName) {
    * */
   const commonInput = {
     input: entryFile,
-    external: ['aws-sdk', 'https'],
+    external: ['aws-sdk', 'https', '@aws-sdk/client-lambda', '@aws-sdk/client-codepipeline', '@aws-sdk/client-cloudfront'],
     plugins: [
       jsonPlugin(),
       typescript(),
+      external(),
       nodeResolve({ preferBuiltins: false }),
       commonjs(),
       replace({
@@ -75,12 +77,13 @@ function makeConfig(entryFile, artifactName) {
           ...commonOutput,
           file: `${outputDirectory}/${artifactName}.js`,
           format: 'cjs',
+          inlineDynamicImports: true,
         },
       ],
     },
     {
       ...commonInput,
-      plugins: [dtsPlugin(), commonBanner],
+      plugins: [dts(), commonBanner],
       output: {
         file: `${outputDirectory}/${artifactName}.d.ts`,
         format: 'es',
