@@ -43,7 +43,13 @@ function makeConfig(entryFile, artifactName) {
    * */
   const commonInput = {
     input: entryFile,
-    external: ['aws-sdk', 'https', '@aws-sdk/client-cloudfront', '@aws-sdk/client-codepipeline', '@aws-sdk/client-lambda'],
+    external: [
+      'aws-sdk',
+      'https',
+      '@aws-sdk/client-cloudfront',
+      '@aws-sdk/client-codepipeline',
+      '@aws-sdk/client-lambda',
+    ],
     plugins: [
       jsonPlugin(),
       typescript(),
@@ -81,11 +87,14 @@ function makeConfig(entryFile, artifactName) {
     },
     {
       ...commonInput,
-      plugins: [dts({
-        compilerOptions: {
-          preserveSymlinks: false
-        }
-      }), commonBanner],
+      plugins: [
+        dts({
+          compilerOptions: {
+            preserveSymlinks: false,
+          },
+        }),
+        commonBanner,
+      ],
       output: {
         file: `${outputDirectory}/${artifactName}.d.ts`,
         format: 'es',

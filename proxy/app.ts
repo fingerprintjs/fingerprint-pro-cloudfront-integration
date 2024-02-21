@@ -73,7 +73,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
     return new Promise((resolve) =>
       resolve({
         status: '404',
-      }),
+      })
     )
   }
 }

@@ -26,7 +26,7 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
   constructor(
     private readonly request: CloudFrontRequest,
     SecretsManagerImpl: typeof SecretsManager = SecretsManager,
-    private readonly logger = createLogger(),
+    private readonly logger = createLogger()
   ) {
     this.readSecretsInfoFromHeaders()
 
