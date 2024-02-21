@@ -19,6 +19,7 @@ import { SecretsManagerVariables } from './utils/customer-variables/secrets-mana
 import { createLogger } from './logger'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
+  console.log('hello')
   const request = event.Records[0].cf.request
 
   const logger = createLogger(request)
