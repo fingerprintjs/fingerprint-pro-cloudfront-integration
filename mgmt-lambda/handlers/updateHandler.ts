@@ -25,7 +25,7 @@ import { ApiException, ErrorCode } from '../exceptions'
 export async function handleUpdate(
   lambdaClient: LambdaClient,
   cloudFrontClient: CloudFrontClient,
-  settings: DeploymentSettings,
+  settings: DeploymentSettings
 ): Promise<APIGatewayProxyResult> {
   console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distribution.`)
   console.info(`Settings: ${JSON.stringify(settings)}`)
@@ -40,7 +40,7 @@ export async function handleUpdate(
     cloudFrontClient,
     settings.CFDistributionId,
     settings.LambdaFunctionName,
-    functionVersionArn,
+    functionVersionArn
   )
 
   return {
@@ -59,7 +59,7 @@ async function updateCloudFrontConfig(
   cloudFrontClient: CloudFrontClient,
   cloudFrontDistributionId: string,
   lambdaFunctionName: string,
-  latestFunctionArn: string,
+  latestFunctionArn: string
 ) {
   const configParams = {
     Id: cloudFrontDistributionId,
@@ -80,7 +80,7 @@ async function updateCloudFrontConfig(
   if (distributionConfig.DefaultCacheBehavior?.TargetOriginId === defaults.FP_CDN_URL) {
     fpCacheBehaviorsFound++
     const lambdas = distributionConfig.DefaultCacheBehavior.LambdaFunctionAssociations?.Items?.filter(
-      (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`),
+      (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`)
     )
     if (lambdas?.length === 1) {
       lambdas[0].LambdaFunctionARN = latestFunctionArn
@@ -89,7 +89,7 @@ async function updateCloudFrontConfig(
       console.info('Updated Fingerprint Pro Lambda@Edge function association in the default cache behavior')
     } else {
       console.info(
-        'The default cache behavior has targeted to FP CDN, but has no Fingerprint Pro Lambda@Edge association',
+        'The default cache behavior has targeted to FP CDN, but has no Fingerprint Pro Lambda@Edge association'
       )
     }
   }
@@ -99,7 +99,7 @@ async function updateCloudFrontConfig(
     fpCacheBehaviorsFound += fpCbs.length
     fpCbs.forEach((cacheBehavior) => {
       const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
-        (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`),
+        (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`)
       )
       if (lambdas?.length === 1) {
         lambdas[0].LambdaFunctionARN = latestFunctionArn
@@ -116,8 +116,8 @@ async function updateCloudFrontConfig(
       } else {
         console.info(
           `Cache behavior ${JSON.stringify(
-            cacheBehavior,
-          )} has targeted to FP CDN, but has no Fingerprint Pro Lambda@Edge association`,
+            cacheBehavior
+          )} has targeted to FP CDN, but has no Fingerprint Pro Lambda@Edge association`
         )
       }
     })
@@ -150,7 +150,7 @@ async function updateCloudFrontConfig(
 async function invalidateFingerprintIntegrationCache(
   cloudFrontClient: CloudFrontClient,
   distributionId: string,
-  pathPatterns: string[],
+  pathPatterns: string[]
 ) {
   const invalidationParams: CreateInvalidationCommandInput = {
     DistributionId: distributionId,

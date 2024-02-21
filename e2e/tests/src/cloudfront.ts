@@ -65,7 +65,7 @@ export async function waitForCloudfront(waitMs = 1000) {
 
         await wait(waitMs)
       })
-    }),
+    })
   )
 }
 

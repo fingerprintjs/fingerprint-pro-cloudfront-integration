@@ -17,7 +17,7 @@ describe('customer variables', () => {
     const customerVariables = new CustomerVariables([mockProvider])
 
     await expect(
-      customerVariables.getVariable(CustomerVariableType.PreSharedSecret).then((v) => v.value),
+      customerVariables.getVariable(CustomerVariableType.PreSharedSecret).then((v) => v.value)
     ).resolves.toBeNull()
   })
 })

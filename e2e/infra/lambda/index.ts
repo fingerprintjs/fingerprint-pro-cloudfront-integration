@@ -49,7 +49,7 @@ const lambdaRole = new aws.iam.Role(
   },
   {
     dependsOn: [secretPolicy],
-  },
+  }
 )
 
 const lambdaCodePaths = ['../../../dist', '../../dist']
@@ -73,7 +73,7 @@ const lambdaFunction = new aws.lambda.Function(
   },
   {
     retainOnDelete: true,
-  },
+  }
 )
 
 new aws.lambda.Permission(resource('lambda-permission'), {
