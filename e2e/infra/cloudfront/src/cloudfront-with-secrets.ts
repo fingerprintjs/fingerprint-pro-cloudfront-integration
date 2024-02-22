@@ -6,7 +6,7 @@ import { s3OriginId, websiteBucket } from './s3'
 import { lambdaCachePolicy, lambdaOriginPolicy } from './lambda'
 
 const { lambdaArn, secretName } = getStackOutput<{ lambdaArn: string; secretName: string }>(
-  path.resolve(__dirname, '../../lambda'),
+  path.resolve(__dirname, '../../lambda')
 )
 const region = aws.config.requireRegion()
 

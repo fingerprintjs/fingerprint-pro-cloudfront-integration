@@ -26,7 +26,7 @@ export function getMockSecretsManager() {
         toAwsResponse({
           SecretString: undefined,
           SecretBinary: undefined,
-        }),
+        })
       )
     },
     asError: (error: Error) => {
@@ -44,7 +44,7 @@ export function getMockSecretsManager() {
 export const mockRequest = (
   uri: string,
   querystring = 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-  method = 'POST',
+  method = 'POST'
 ) => {
   return {
     clientIp: '1.1.1.1',

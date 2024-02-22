@@ -70,7 +70,7 @@ export async function handler(event: any, ctx: any) {
   }
   const cacheBehavior = fpCbs[0]
   const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
-    (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(lambdaFunctionName),
+    (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(lambdaFunctionName)
   )
   if (!lambdas || lambdas?.length === 0) {
     return publishJobFailure(ctx, job, 'Lambda function association not found')
@@ -127,7 +127,7 @@ async function getLambdaLatestVersionArn(functionName: string): Promise<string |
   }
 
   const latest = result.Versions.filter((it) => it.Version && Number.isFinite(Number.parseInt(it.Version))).sort(
-    (a, b) => Number.parseInt(b.Version!!) - Number.parseInt(a.Version!!),
+    (a, b) => Number.parseInt(b.Version!!) - Number.parseInt(a.Version!!)
   )[0]
   return Promise.resolve(latest.FunctionArn)
 }

@@ -81,5 +81,5 @@ new aws.s3.BucketPolicy(
   },
   {
     dependsOn: [accessBlock],
-  },
+  }
 )

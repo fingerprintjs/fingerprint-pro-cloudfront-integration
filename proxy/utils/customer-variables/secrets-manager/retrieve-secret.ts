@@ -51,7 +51,7 @@ async function convertSecretToString(result: SecretsManager.GetSecretValueRespon
 async function fetchSecret(
   secretsManager: SecretsManager,
   key: string,
-  logger: Logger,
+  logger: Logger
 ): Promise<CustomerVariablesRecord | null> {
   try {
     const result = await secretsManager

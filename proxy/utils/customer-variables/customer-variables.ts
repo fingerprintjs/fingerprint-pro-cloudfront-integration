@@ -12,7 +12,10 @@ export interface GetVariableResult {
  * Variables will be resolved in order in which providers are set.
  * */
 export class CustomerVariables {
-  constructor(private readonly providers: CustomerVariableProvider[], private readonly logger = createLogger()) {}
+  constructor(
+    private readonly providers: CustomerVariableProvider[],
+    private readonly logger = createLogger()
+  ) {}
 
   /**
    * Attempts to resolve customer variable using providers.
