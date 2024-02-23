@@ -9,6 +9,6 @@ export function isBlob(value: unknown): value is Blob {
       typeof value === 'object' &&
       // In our case we only care about .text() method
       'text' in value &&
-      typeof (value as Blob).text === 'function',
+      typeof (value as Blob).text === 'function'
   )
 }

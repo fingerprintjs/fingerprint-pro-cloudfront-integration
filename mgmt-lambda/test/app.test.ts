@@ -119,10 +119,10 @@ describe('Check environment', () => {
     expect(result.statusCode).toBe(500)
     const response = JSON.parse(result.body)
     expect(response.status).toBe(
-      'Wrong function configuration. Check environment variables for Lambda@Edge function and CloudFront Distribution id',
+      'Wrong function configuration. Check environment variables for Lambda@Edge function and CloudFront Distribution id'
     )
     expect(response.error).toBe(
-      'environment variables not found: CFDistributionId, LambdaFunctionName, LambdaFunctionArn',
+      'environment variables not found: CFDistributionId, LambdaFunctionName, LambdaFunctionArn'
     )
   })
 
@@ -138,7 +138,7 @@ describe('Check environment', () => {
     expect(result.statusCode).toBe(500)
     const response = JSON.parse(result.body)
     expect(response.status).toBe(
-      'Wrong function configuration. Check environment variables for Lambda@Edge function and CloudFront Distribution id',
+      'Wrong function configuration. Check environment variables for Lambda@Edge function and CloudFront Distribution id'
     )
     expect(response.error).toBe('environment variables not found: CFDistributionId')
   })
@@ -156,7 +156,7 @@ describe('Check environment', () => {
     expect(result.statusCode).toBe(500)
     const response = JSON.parse(result.body)
     expect(response.status).toBe(
-      'Wrong function configuration. Check environment variables for Lambda@Edge function and CloudFront Distribution id',
+      'Wrong function configuration. Check environment variables for Lambda@Edge function and CloudFront Distribution id'
     )
     expect(response.error).toBe('environment variables not found: CFDistributionId')
   })
@@ -571,7 +571,7 @@ describe('Update endpoint', () => {
 function generateUpdateRequest(
   token: string,
   method: string = 'POST',
-  rawPath: string = '/update',
+  rawPath: string = '/update'
 ): APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2> {
   const requestContext: APIGatewayEventRequestContextV2 = {
     accountId: '1234567890',
@@ -610,7 +610,7 @@ function generateUpdateRequest(
 function generateStatusRequest(
   token: string,
   method: string = 'GET',
-  rawPath = '/status',
+  rawPath = '/status'
 ): APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2> {
   const requestContext: APIGatewayEventRequestContextV2 = {
     accountId: '1234567890',

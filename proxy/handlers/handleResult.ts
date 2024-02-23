@@ -51,7 +51,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
             body: payload.toString('base64'),
           })
         })
-      },
+      }
     )
 
     request.write(Buffer.from(options.body, 'base64'))

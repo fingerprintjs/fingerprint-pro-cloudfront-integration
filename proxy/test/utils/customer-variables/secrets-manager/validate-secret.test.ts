@@ -20,7 +20,7 @@ describe('Validate secret', () => {
     }
 
     expect(() => validateSecret(object)).toThrow(
-      'Secrets Manager secret contains an invalid value fpjs_behavior_path: [object Object]',
+      'Secrets Manager secret contains an invalid value fpjs_behavior_path: [object Object]'
     )
   })
 

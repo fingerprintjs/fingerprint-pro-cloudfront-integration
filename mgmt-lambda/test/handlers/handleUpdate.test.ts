@@ -198,7 +198,7 @@ describe('Handle mgmt-update', () => {
     await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
       expect.objectContaining({
         code: ErrorCode.LambdaFunctionNotFound,
-      }),
+      })
     )
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
@@ -277,7 +277,7 @@ describe('Handle mgmt-update', () => {
     await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
       expect.objectContaining({
         code: ErrorCode.CacheBehaviorNotFound,
-      }),
+      })
     )
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
@@ -346,7 +346,7 @@ describe('Handle mgmt-update', () => {
     await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
       expect.objectContaining({
         code: ErrorCode.LambdaFunctionAssociationNotFound,
-      }),
+      })
     )
 
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
@@ -366,7 +366,7 @@ describe('Handle mgmt-update', () => {
     await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
       expect.objectContaining({
         name: ResourceNotFoundException.name,
-      }),
+      })
     )
   })
 
@@ -380,7 +380,7 @@ describe('Handle mgmt-update', () => {
     await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
       expect.objectContaining({
         name: AccessDenied.name,
-      }),
+      })
     )
   })
 
@@ -413,7 +413,7 @@ describe('Handle mgmt-update', () => {
     await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
       expect.objectContaining({
         code: ErrorCode.CloudFrontDistributionNotFound,
-      }),
+      })
     )
   })
 
@@ -476,7 +476,7 @@ describe('Handle mgmt-update', () => {
     await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
       expect.objectContaining({
         code: ErrorCode.CacheBehaviorPatternNotDefined,
-      }),
+      })
     )
   })
 
@@ -505,7 +505,7 @@ describe('Handle mgmt-update', () => {
     await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
       expect.objectContaining({
         code: ErrorCode.LambdaFunctionARNNotFound,
-      }),
+      })
     )
   })
 })

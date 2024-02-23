@@ -4,7 +4,7 @@ import { LambdaClient, GetFunctionCommand } from '@aws-sdk/client-lambda'
 
 export async function handleStatus(
   lambdaClient: LambdaClient,
-  settings: DeploymentSettings,
+  settings: DeploymentSettings
 ): Promise<APIGatewayProxyResult> {
   const command = new GetFunctionCommand({ FunctionName: settings.LambdaFunctionName })
   try {

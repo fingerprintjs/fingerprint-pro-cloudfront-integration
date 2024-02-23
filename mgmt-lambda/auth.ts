@@ -31,7 +31,7 @@ export async function getAuthSettings(secretManagerClient: SecretsManagerClient)
 }
 
 export function retrieveAuthToken(
-  event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>,
+  event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>
 ): string {
   const authorization = event.headers['authorization']
   if (!authorization) {

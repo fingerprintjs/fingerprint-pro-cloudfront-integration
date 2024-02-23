@@ -62,7 +62,7 @@ describe('Download agent endpoint', () => {
     const [url] = requestSpy.mock.calls[0]
 
     expect(url.toString()).toEqual(
-      `https://${origin}/v3/ujKG34hUYKLJKJ1F?ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`,
+      `https://${origin}/v3/ujKG34hUYKLJKJ1F?ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`
     )
   })
 
@@ -78,7 +78,7 @@ describe('Download agent endpoint', () => {
     const [url] = requestSpy.mock.calls[0]
 
     expect(url.toString()).toEqual(
-      `https://${origin}/v5/ujKG34hUYKLJKJ1F?ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`,
+      `https://${origin}/v5/ujKG34hUYKLJKJ1F?ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`
     )
   })
 
@@ -94,7 +94,7 @@ describe('Download agent endpoint', () => {
     const [url] = requestSpy.mock.calls[0]
 
     expect(url.toString()).toEqual(
-      `https://${origin}/v5/ujKG34hUYKLJKJ1F/loader_v3.6.5.js?ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`,
+      `https://${origin}/v5/ujKG34hUYKLJKJ1F/loader_v3.6.5.js?ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`
     )
   })
 

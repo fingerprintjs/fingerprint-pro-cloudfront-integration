@@ -14,7 +14,7 @@ import { LambdaClient } from '@aws-sdk/client-lambda'
 import { CloudFrontClient } from '@aws-sdk/client-cloudfront'
 
 export async function handler(
-  event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>,
+  event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>
 ): Promise<APIGatewayProxyResult> {
   const secretManagerClient = new SecretsManagerClient({ region: defaults.AWS_REGION })
 

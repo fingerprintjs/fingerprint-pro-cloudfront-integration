@@ -40,7 +40,7 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
             body: body.toString('base64'),
           })
         })
-      },
+      }
     )
 
     request.on('error', (error) => {

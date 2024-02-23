@@ -27,7 +27,7 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
         isSet: Boolean(value.value),
         resolvedBy: value.resolvedBy,
       }
-    }),
+    })
   )
 
   return infoArray
@@ -50,7 +50,7 @@ function renderEnvInfo(envInfo: EnvVarInfo[]) {
       (info) => `
         <div class="env-info-item">
             ⚠️ <strong>${info.envVarName} </strong> is not defined${info.isSet ? ' and uses default value' : ''}
-        </div>`,
+        </div>`
     )
 
   return `
