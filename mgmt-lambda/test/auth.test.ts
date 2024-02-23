@@ -130,7 +130,7 @@ describe('test token retrieving', () => {
 })
 
 function generateRequestEvent(
-  headers: APIGatewayProxyEventHeaders,
+  headers: APIGatewayProxyEventHeaders
 ): APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2> {
   const requestContext: APIGatewayEventRequestContextV2 = {
     accountId: '1234567890',
