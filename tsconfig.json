@@ -9,7 +9,6 @@
     "noEmitOnError": true,
     "strict": true,
     "types": [
-      "@aws-sdk/types",
       "@types/aws-lambda",
       "@types/jest",
       "@types/node"
