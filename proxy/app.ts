@@ -19,6 +19,7 @@ import { HeaderCustomerVariables } from './utils/customer-variables/header-custo
 import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
+  console.log('test')
   const request = event.Records[0].cf.request
   setLogLevel(request)
 
