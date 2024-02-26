@@ -1,152 +1,150 @@
 import { CloudFrontRequest } from 'aws-lambda'
 import { CustomerVariables } from '../../../utils/customer-variables/customer-variables'
-//import { HeaderCustomerVariables } from '../../../utils/customer-variables/header-customer-variables'
+import { HeaderCustomerVariables } from '../../../utils/customer-variables/header-customer-variables'
 import { getAgentUri, getResultUri, getStatusUri } from '../../../utils'
 import { SecretsManagerVariables } from '../../../utils/customer-variables/secrets-manager/secrets-manager-variables'
 import { CustomerVariablesRecord, CustomerVariableType } from '../../../utils/customer-variables/types'
-//import { Blob } from 'buffer'
 import { clearSecretsCache } from '../../../utils/customer-variables/secrets-manager/retrieve-secret'
-//import { getBehaviorPath } from '../../../utils/customer-variables/selectors'
 import { mockClient } from 'aws-sdk-client-mock'
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
 import 'aws-sdk-client-mock-jest'
 
 describe('customer variables selectors', () => {
-  // describe('from headers', () => {
-  //   const getHeaderCustomerVariables = (request: CloudFrontRequest) =>
-  //     new CustomerVariables([new HeaderCustomerVariables(request)])
+  describe('from headers', () => {
+    const getHeaderCustomerVariables = (request: CloudFrontRequest) =>
+      new CustomerVariables([new HeaderCustomerVariables(request)])
 
-  //   test('positive scenario for custom origin', async () => {
-  //     const req: CloudFrontRequest = {
-  //       clientIp: '1.1.1.1',
-  //       method: 'GET',
-  //       uri: 'fpjs/agent',
-  //       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-  //       headers: {},
-  //       origin: {
-  //         custom: {
-  //           domainName: 'adewe.cloudfront.net',
-  //           keepaliveTimeout: 60,
-  //           path: '/',
-  //           port: 443,
-  //           protocol: 'https',
-  //           readTimeout: 60,
-  //           sslProtocols: ['TLSv2'],
-  //           customHeaders: {
-  //             fpjs_pre_shared_secret: [
-  //               {
-  //                 key: 'fpjs_pre_shared_secret',
-  //                 value: 'qwertyuio1356767',
-  //               },
-  //             ],
-  //             fpjs_agent_download_path: [
-  //               {
-  //                 key: 'fpjs_agent_download_path',
-  //                 value: 'greiodsfkljlds',
-  //               },
-  //             ],
-  //             fpjs_behavior_path: [
-  //               {
-  //                 key: 'fpjs_behavior_path',
-  //                 value: 'eifjdsnmzxcn',
-  //               },
-  //             ],
-  //             fpjs_get_result_path: [
-  //               {
-  //                 key: 'fpjs_get_result_path',
-  //                 value: 'eiwflsdkadlsjdsa',
-  //               },
-  //             ],
-  //           },
-  //         },
-  //       },
-  //     }
+    test('positive scenario for custom origin', async () => {
+      const req: CloudFrontRequest = {
+        clientIp: '1.1.1.1',
+        method: 'GET',
+        uri: 'fpjs/agent',
+        querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+        headers: {},
+        origin: {
+          custom: {
+            domainName: 'adewe.cloudfront.net',
+            keepaliveTimeout: 60,
+            path: '/',
+            port: 443,
+            protocol: 'https',
+            readTimeout: 60,
+            sslProtocols: ['TLSv2'],
+            customHeaders: {
+              fpjs_pre_shared_secret: [
+                {
+                  key: 'fpjs_pre_shared_secret',
+                  value: 'qwertyuio1356767',
+                },
+              ],
+              fpjs_agent_download_path: [
+                {
+                  key: 'fpjs_agent_download_path',
+                  value: 'greiodsfkljlds',
+                },
+              ],
+              fpjs_behavior_path: [
+                {
+                  key: 'fpjs_behavior_path',
+                  value: 'eifjdsnmzxcn',
+                },
+              ],
+              fpjs_get_result_path: [
+                {
+                  key: 'fpjs_get_result_path',
+                  value: 'eiwflsdkadlsjdsa',
+                },
+              ],
+            },
+          },
+        },
+      }
 
-  //     const customerVariables = getHeaderCustomerVariables(req)
+      const customerVariables = getHeaderCustomerVariables(req)
 
-  //     expect(await getAgentUri(customerVariables)).toBe('/eifjdsnmzxcn/greiodsfkljlds')
-  //     expect(await getResultUri(customerVariables)).toBe('/eifjdsnmzxcn/eiwflsdkadlsjdsa')
-  //     expect(await getStatusUri(customerVariables)).toBe('/eifjdsnmzxcn/status')
-  //   })
+      expect(await getAgentUri(customerVariables)).toBe('/eifjdsnmzxcn/greiodsfkljlds')
+      expect(await getResultUri(customerVariables)).toBe('/eifjdsnmzxcn/eiwflsdkadlsjdsa')
+      expect(await getStatusUri(customerVariables)).toBe('/eifjdsnmzxcn/status')
+    })
 
-  //   test('positive scenario for s3 origin', async () => {
-  //     const req: CloudFrontRequest = {
-  //       clientIp: '1.1.1.1',
-  //       method: 'GET',
-  //       uri: 'fpjs/agent',
-  //       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-  //       headers: {},
-  //       origin: {
-  //         s3: {
-  //           domainName: 'adewe.cloudfront.net',
-  //           path: '/',
-  //           region: 'us',
-  //           authMethod: 'none',
-  //           customHeaders: {
-  //             fpjs_pre_shared_secret: [
-  //               {
-  //                 key: 'fpjs_pre_shared_secret',
-  //                 value: 'qwertyuio1356767',
-  //               },
-  //             ],
-  //             fpjs_agent_download_path: [
-  //               {
-  //                 key: 'fpjs_agent_download_path',
-  //                 value: 'greiodsfkljlds',
-  //               },
-  //             ],
-  //             fpjs_behavior_path: [
-  //               {
-  //                 key: 'fpjs_behavior_path',
-  //                 value: 'eifjdsnmzxcn',
-  //               },
-  //             ],
-  //             fpjs_get_result_path: [
-  //               {
-  //                 key: 'fpjs_get_result_path',
-  //                 value: 'eiwflsdkadlsjdsa',
-  //               },
-  //             ],
-  //           },
-  //         },
-  //       },
-  //     }
+    test('positive scenario for s3 origin', async () => {
+      const req: CloudFrontRequest = {
+        clientIp: '1.1.1.1',
+        method: 'GET',
+        uri: 'fpjs/agent',
+        querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+        headers: {},
+        origin: {
+          s3: {
+            domainName: 'adewe.cloudfront.net',
+            path: '/',
+            region: 'us',
+            authMethod: 'none',
+            customHeaders: {
+              fpjs_pre_shared_secret: [
+                {
+                  key: 'fpjs_pre_shared_secret',
+                  value: 'qwertyuio1356767',
+                },
+              ],
+              fpjs_agent_download_path: [
+                {
+                  key: 'fpjs_agent_download_path',
+                  value: 'greiodsfkljlds',
+                },
+              ],
+              fpjs_behavior_path: [
+                {
+                  key: 'fpjs_behavior_path',
+                  value: 'eifjdsnmzxcn',
+                },
+              ],
+              fpjs_get_result_path: [
+                {
+                  key: 'fpjs_get_result_path',
+                  value: 'eiwflsdkadlsjdsa',
+                },
+              ],
+            },
+          },
+        },
+      }
 
-  //     const customerVariables = getHeaderCustomerVariables(req)
+      const customerVariables = getHeaderCustomerVariables(req)
 
-  //     expect(await getAgentUri(customerVariables)).toBe('/eifjdsnmzxcn/greiodsfkljlds')
-  //     expect(await getResultUri(customerVariables)).toBe('/eifjdsnmzxcn/eiwflsdkadlsjdsa')
-  //     expect(await getStatusUri(customerVariables)).toBe('/eifjdsnmzxcn/status')
-  //   })
+      expect(await getAgentUri(customerVariables)).toBe('/eifjdsnmzxcn/greiodsfkljlds')
+      expect(await getResultUri(customerVariables)).toBe('/eifjdsnmzxcn/eiwflsdkadlsjdsa')
+      expect(await getStatusUri(customerVariables)).toBe('/eifjdsnmzxcn/status')
+    })
 
-  //   test('no headers', async () => {
-  //     const req: CloudFrontRequest = {
-  //       clientIp: '1.1.1.1',
-  //       method: 'GET',
-  //       uri: 'fpjs/agent',
-  //       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-  //       headers: {},
-  //       origin: {
-  //         custom: {
-  //           domainName: 'adewe.cloudfront.net',
-  //           keepaliveTimeout: 60,
-  //           path: '/',
-  //           port: 443,
-  //           protocol: 'https',
-  //           readTimeout: 60,
-  //           sslProtocols: ['TLSv2'],
-  //           customHeaders: {},
-  //         },
-  //       },
-  //     }
+    test('no headers', async () => {
+      const req: CloudFrontRequest = {
+        clientIp: '1.1.1.1',
+        method: 'GET',
+        uri: 'fpjs/agent',
+        querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+        headers: {},
+        origin: {
+          custom: {
+            domainName: 'adewe.cloudfront.net',
+            keepaliveTimeout: 60,
+            path: '/',
+            port: 443,
+            protocol: 'https',
+            readTimeout: 60,
+            sslProtocols: ['TLSv2'],
+            customHeaders: {},
+          },
+        },
+      }
 
-  //     const customerVariables = getHeaderCustomerVariables(req)
+      const customerVariables = getHeaderCustomerVariables(req)
 
-  //     expect(await getAgentUri(customerVariables)).toBe('/fpjs/agent')
-  //     expect(await getResultUri(customerVariables)).toBe('/fpjs/resultId')
-  //     expect(await getStatusUri(customerVariables)).toBe('/fpjs/status')
-  //   })
-  // })
+      expect(await getAgentUri(customerVariables)).toBe('/fpjs/agent')
+      expect(await getResultUri(customerVariables)).toBe('/fpjs/resultId')
+      expect(await getStatusUri(customerVariables)).toBe('/fpjs/status')
+    })
+  })
 
   describe('from secrets manager', () => {
     const mock = mockClient(SecretsManagerClient)
