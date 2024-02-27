@@ -2,8 +2,8 @@ name: release
 on:
   push:
     branches:
-      - main
-      - rc
+      - v1/release
+      - rc-v1
 
 jobs:
   build-and-release:

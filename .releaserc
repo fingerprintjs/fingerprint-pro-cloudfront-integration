@@ -1,8 +1,8 @@
 {
   "branches": [
-    "main",
+    "v1/release",
     {
-      "name": "rc",
+      "name": "rc-v1",
       "prerelease": true
     }
   ],
