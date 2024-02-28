@@ -23,7 +23,7 @@ rule check_secret {
 }
 
 rule check_lambda {
-    Resources.FingerprintProCloudfrontLambda {
+    Resources.FingerprintProCloudFrontLambda {
         Type == "AWS::Serverless::Function"
         Properties {
             Handler == "fingerprintjs-pro-cloudfront-lambda-function.handler"
@@ -46,7 +46,7 @@ rule check_lambda_role {
 }
 
 rule check_lambda_version {
-    Resources.FingerprintProCloudfrontLambdaVersion {
+    Resources.FingerprintProCloudFrontLambdaVersion {
         Type == "AWS::Lambda::Version"        
     }
 }

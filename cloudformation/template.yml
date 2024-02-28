@@ -125,7 +125,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
-  FingerprintProCloudfrontLambda:
+  FingerprintProCloudFrontLambda:
     Type: AWS::Serverless::Function
     DependsOn:
       - FpIntLambdaFunctionExecutionRole
@@ -139,12 +139,12 @@ Resources:
       Timeout: 10
       Role: !GetAtt FpIntLambdaFunctionExecutionRole.Arn
 
-  FingerprintProCloudfrontLambdaVersion:  
+  FingerprintProCloudFrontLambdaVersion:  
     Type: AWS::Lambda::Version    
     DependsOn:
-      - FingerprintProCloudfrontLambda
+      - FingerprintProCloudFrontLambda
     Properties:
-      FunctionName: !Ref FingerprintProCloudfrontLambda
+      FunctionName: !Ref FingerprintProCloudFrontLambda
       Description: Lambda@Edge function's version reference (v1)
 
   ## CloudFront distribution and related settings
@@ -201,7 +201,7 @@ Resources:
           LambdaFunctionAssociations:
             - EventType: origin-request
               IncludeBody: true
-              LambdaFunctionARN: !Ref FingerprintProCloudfrontLambdaVersion                
+              LambdaFunctionARN: !Ref FingerprintProCloudFrontLambdaVersion                
           OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3 # Default AllViewer policy
           SmoothStreaming: false
           TargetOriginId: fpcdn.io
@@ -339,8 +339,8 @@ Resources:
       Environment:
         Variables:
           SettingsSecretName: !Ref MgmtSettingsSecret
-          LambdaFunctionName: !Ref FingerprintProCloudfrontLambda
-          LambdaFunctionArn: !GetAtt FingerprintProCloudfrontLambda.Arn
+          LambdaFunctionName: !Ref FingerprintProCloudFrontLambda
+          LambdaFunctionArn: !GetAtt FingerprintProCloudFrontLambda.Arn
           CFDistributionId: !If [CreateCloudFrontDistribution, !Ref CloudFrontDistribution, !Ref DistributionId]
 
   MgmtFunctionURL:
@@ -366,7 +366,7 @@ Outputs:
   LambdaFunctionName:
     Description: Fingerprint Pro Lambda function name
     Value:
-      Ref: FingerprintProCloudfrontLambda
+      Ref: FingerprintProCloudFrontLambda
     Export:
       Name: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
   CachePolicyName:
