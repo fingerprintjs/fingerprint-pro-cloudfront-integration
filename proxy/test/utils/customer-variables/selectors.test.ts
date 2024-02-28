@@ -5,8 +5,9 @@ import { getAgentUri, getResultUri, getStatusUri } from '../../../utils'
 import { SecretsManagerVariables } from '../../../utils/customer-variables/secrets-manager/secrets-manager-variables'
 import { CustomerVariablesRecord, CustomerVariableType } from '../../../utils/customer-variables/types'
 import { clearSecretsCache } from '../../../utils/customer-variables/secrets-manager/retrieve-secret'
-import { mockClient } from 'aws-sdk-client-mock'
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
+import { getBehaviorPath } from '../../../utils/customer-variables/selectors'
+import { mockClient } from 'aws-sdk-client-mock'
 import 'aws-sdk-client-mock-jest'
 
 describe('customer variables selectors', () => {
@@ -261,190 +262,201 @@ describe('customer variables selectors', () => {
       await runAssertions()
     })
 
-    // test('positive scenario for s3 origin with string secret', async () => {
-    //   const req: CloudFrontRequest = {
-    //     clientIp: '1.1.1.1',
-    //     method: 'GET',
-    //     uri: 'fpjs/agent',
-    //     querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-    //     headers: {},
-    //     origin: {
-    //       s3: {
-    //         domainName: 'adewe.cloudfront.net',
-    //         path: '/',
-    //         region: 'us',
-    //         authMethod: 'none',
-    //         customHeaders: {
-    //           fpjs_secret_name: [
-    //             {
-    //               key: 'fpjs_secret_name',
-    //               value: secretName,
-    //             },
-    //           ],
-    //           fpjs_secret_region: [
-    //             {
-    //               key: 'fpjs_secret_region',
-    //               value: secretRegion,
-    //             },
-    //           ],
-    //         },
-    //       },
-    //     },
-    //   }
+    test('positive scenario for s3 origin with string secret', async () => {
+      const req: CloudFrontRequest = {
+        clientIp: '1.1.1.1',
+        method: 'GET',
+        uri: 'fpjs/agent',
+        querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+        headers: {},
+        origin: {
+          s3: {
+            domainName: 'adewe.cloudfront.net',
+            path: '/',
+            region: 'us',
+            authMethod: 'none',
+            customHeaders: {
+              fpjs_secret_name: [
+                {
+                  key: 'fpjs_secret_name',
+                  value: secretName,
+                },
+              ],
+              fpjs_secret_region: [
+                {
+                  key: 'fpjs_secret_region',
+                  value: secretRegion,
+                },
+              ],
+            },
+          },
+        },
+      }
 
-    //   mock.on(GetSecretValueCommand, {
-    //     SecretId: secretName,
-    //   }).resolves({
-    //     SecretString: variablesRecordStr
-    //   })
+      mock
+        .on(GetSecretValueCommand, {
+          SecretId: secretName,
+        })
+        .resolves({
+          SecretString: variablesRecordStr,
+        })
 
-    //   await runAssertions(req)
-    // })
+      await runAssertions(req)
+    })
   })
 
-  // describe('from secrets manager and headers', () => {
-  //   const { send, MockSecretsManager, mockSecret } = getMockSecretsManager()
+  describe('from secrets manager and headers', () => {
+    const mock = mockClient(SecretsManagerClient)
+    //const client = new SecretsManagerClient({})
 
-  //   const getCustomerVariables = (request: CloudFrontRequest) =>
-  //     new CustomerVariables([
-  //       new SecretsManagerVariables(request, MockSecretsManager as any),
-  //       new HeaderCustomerVariables(request),
-  //     ])
+    const getCustomerVariables = (request: CloudFrontRequest) =>
+      new CustomerVariables([new SecretsManagerVariables(request), new HeaderCustomerVariables(request)])
 
-  //   const req: CloudFrontRequest = {
-  //     clientIp: '1.1.1.1',
-  //     method: 'GET',
-  //     uri: 'fpjs/agent',
-  //     querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-  //     headers: {},
-  //     origin: {
-  //       custom: {
-  //         domainName: 'adewe.cloudfront.net',
-  //         keepaliveTimeout: 60,
-  //         path: '/',
-  //         port: 443,
-  //         protocol: 'https',
-  //         readTimeout: 60,
-  //         sslProtocols: ['TLSv2'],
-  //         customHeaders: {
-  //           fpjs_pre_shared_secret: [
-  //             {
-  //               key: 'fpjs_pre_shared_secret',
-  //               value: 'qwertyuio1356767',
-  //             },
-  //           ],
-  //           fpjs_agent_download_path: [
-  //             {
-  //               key: 'fpjs_agent_download_path',
-  //               value: 'greiodsfkljlds',
-  //             },
-  //           ],
-  //           fpjs_behavior_path: [
-  //             {
-  //               key: 'fpjs_behavior_path',
-  //               value: 'eifjdsnmzxcn',
-  //             },
-  //           ],
-  //           fpjs_get_result_path: [
-  //             {
-  //               key: 'fpjs_get_result_path',
-  //               value: 'eiwflsdkadlsjdsa',
-  //             },
-  //           ],
-  //           fpjs_secret_name: [
-  //             {
-  //               key: 'fpjs_secret_name',
-  //               value: 'my_secret',
-  //             },
-  //           ],
-  //           fpjs_secret_region: [
-  //             {
-  //               key: 'fpjs_secret_region',
-  //               value: 'eu-west-1',
-  //             },
-  //           ],
-  //         },
-  //       },
-  //     },
-  //   }
+    const req: CloudFrontRequest = {
+      clientIp: '1.1.1.1',
+      method: 'GET',
+      uri: 'fpjs/agent',
+      querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+      headers: {},
+      origin: {
+        custom: {
+          domainName: 'adewe.cloudfront.net',
+          keepaliveTimeout: 60,
+          path: '/',
+          port: 443,
+          protocol: 'https',
+          readTimeout: 60,
+          sslProtocols: ['TLSv2'],
+          customHeaders: {
+            fpjs_pre_shared_secret: [
+              {
+                key: 'fpjs_pre_shared_secret',
+                value: 'qwertyuio1356767',
+              },
+            ],
+            fpjs_agent_download_path: [
+              {
+                key: 'fpjs_agent_download_path',
+                value: 'greiodsfkljlds',
+              },
+            ],
+            fpjs_behavior_path: [
+              {
+                key: 'fpjs_behavior_path',
+                value: 'eifjdsnmzxcn',
+              },
+            ],
+            fpjs_get_result_path: [
+              {
+                key: 'fpjs_get_result_path',
+                value: 'eiwflsdkadlsjdsa',
+              },
+            ],
+            fpjs_secret_name: [
+              {
+                key: 'fpjs_secret_name',
+                value: 'my_secret',
+              },
+            ],
+            fpjs_secret_region: [
+              {
+                key: 'fpjs_secret_region',
+                value: 'eu-west-1',
+              },
+            ],
+          },
+        },
+      },
+    }
 
-  //   beforeEach(() => {
-  //     clearSecretsCache()
+    beforeEach(() => {
+      clearSecretsCache()
 
-  //     MockSecretsManager.mockClear()
-  //     send.mockClear()
-  //   })
+      mock.reset()
+    })
 
-  //   it('should fallback to headers if secrets manager value is empty', async () => {
-  //     mockSecret.asUndefined()
+    it('should fallback to headers if secrets manager value is empty', async () => {
+      mock
+        .on(GetSecretValueCommand, {
+          SecretId: 'my_secret',
+        })
+        .resolves({})
 
-  //     const result = await getBehaviorPath(getCustomerVariables(req))
+      const result = await getBehaviorPath(getCustomerVariables(req))
 
-  //     expect(result).toBe('eifjdsnmzxcn')
-  //     expect(send).toHaveBeenCalledTimes(1)
-  //   })
+      expect(result).toBe('eifjdsnmzxcn')
+      expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 1)
+    })
 
-  //   it('should fallback to headers if secrets manager constructor throws', async () => {
-  //     MockSecretsManager.mockImplementation(() => {
-  //       throw new Error('error')
-  //     })
+    it('should fallback to headers if secrets manager constructor throws', async () => {
+      mock
+        .on(GetSecretValueCommand, {
+          SecretId: 'my_secret',
+        })
+        .rejects({})
 
-  //     const result = await getBehaviorPath(getCustomerVariables(req))
+      const result = await getBehaviorPath(getCustomerVariables(req))
 
-  //     expect(result).toBe('eifjdsnmzxcn')
-  //     expect(send).toHaveBeenCalledTimes(0)
-  //   })
+      expect(result).toBe('eifjdsnmzxcn')
+      expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 1)
+    })
 
-  //   it('should fallback to headers if secrets manager related headers are empty', async () => {
-  //     const req: CloudFrontRequest = {
-  //       clientIp: '1.1.1.1',
-  //       method: 'GET',
-  //       uri: 'fpjs/agent',
-  //       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
-  //       headers: {},
-  //       origin: {
-  //         custom: {
-  //           domainName: 'adewe.cloudfront.net',
-  //           keepaliveTimeout: 60,
-  //           path: '/',
-  //           port: 443,
-  //           protocol: 'https',
-  //           readTimeout: 60,
-  //           sslProtocols: ['TLSv2'],
-  //           customHeaders: {
-  //             fpjs_pre_shared_secret: [
-  //               {
-  //                 key: 'fpjs_pre_shared_secret',
-  //                 value: 'qwertyuio1356767',
-  //               },
-  //             ],
-  //             fpjs_agent_download_path: [
-  //               {
-  //                 key: 'fpjs_agent_download_path',
-  //                 value: 'greiodsfkljlds',
-  //               },
-  //             ],
-  //             fpjs_behavior_path: [
-  //               {
-  //                 key: 'fpjs_behavior_path',
-  //                 value: 'eifjdsnmzxcn',
-  //               },
-  //             ],
-  //             fpjs_get_result_path: [
-  //               {
-  //                 key: 'fpjs_get_result_path',
-  //                 value: 'eiwflsdkadlsjdsa',
-  //               },
-  //             ],
-  //           },
-  //         },
-  //       },
-  //     }
+    it('should fallback to headers if secrets manager related headers are empty', async () => {
+      mock
+        .on(GetSecretValueCommand, {
+          SecretId: 'my_secret',
+        })
+        .resolves({})
 
-  //     const result = await getBehaviorPath(getCustomerVariables(req))
+      const req: CloudFrontRequest = {
+        clientIp: '1.1.1.1',
+        method: 'GET',
+        uri: 'fpjs/agent',
+        querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+        headers: {},
+        origin: {
+          custom: {
+            domainName: 'adewe.cloudfront.net',
+            keepaliveTimeout: 60,
+            path: '/',
+            port: 443,
+            protocol: 'https',
+            readTimeout: 60,
+            sslProtocols: ['TLSv2'],
+            customHeaders: {
+              fpjs_pre_shared_secret: [
+                {
+                  key: 'fpjs_pre_shared_secret',
+                  value: 'qwertyuio1356767',
+                },
+              ],
+              fpjs_agent_download_path: [
+                {
+                  key: 'fpjs_agent_download_path',
+                  value: 'greiodsfkljlds',
+                },
+              ],
+              fpjs_behavior_path: [
+                {
+                  key: 'fpjs_behavior_path',
+                  value: 'eifjdsnmzxcn',
+                },
+              ],
+              fpjs_get_result_path: [
+                {
+                  key: 'fpjs_get_result_path',
+                  value: 'eiwflsdkadlsjdsa',
+                },
+              ],
+            },
+          },
+        },
+      }
 
-  //     expect(result).toBe('eifjdsnmzxcn')
-  //     expect(send).toHaveBeenCalledTimes(0)
-  //   })
-  // })
+      const result = await getBehaviorPath(getCustomerVariables(req))
+
+      expect(result).toBe('eifjdsnmzxcn')
+      expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 0)
+    })
+  })
 })
