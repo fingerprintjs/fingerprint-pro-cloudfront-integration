@@ -25,9 +25,6 @@ phases:
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
       - pnpm install
-      - pnpm -C infra install
-      - pnpm -C website install
-      - pnpm -C tests install
       - cd e2e/tests && npx playwright install --with-deps && cd ../..
       - UNPACK_TO_DIST=true node scripts/downloadGithubRelease.mjs
   pre_build:
