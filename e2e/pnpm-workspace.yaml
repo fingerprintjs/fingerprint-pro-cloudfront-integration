@@ -1,4 +1,4 @@
 packages:
-  - "infra/*"
-  - "tests/*"
-  - "website/*"
+  - infra
+  - tests
+  - website
