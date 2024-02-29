@@ -3,12 +3,12 @@
   "main": "index.ts",
   "license": "MIT",
   "scripts": {
-    "lambda:up": "cd lambda && yarn up",
-    "lambda:destroy": "cd lambda && yarn destroy",
-    "lambda:export": "cd lambda && yarn export",
-    "cloudfront:up": "cd cloudfront && yarn up",
-    "cloudfront:destroy": "cd cloudfront && yarn destroy",
-    "cloudfront:export": "cd cloudfront && yarn export"
+    "lambda:up": "cd lambda && pnpm up",
+    "lambda:destroy": "cd lambda && pnpm destroy",
+    "lambda:export": "cd lambda && pnpm export",
+    "cloudfront:up": "cd cloudfront && pnpm up",
+    "cloudfront:destroy": "cd cloudfront && pnpm destroy",
+    "cloudfront:export": "cd cloudfront && pnpm export"
   },
   "devDependencies": {
     "@types/node": "^20.11.24"
