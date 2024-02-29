@@ -20,6 +20,7 @@ import { SecretsManagerVariables } from './utils/customer-variables/secrets-mana
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   console.log('test')
+  console.log('test2')
   const request = event.Records[0].cf.request
   setLogLevel(request)
 
