@@ -62,7 +62,7 @@ if (!lambdaCodePath) {
 const lambdaFunction = new aws.lambda.Function(
   resource('lambda'),
   {
-    runtime: 'nodejs16.x',
+    runtime: 'nodejs20.x',
     code: new pulumi.asset.FileArchive(lambdaCodePath),
     role: lambdaRole.arn,
     handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
