@@ -23,16 +23,16 @@ phases:
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
-      - yarn install && yarn install --cwd=infra && yarn install --cwd=website && yarn install --cwd=tests
+      - pnpm install && pnpm install --cwd=infra && pnpm install --cwd=website && pnpm install --cwd=tests
       - cd tests && npx playwright install --with-deps && cd ..
   pre_build:
     commands:
       - pwd
       - pulumi version
-      - cd website && yarn build && cd ../
+      - cd website && pnpm build && cd ../
       - cd infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../
       - cd infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../
-      - cd infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../
+      - cd infra && pnpm lambda:up && pnpm lambda:export && pnpm cloudfront:up && pnpm cloudfront:export && cd ../
     finally:
       - |
         if [ "$CODEBUILD_BUILD_SUCCEEDING" -eq 0 ]; then
@@ -47,7 +47,7 @@ phases:
   build:
     commands:
       - ls -a
-      - cd tests && yarn test
+      - cd tests && pnpm test
     finally:
       - cd ../
       - echo $CODEBUILD_BUILD_SUCCEEDING
@@ -62,4 +62,4 @@ phases:
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_SHA \
           -d "{\"state\":\"$STATUS\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/$AWS_ACCOUNT_ID/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests finished\",\"context\":\"e2e\"}"
-      - cd infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../
+      - cd infra && pnpm cloudfront:destroy && pnpm lambda:destroy && cd ../
