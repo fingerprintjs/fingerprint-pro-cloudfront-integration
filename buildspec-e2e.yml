@@ -24,16 +24,17 @@ phases:
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
-      - pnpm install
-      - cd tests && npx playwright install --with-deps && cd ..
   pre_build:
     commands:
       - pwd
+      - ls -lah
       - pulumi version
-      - cd website && pnpm build && cd ../
-      - cd infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../
-      - cd infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../
-      - cd infra && pnpm lambda:up && pnpm lambda:export && pnpm cloudfront:up && pnpm cloudfront:export && cd ../
+      - pnpm install
+      - pnpm -C website install && pnpm -C website build
+      - cd tests && pnpm install && npx playwright install --with-deps && cd ..
+      - cd infra/lambda && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd ../../
+      - cd infra/cloudfront && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd ../../
+      - cd infra && pnpm install && pnpm run lambda:up && pnpm run lambda:export && pnpm run cloudfront:up && pnpm run cloudfront:export && cd ../
     finally:
       - |
         if [ "$CODEBUILD_BUILD_SUCCEEDING" -eq 0 ]; then
