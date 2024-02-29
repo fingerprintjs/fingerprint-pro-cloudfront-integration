@@ -11,11 +11,11 @@
     "cloudfront:export": "cd cloudfront && yarn export"
   },
   "devDependencies": {
-    "@types/node": "^18.11.9"
+    "@types/node": "^20.11.24"
   },
   "dependencies": {
-    "@pulumi/pulumi": "^3.0.0",
     "@pulumi/aws": "^5.41.0",
-    "@pulumi/awsx": "^1.0.2"
+    "@pulumi/awsx": "^1.0.2",
+    "@pulumi/pulumi": "^3.0.0"
   }
 }
