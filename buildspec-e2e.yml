@@ -1,6 +1,8 @@
 version: 0.2
 phases:
   install:
+    runtime-versions:
+      nodejs: 20
     commands:
       - |
         COMMIT_MESSAGE=$(git log -1 --pretty=%B)
