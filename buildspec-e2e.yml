@@ -23,7 +23,7 @@ phases:
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
-      - pnpm install && pnpm install --cwd=infra && pnpm install --cwd=website && pnpm install --cwd=tests
+      - pnpm install && pnpm -C infra install && pnpm -C website install && pnpm -C tests install
       - cd tests && npx playwright install --with-deps && cd ..
   pre_build:
     commands:
