@@ -4,6 +4,8 @@ env:
     GITHUB_TOKEN: "fpjs-dev-cloudfront-secrets:GITHUB_TOKEN"
 phases:
   install:
+    runtime-versions:
+      nodejs: 20
     commands:
       - export COMMIT_SHA=$(cat meta.json | jq -r '.sha')
       - echo $COMMIT_SHA
@@ -21,12 +23,13 @@ phases:
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
+      - node -v
       - yarn install && yarn install --cwd=infra && yarn install --cwd=website && yarn install --cwd=tests
       - cd tests && npx playwright install --with-deps && cd ..
   pre_build:
     commands:
       - pwd
-      - pulumi version
+      - pulumi version      
       - cd website && yarn build && cd ../
       - cd infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../
       - cd infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../
