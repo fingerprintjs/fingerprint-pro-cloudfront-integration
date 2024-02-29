@@ -24,20 +24,20 @@ jobs:
         id: date
         run: echo "today=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_OUTPUT
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - name: Get pnpm store directory path
+        id: pnpm-store-dir-path
+        run: echo "dir=$(pnpm store path)" >> $GITHUB_OUTPUT
       - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        id: pnpm-cache # use this to check for `cache-hit` (`steps.pnpm-cache.outputs.cache-hit != 'true'`)
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: ${{ steps.pnpm-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
       - name: Build
-        run: yarn build
+        run: pnpm build
         env:
           FPCDN: ${{ secrets.FPCDN }}
           INGRESS_API: ${{ secrets.INGRESS_API }}
@@ -48,7 +48,7 @@ jobs:
           GITHUB_REAL_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
 
       - name: Prepare e2e directory
-        run: cp -r dist e2e && cp package.json e2e && cp yarn.lock e2e
+        run: cp -r dist e2e && cp package.json e2e && cp pnpm-lock.yaml e2e
 
       - name: Deploy
         uses: s0/git-publish-subdir-action@92faf786f11dfa44fc366ac3eb274d193ca1af7e
