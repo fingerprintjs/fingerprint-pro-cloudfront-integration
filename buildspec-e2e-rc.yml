@@ -4,6 +4,8 @@ env:
     GITHUB_TOKEN: "fpjs-dev-cloudfront-secrets:GITHUB_TOKEN"
 phases:
   install:
+    runtime-versions:
+      nodejs: 20
     commands:
       - echo $COMMIT_ID
       - echo $CODEBUILD_SOURCE_VERSION

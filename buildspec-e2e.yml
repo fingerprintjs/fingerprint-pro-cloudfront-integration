@@ -4,6 +4,8 @@ env:
     GITHUB_TOKEN: "fpjs-dev-cloudfront-secrets:GITHUB_TOKEN"
 phases:
   install:
+    runtime-versions:
+      nodejs: 20
     commands:
       - export COMMIT_SHA=$(cat meta.json | jq -r '.sha')
       - echo $COMMIT_SHA
