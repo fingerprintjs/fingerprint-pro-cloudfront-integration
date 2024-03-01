@@ -19,7 +19,7 @@ phases:
           -H "Authorization: Bearer $GITHUB_TOKEN"\
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_SHA \
-          -d "{\"state\":\"pending\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/$AWS_ACCOUNT_ID/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests are running\",\"context\":\"e2e\"}"
+          -d "{\"state\":\"pending\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests are running\",\"context\":\"e2e\"}"
       - ls -a
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
@@ -44,7 +44,7 @@ phases:
             -H "Authorization: Bearer $GITHUB_TOKEN"\
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_SHA \
-            -d "{\"state\":\"error\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/$AWS_ACCOUNT_ID/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests failed during the pre-build step\",\"context\":\"e2e\"}"
+            -d "{\"state\":\"error\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests failed during the pre-build step\",\"context\":\"e2e\"}"
         fi
   build:
     commands:
@@ -63,5 +63,5 @@ phases:
           -H "Authorization: Bearer $GITHUB_TOKEN"\
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_SHA \
-          -d "{\"state\":\"$STATUS\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/$AWS_ACCOUNT_ID/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests finished\",\"context\":\"e2e\"}"
+          -d "{\"state\":\"$STATUS\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests finished\",\"context\":\"e2e\"}"
       - cd infra && pnpm cloudfront:destroy && pnpm lambda:destroy && cd ../
