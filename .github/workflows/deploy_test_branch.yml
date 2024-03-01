@@ -15,13 +15,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install node.js
-        uses: actions/setup-node@v3
+      - name: 'Install pnpm'
+        uses: pnpm/action-setup@ebcfd6995dade4b0104ac774445cef8b3b4635b0
         with:
-          node-version-file: '.node-version'
+          version: 8
 
-      - name: Install pnpm
-        run: npm i -g pnpm
+      - name: 'Install latest node version'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.nodeVersion }}
+          cache: ${{ env.PACKAGE_MANAGER }}
 
       - name: Get current date
         id: date
