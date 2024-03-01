@@ -12,23 +12,22 @@ import {
   getApiKey,
   getLoaderVersion,
   removeTrailingSlashes,
+  setLogLevel,
 } from './utils'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
 import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
 import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
-import { createLogger } from './logger'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   const request = event.Records[0].cf.request
-
-  const logger = createLogger(request)
+  setLogLevel(request)
 
   const customerVariables = new CustomerVariables([
     new SecretsManagerVariables(request),
     new HeaderCustomerVariables(request),
   ])
 
-  logger.debug('Handling request', request)
+  console.debug('Handling request', request)
 
   const resultUri = await getResultUri(customerVariables)
   const resultUriRegex = new RegExp(`^${resultUri}(/.*)?$`)
@@ -39,12 +38,11 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
 
   if (pathname === agentUri) {
     return downloadAgent({
-      apiKey: getApiKey(request, logger),
-      version: getVersion(request, logger),
-      loaderVersion: getLoaderVersion(request, logger),
+      apiKey: getApiKey(request),
+      version: getVersion(request),
+      loaderVersion: getLoaderVersion(request),
       method: request.method,
       headers: filterRequestHeaders(request),
-      logger,
     })
   } else if (resultPathMatches?.length) {
     let suffix = ''
@@ -55,12 +53,11 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       suffix = '/' + suffix
     }
     return handleResult({
-      region: getRegion(request, logger),
+      region: getRegion(request),
       querystring: request.querystring,
       method: request.method,
       headers: await prepareHeadersForIngressAPI(request, customerVariables),
       body: request.body?.data || '',
-      logger,
       suffix,
     })
   } else {
@@ -73,7 +70,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
     return new Promise((resolve) =>
       resolve({
         status: '404',
-      }),
+      })
     )
   }
 }

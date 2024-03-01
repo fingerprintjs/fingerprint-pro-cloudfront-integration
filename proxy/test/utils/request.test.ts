@@ -1,8 +1,5 @@
 import { getApiKey, getLoaderVersion, getRegion } from '../../utils/request'
 import { CloudFrontRequest } from 'aws-lambda'
-import { createLogger } from '../../logger'
-
-const logger = createLogger()
 
 describe('api key', () => {
   test('api key is not defined', () => {
@@ -13,7 +10,7 @@ describe('api key', () => {
       querystring: 'version=3&loaderVersion=3.6.2',
       headers: {},
     }
-    expect(getApiKey(req, logger)).toBe(undefined)
+    expect(getApiKey(req)).toBe(undefined)
   })
 
   test('api key is present', () => {
@@ -24,7 +21,7 @@ describe('api key', () => {
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
       headers: {},
     }
-    expect(getApiKey(req, logger)).toBe('ujKG34hUYKLJKJ1F')
+    expect(getApiKey(req)).toBe('ujKG34hUYKLJKJ1F')
   })
 })
 
@@ -37,7 +34,7 @@ describe('loader version', () => {
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3',
       headers: {},
     }
-    expect(getLoaderVersion(req, logger)).toBe(undefined)
+    expect(getLoaderVersion(req)).toBe(undefined)
   })
 
   test('loader version is present', () => {
@@ -48,7 +45,7 @@ describe('loader version', () => {
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
       headers: {},
     }
-    expect(getLoaderVersion(req, logger)).toBe('3.6.2')
+    expect(getLoaderVersion(req)).toBe('3.6.2')
   })
 })
 
@@ -61,7 +58,7 @@ describe('region', () => {
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3',
       headers: {},
     }
-    expect(getRegion(req, logger)).toBe('us')
+    expect(getRegion(req)).toBe('us')
   })
 
   test('region is present', () => {
@@ -72,7 +69,7 @@ describe('region', () => {
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2&region=eu',
       headers: {},
     }
-    expect(getRegion(req, logger)).toBe('eu')
+    expect(getRegion(req)).toBe('eu')
   })
 
   test('wrong region', () => {
@@ -83,6 +80,6 @@ describe('region', () => {
       querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2&region=bar.baz/foo',
       headers: {},
     }
-    expect(getRegion(req, logger)).toBe('us')
+    expect(getRegion(req)).toBe('us')
   })
 })

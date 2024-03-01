@@ -14,4 +14,4 @@ jobs:
       pull-requests: write
     uses: fingerprintjs/dx-team-toolkit/.github/workflows/coverage-diff.yml@v1
     with:
-      nodeVersion: 16
+      nodeVersion: 20

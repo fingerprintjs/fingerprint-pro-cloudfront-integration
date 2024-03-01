@@ -49,7 +49,7 @@ const lambdaRole = new aws.iam.Role(
   },
   {
     dependsOn: [secretPolicy],
-  },
+  }
 )
 
 const lambdaCodePaths = ['../../../dist', '../../dist']
@@ -62,7 +62,7 @@ if (!lambdaCodePath) {
 const lambdaFunction = new aws.lambda.Function(
   resource('lambda'),
   {
-    runtime: 'nodejs16.x',
+    runtime: 'nodejs20.x',
     code: new pulumi.asset.FileArchive(lambdaCodePath),
     role: lambdaRole.arn,
     handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
@@ -73,7 +73,7 @@ const lambdaFunction = new aws.lambda.Function(
   },
   {
     retainOnDelete: true,
-  },
+  }
 )
 
 new aws.lambda.Permission(resource('lambda-permission'), {

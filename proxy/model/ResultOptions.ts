@@ -1,5 +1,4 @@
 import { OutgoingHttpHeaders } from 'http'
-import { Logger } from '../logger'
 import { Region } from './'
 
 export interface ResultOptions {
@@ -8,6 +7,5 @@ export interface ResultOptions {
   method: string
   headers: OutgoingHttpHeaders
   body: string
-  logger: Logger
   suffix: string
 }

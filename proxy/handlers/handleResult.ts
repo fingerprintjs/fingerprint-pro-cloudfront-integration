@@ -7,7 +7,7 @@ import { updateResponseHeaders, addTrafficMonitoringSearchParamsForVisitorIdRequ
 
 export function handleResult(options: ResultOptions): Promise<CloudFrontResultResponse> {
   return new Promise((resolve) => {
-    options.logger.debug('Handling result:', { options })
+    console.debug('Handling result:', { options })
 
     const data: any[] = []
 
@@ -24,7 +24,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
       })
     addTrafficMonitoringSearchParamsForVisitorIdRequest(url)
 
-    options.logger.debug(`Performing request: ${url.toString()}`)
+    console.debug(`Performing request: ${url.toString()}`)
 
     const request = https.request(
       url,
@@ -38,7 +38,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
         response.on('end', () => {
           const payload = Buffer.concat(data)
 
-          options.logger.debug('Response from Ingress API', {
+          console.debug('Response from Ingress API', {
             statusCode: response.statusCode,
             payload: payload.toString('utf-8'),
           })
@@ -51,13 +51,13 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
             body: payload.toString('base64'),
           })
         })
-      },
+      }
     )
 
     request.write(Buffer.from(options.body, 'base64'))
 
     request.on('error', (error) => {
-      options.logger.error('unable to handle result', { error })
+      console.error('unable to handle result', { error })
       resolve({
         status: '500',
         statusDescription: 'Bad request',

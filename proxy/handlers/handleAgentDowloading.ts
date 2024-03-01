@@ -12,7 +12,7 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
     url.pathname = getEndpoint(options.apiKey, options.version, options.loaderVersion)
     addTrafficMonitoringSearchParamsForProCDN(url)
 
-    options.logger.debug(`Downloading agent from: ${url.toString()}`)
+    console.debug(`Downloading agent from: ${url.toString()}`)
 
     const request = https.request(
       url,
@@ -40,11 +40,11 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
             body: body.toString('base64'),
           })
         })
-      },
+      }
     )
 
     request.on('error', (error) => {
-      options.logger.error('unable to download agent', { error })
+      console.error('unable to download agent', { error })
       resolve({
         status: '500',
         statusDescription: 'Bad request',
