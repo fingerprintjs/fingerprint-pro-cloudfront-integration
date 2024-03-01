@@ -30,8 +30,8 @@ phases:
       - echo $mgmtDiffStatus
       - echo $templateDiffStatus
 
-      - >-
-        echo "Processing fingerprintjs-pro-cloudfront-lambda-function.js"
+      - echo "Processing fingerprintjs-pro-cloudfront-lambda-function.js"
+      - >-        
         if [ $diffStatus -eq 0 ]; then
           echo "Files are the same. Don't need to upload the file."
         elif [ $diffStatus -eq 1 ]; then
@@ -41,8 +41,8 @@ phases:
           echo "There was something wrong with the diff command."
         fi
 
-      - >-
-        echo "Processing fingerprintjs-pro-cloudfront-mgmt-lambda-function.js"
+      - echo "Processing fingerprintjs-pro-cloudfront-mgmt-lambda-function.js"
+      - >-        
         if [ $mgmtDiffStatus -eq 0 ]; then
           echo "Files are the same. Don't need to upload the file."
         elif [ $mgmtDiffStatus -eq 1 ]; then
@@ -52,8 +52,8 @@ phases:
           echo "There was something wrong with the diff command."
         fi
 
-      - >-
-        echo "Processing template.yml"
+      - echo "Processing template.yml"
+      - >-        
         if [ $templateDiffStatus -eq 0 ]; then
           echo "Files are the same. Don't need to upload the file."
         elif [ $templateDiffStatus -eq 1 ]; then
