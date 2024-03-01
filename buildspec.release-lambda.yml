@@ -6,8 +6,8 @@ phases:
       nodejs: 20
   build:
     commands:
-      - npm i -g yarn
-      - yarn install
+      - npm i -g pnpm
+      - pnpm install
       - node scripts/downloadGithubRelease.mjs
       - unzip package.zip -d dist
       - cd dist

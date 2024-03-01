@@ -1,11 +1,9 @@
-  {
+{
   "name": "e2e-tests",
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
-    "@playwright/test": "^1.29.0",
-    "@types/node-fetch": "^2.6.2",
-    "node-fetch": "^2.6.7"
+    "@playwright/test": "^1.42.0"
   },
   "scripts": {
     "test": "playwright test"
