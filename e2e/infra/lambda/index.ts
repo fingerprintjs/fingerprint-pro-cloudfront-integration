@@ -52,7 +52,11 @@ const lambdaRole = new aws.iam.Role(
   }
 )
 
-const lambdaCodePaths = ['../../../dist', '../../dist']
+const distDir = process.env.DIST_DIR ?? 'dist'
+
+console.info('distDir', distDir)
+
+const lambdaCodePaths = [`../../../${distDir}`, `../../${distDir}`]
 const lambdaCodePath = lambdaCodePaths.find((lambdaPath) => fs.existsSync(lambdaPath))
 
 if (!lambdaCodePath) {
