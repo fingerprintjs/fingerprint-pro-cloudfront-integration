@@ -28,6 +28,8 @@ function getEnv(key, defaultValue) {
     return defaultValue
   }
 
+  console.info(`Using environment variable "${key}" with value: ${value}`)
+
   return value
 }
 
