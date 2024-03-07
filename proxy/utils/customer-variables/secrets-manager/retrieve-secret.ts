@@ -6,6 +6,7 @@ import {
 } from '@aws-sdk/client-secrets-manager'
 import { arrayBufferToString } from '../../buffer'
 import { validateSecret } from './validate-secret'
+import { normalizeSecret } from './normalize-secret'
 
 interface CacheEntry {
   value: CustomerVariablesRecord | null
@@ -56,7 +57,7 @@ async function fetchSecret(secretsManager: SecretsManagerClient, key: string): P
       return null
     }
 
-    const parsedSecret: CustomerVariablesRecord = JSON.parse(secretString)
+    const parsedSecret = normalizeSecret(secretString)
     validateSecret(parsedSecret)
     return parsedSecret
   } catch (error) {
