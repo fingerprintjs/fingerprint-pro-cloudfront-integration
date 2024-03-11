@@ -4,6 +4,7 @@ import { CloudFrontRequest } from 'aws-lambda'
 import { getHeaderValue } from '../../headers'
 import { retrieveSecret } from './retrieve-secret'
 import { NonNullableObject } from '../../types'
+import { DEFAULT_REGION, SECRET_NAME_HEADER_KEY } from '../defaults'
 
 interface SecretsInfo {
   secretName: string | null
@@ -16,11 +17,6 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
   private secretsInfo?: SecretsInfo
 
   private readonly secretsManager?: SecretsManagerClient
-
-  private headers: Record<keyof SecretsInfo, string> = {
-    secretName: 'fpjs_secret_name',
-    secretRegion: 'fpjs_secret_region',
-  }
 
   constructor(private readonly request: CloudFrontRequest) {
     this.readSecretsInfoFromHeaders()
@@ -63,8 +59,8 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
   private readSecretsInfoFromHeaders() {
     if (!this.secretsInfo) {
       this.secretsInfo = {
-        secretName: getHeaderValue(this.request, this.headers.secretName),
-        secretRegion: getHeaderValue(this.request, this.headers.secretRegion),
+        secretName: getHeaderValue(this.request, SECRET_NAME_HEADER_KEY),
+        secretRegion: DEFAULT_REGION,
       }
     }
   }
