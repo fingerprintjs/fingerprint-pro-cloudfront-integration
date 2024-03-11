@@ -10,3 +10,6 @@ const defaultCustomerVariables: Record<CustomerVariableType, CustomerVariableVal
 export function getDefaultCustomerVariable(variable: CustomerVariableType): CustomerVariableValue {
   return defaultCustomerVariables[variable]
 }
+
+export const DEFAULT_REGION = 'us-east-1'
+export const SECRET_NAME_HEADER_KEY = 'fpjs_secret_name'
