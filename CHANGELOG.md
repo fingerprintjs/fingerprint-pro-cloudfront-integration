@@ -1,3 +1,10 @@
+## [2.0.1-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.0...v2.0.1-rc.1) (2024-03-11)
+
+
+### Bug Fixes
+
+* normalize secret before retrieving values ([26ab35f](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/26ab35fdfae90a796f8a6822bcfe26613a95653d))
+
 ## [2.0.0-rc.2](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.0-rc.1...v2.0.0-rc.2) (2024-03-08)
 
 
