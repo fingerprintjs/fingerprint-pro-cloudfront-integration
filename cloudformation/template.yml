@@ -392,3 +392,15 @@ Outputs:
       Fn::GetAtt: MgmtFunctionURL.FunctionUrl
     Export:
       Name: !Join ['-', ['fingerprint-pro-mgmt-lambda-url', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  FingerprintIntegrationSettingsSecret:
+    Description: Fingerprint Pro CloudFront integration settings secret
+    Value:
+      Ref: FingerprintIntegrationSettingsSecret
+    Export:
+      Name: FingerprintIntegrationSettingsSecret
+  MgmtSettingsSecret:
+    Description: Fingerprint Pro Management Lambda settings secret
+    Value:
+      Ref: MgmtSettingsSecret
+    Export:
+      Name: MgmtSettingsSecret
