@@ -135,7 +135,7 @@ Resources:
       Role: !GetAtt FpIntLambdaFunctionExecutionRole.Arn
 
   FingerprintProCloudFrontLambdaVersion:  
-    Type: AWS::Lambda::Version    
+    Type: AWS::Lambda::Version
     DependsOn:
       - FingerprintProCloudFrontLambda
     Properties:
@@ -362,6 +362,12 @@ Outputs:
       Ref: FingerprintProCloudFrontLambda
     Export:
       Name: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  LambdaFunctionVersion:
+    Description: Fingerprint Pro Lambda function version
+    Value:
+      Ref: FingerprintProCloudFrontLambdaVersion
+    Export:
+      Name: !Join ['-', ['fingerprint-pro-cloudfront-lambda-version', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
   CachePolicyName:
     Description: Cache policy name
     Value:
