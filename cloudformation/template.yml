@@ -397,10 +397,10 @@ Outputs:
     Value:
       Ref: FingerprintIntegrationSettingsSecret
     Export:
-      Name: FingerprintIntegrationSettingsSecret
+      Name: !Join ['-', ['fingerprint-pro-integration-settings-secret', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
   MgmtSettingsSecret:
     Description: Fingerprint Pro Management Lambda settings secret
     Value:
       Ref: MgmtSettingsSecret
     Export:
-      Name: MgmtSettingsSecret
+      Name: !Join ['-', ['fingerprint-pro-mgmt-lambda-settings-secret', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
