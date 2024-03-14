@@ -92,6 +92,61 @@ describe('Basic test', () => {
     const result = await handler(event)
     expect(result.statusCode).toBe(404)
   })
+
+  test('endpoint with leading slashes', async () => {
+    setSecretEnv()
+    setConfigEnv()
+    mockSecret(correctToken)
+
+    const event = generateStatusRequest(correctToken, 'GET', '///status')
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(200)
+  })
+
+  test('endpoint with trailing slashes', async () => {
+    setSecretEnv()
+    setConfigEnv()
+    mockSecret(correctToken)
+
+    const event = generateStatusRequest(correctToken, 'GET', 'status/')
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(200)
+  })
+
+  test('endpoint with leading and trailing slashes', async () => {
+    setSecretEnv()
+    setConfigEnv()
+    mockSecret(correctToken)
+
+    const event = generateStatusRequest(correctToken, 'GET', '//status/')
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(200)
+  })
+
+  test('status endpoint with additional path', async () => {
+    setSecretEnv()
+    setConfigEnv()
+    mockSecret(correctToken)
+
+    const event = generateStatusRequest(correctToken, 'GET', '//status/something')
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(404)
+  })
+
+  test('wrong endpoint', async () => {
+    setSecretEnv()
+    setConfigEnv()
+    mockSecret(correctToken)
+
+    const event = generateStatusRequest(correctToken, 'GET', '//statuss')
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(404)
+  })
 })
 
 describe('Check environment', () => {
