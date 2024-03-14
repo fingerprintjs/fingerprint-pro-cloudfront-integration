@@ -13,7 +13,10 @@ import {
 import {
   GetFunctionCommand,
   GetFunctionCommandOutput,
+  FunctionConfiguration,
   LambdaClient,
+  ListVersionsByFunctionCommand,
+  State,
   UpdateFunctionCodeCommand,
 } from '@aws-sdk/client-lambda'
 import { ApiException, ErrorCode } from '../exceptions'
@@ -35,7 +38,25 @@ export async function handleUpdate(
     throw new ApiException(ErrorCode.LambdaFunctionNotFound)
   }
 
+  const listVersionsBeforeUpdate = await listLambdaFunctionVersions(lambdaClient, settings.LambdaFunctionName)
   const functionVersionArn = await updateLambdaFunctionCode(lambdaClient, settings.LambdaFunctionName)
+  const listVersionsAfterUpdate = await listLambdaFunctionVersions(lambdaClient, settings.LambdaFunctionName)
+
+  const newVersions = Array.from(listVersionsAfterUpdate.values()).filter(
+    (conf) => !listVersionsBeforeUpdate.has(conf.Version)
+  )
+  if (newVersions.length !== 1) {
+    console.error(`Excepted one new version, but found: ${newVersions.length} versions`)
+    throw new ApiException(ErrorCode.LambdaFunctionWrongNewVersionsCount)
+  }
+
+  const newVersion = newVersions[0]
+
+  if (newVersion.State !== State.Active) {
+    console.error(`New version ${newVersion.Version} is not in ${State.Active} state`)
+    throw new ApiException(ErrorCode.LambdaFunctionNewVersionNotActive)
+  }
+
   await updateCloudFrontConfig(
     cloudFrontClient,
     settings.CFDistributionId,
@@ -195,6 +216,26 @@ async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName
   console.info(`Got Lambda function update result, functionARN: ${result.FunctionArn}`)
 
   return result.FunctionArn
+}
+
+async function listLambdaFunctionVersions(
+  lambdaClient: LambdaClient,
+  functionName: string
+): Promise<Map<string | undefined, FunctionConfiguration>> {
+  console.info('Getting Lambda function versions')
+  const command = new ListVersionsByFunctionCommand({
+    FunctionName: functionName,
+  })
+  console.info(`Sending ListVersionsByFunctionCommand to with data ${JSON.stringify(command)}`)
+  const result = await lambdaClient.send(command)
+
+  console.info(`Got ListVersionsByFunctionCommand result: ${JSON.stringify(result)}`)
+
+  if (!result) {
+    throw new ApiException(ErrorCode.LambdaFunctionARNNotFound)
+  }
+
+  return new Map(result.Versions?.filter((conf) => conf !== undefined).map((conf) => [conf.Version, conf]))
 }
 
 /**
