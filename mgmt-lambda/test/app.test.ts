@@ -3,7 +3,10 @@ import {
   GetFunctionCommand,
   GetFunctionResponse,
   LambdaClient,
+  ListVersionsByFunctionCommand,
+  ListVersionsByFunctionResponse,
   ResourceNotFoundException,
+  State,
   UpdateFunctionCodeCommand,
 } from '@aws-sdk/client-lambda'
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
@@ -188,6 +191,37 @@ const existingLambda: GetFunctionResponse = {
   },
 }
 
+const lambdaVersionsBeforeUpdate: ListVersionsByFunctionResponse = {
+  Versions: [
+    {
+      FunctionName: 'fingerprint-pro-lambda-function',
+      FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+      Version: '1',
+      LastModified: '2024-01-12T09:47:00.123+0200',
+      State: State.Active,
+    },
+  ],
+}
+
+const lambdaVersionsAfterUpdate: ListVersionsByFunctionResponse = {
+  Versions: [
+    {
+      FunctionName: 'fingerprint-pro-lambda-function',
+      FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+      Version: '1',
+      LastModified: '2024-01-12T09:47:00.123+0200',
+      State: State.Active,
+    },
+    {
+      FunctionName: 'fingerprint-pro-lambda-function',
+      FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+      Version: '2',
+      LastModified: '2024-03-13T10:47:00.123+0200',
+      State: State.Active,
+    },
+  ],
+}
+
 const functionInfo: GetFunctionResponse = {
   Configuration: {
     FunctionName: 'fingerprint-pro-lambda-function',
@@ -330,6 +364,13 @@ describe('Update endpoint', () => {
         FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
       })
 
+    lambdaMock
+      .on(ListVersionsByFunctionCommand, {
+        FunctionName: process.env.LambdaFunctionName,
+      })
+      .resolvesOnce(lambdaVersionsBeforeUpdate)
+      .resolvesOnce(lambdaVersionsAfterUpdate)
+
     cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves(cloudFrontConfigBeforeUpdate)
 
     cloudFrontMock.on(CreateInvalidationCommand, createInvalidation).resolves({})
@@ -370,6 +411,13 @@ describe('Update endpoint', () => {
       .resolves({
         FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
       })
+
+    lambdaMock
+      .on(ListVersionsByFunctionCommand, {
+        FunctionName: process.env.LambdaFunctionName,
+      })
+      .resolvesOnce(lambdaVersionsBeforeUpdate)
+      .resolvesOnce(lambdaVersionsAfterUpdate)
 
     cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves(cloudFrontConfigBeforeUpdate)
 
@@ -442,6 +490,13 @@ describe('Update endpoint', () => {
       .resolves(functionInfo)
 
     lambdaMock
+      .on(ListVersionsByFunctionCommand, {
+        FunctionName: process.env.LambdaFunctionName,
+      })
+      .resolvesOnce(lambdaVersionsBeforeUpdate)
+      .resolvesOnce(lambdaVersionsAfterUpdate)
+
+    lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
         S3Key: 'releaseV2/lambda_latest.zip',
@@ -493,6 +548,11 @@ describe('Update endpoint', () => {
       .resolves({
         FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
       })
+
+    lambdaMock
+      .on(ListVersionsByFunctionCommand)
+      .resolvesOnce(lambdaVersionsBeforeUpdate)
+      .resolvesOnce(lambdaVersionsAfterUpdate)
 
     cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves({
       ...cloudFrontConfigBeforeUpdate,
