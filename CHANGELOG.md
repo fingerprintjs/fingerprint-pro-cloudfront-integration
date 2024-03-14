@@ -1,3 +1,10 @@
+## [2.0.1-rc.2](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.1-rc.1...v2.0.1-rc.2) (2024-03-14)
+
+
+### Bug Fixes
+
+* use default region for getting secret ([ec596ec](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/ec596ec9d28869a082d783c8af491b7be65e9699))
+
 ## [2.0.1-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.0...v2.0.1-rc.1) (2024-03-11)
 
 
