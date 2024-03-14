@@ -12,6 +12,7 @@ import { handleStatus } from './handlers/statusHandler'
 import { handleUpdate } from './handlers/updateHandler'
 import { LambdaClient } from '@aws-sdk/client-lambda'
 import { CloudFrontClient } from '@aws-sdk/client-cloudfront'
+import { removeLeadingAndTrailingSlashes } from './routing'
 
 export async function handler(
   event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventRequestContextV2>
@@ -38,12 +39,13 @@ export async function handler(
     return handleWrongConfiguration(error)
   }
 
-  const path = event.rawPath
   const method = event.requestContext.http.method
   const lambdaClient = new LambdaClient({ region: defaults.AWS_REGION })
   const cloudFrontClient = new CloudFrontClient({ region: defaults.AWS_REGION })
 
-  if (path.startsWith('/update') && method === 'POST') {
+  const path = removeLeadingAndTrailingSlashes(event.rawPath)
+
+  if (path === 'update' && method === 'POST') {
     try {
       return await handleUpdate(lambdaClient, cloudFrontClient, deploymentSettings)
     } catch (e: any) {
@@ -51,7 +53,7 @@ export async function handler(
       return handleError(e)
     }
   }
-  if (path.startsWith('/status') && method === 'GET') {
+  if (path === 'status' && method === 'GET') {
     return handleStatus(lambdaClient, deploymentSettings)
   }
   return handleNotFound()
