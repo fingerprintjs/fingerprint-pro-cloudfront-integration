@@ -626,6 +626,120 @@ describe('Update endpoint', () => {
     expect(result.statusCode).toBe(500)
     expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.LambdaFunctionARNNotFound)
   })
+
+  test('expect errorCode to be latest version not in active state', async () => {
+    setSecretEnv()
+    process.env.CFDistributionId = 'ABCDEF123456'
+    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    mockSecret(correctToken)
+    lambdaMock
+      .on(GetFunctionCommand, {
+        FunctionName: process.env.LambdaFunctionName,
+      })
+      .resolves(existingLambda)
+
+    lambdaMock
+      .on(GetFunctionCommand, {
+        FunctionName: process.env.LambdaFunctionName,
+      })
+      .resolves(functionInfo)
+
+    lambdaMock
+      .on(UpdateFunctionCodeCommand, {
+        S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
+        S3Key: 'releaseV2/lambda_latest.zip',
+        FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+        Publish: true,
+      })
+      .resolves({
+        FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
+      })
+
+    lambdaMock
+      .on(ListVersionsByFunctionCommand, {
+        FunctionName: process.env.LambdaFunctionName,
+      })
+      .resolvesOnce(lambdaVersionsBeforeUpdate)
+      .resolvesOnce({
+        Versions: [
+          {
+            FunctionName: 'fingerprint-pro-lambda-function',
+            FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+            Version: '1',
+            LastModified: '2024-01-12T09:47:00.123+0200',
+            State: State.Active,
+          },
+          {
+            FunctionName: 'fingerprint-pro-lambda-function',
+            FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+            Version: '2',
+            LastModified: '2024-03-13T10:47:00.123+0200',
+            State: State.Pending,
+          },
+        ],
+      })
+
+    cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves(cloudFrontConfigBeforeUpdate)
+
+    cloudFrontMock.on(CreateInvalidationCommand, createInvalidation).resolves({})
+
+    cloudFrontMock.on(UpdateDistributionCommand, updatedCloudFrontConfig).resolves({})
+
+    const event = generateUpdateRequest(correctToken)
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(500)
+    expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.LambdaFunctionNewVersionNotActive)
+  })
+
+  test('expect errorCode to be latest version not present', async () => {
+    setSecretEnv()
+    process.env.CFDistributionId = 'ABCDEF123456'
+    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    mockSecret(correctToken)
+    lambdaMock
+      .on(GetFunctionCommand, {
+        FunctionName: process.env.LambdaFunctionName,
+      })
+      .resolves(existingLambda)
+
+    lambdaMock
+      .on(GetFunctionCommand, {
+        FunctionName: process.env.LambdaFunctionName,
+      })
+      .resolves(functionInfo)
+
+    lambdaMock
+      .on(UpdateFunctionCodeCommand, {
+        S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
+        S3Key: 'releaseV2/lambda_latest.zip',
+        FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+        Publish: true,
+      })
+      .resolves({
+        FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
+      })
+
+    lambdaMock
+      .on(ListVersionsByFunctionCommand, {
+        FunctionName: process.env.LambdaFunctionName,
+      })
+      .resolves(lambdaVersionsBeforeUpdate)
+
+    cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves(cloudFrontConfigBeforeUpdate)
+
+    cloudFrontMock.on(CreateInvalidationCommand, createInvalidation).resolves({})
+
+    cloudFrontMock.on(UpdateDistributionCommand, updatedCloudFrontConfig).resolves({})
+
+    const event = generateUpdateRequest(correctToken)
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(500)
+    expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.LambdaFunctionWrongNewVersionsCount)
+  })
 })
 
 function generateUpdateRequest(
