@@ -54,7 +54,7 @@ export async function handler(
     }
   }
   if (path === 'status' && method === 'GET') {
-    return handleStatus(lambdaClient, deploymentSettings)
+    return handleStatus(lambdaClient, cloudFrontClient, deploymentSettings)
   }
   return handleNotFound()
 }
