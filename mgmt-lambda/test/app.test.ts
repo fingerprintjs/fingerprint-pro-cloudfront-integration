@@ -28,6 +28,7 @@ import {
 import { ErrorCode } from '../exceptions'
 
 const lambdaMock = mockClient(LambdaClient)
+const cloudFrontMock = mockClient(CloudFrontClient)
 const secretMock = mockClient(SecretsManagerClient)
 const secretName = 'fingerprint-mgmt-lambda-auth-settings'
 
@@ -106,7 +107,6 @@ const functionInfo: GetFunctionResponse = {
   },
 }
 
-const cloudFrontMock = mockClient(CloudFrontClient)
 const cloudFrontConfigBeforeUpdate: GetDistributionConfigResult = {
   ETag: 'ABCDEF123456',
   DistributionConfig: {
@@ -288,6 +288,7 @@ describe('Basic test', () => {
     jest.resetModules()
     lambdaMock.reset()
     secretMock.reset()
+    cloudFrontMock.reset()
     process.env = { ...OLD_ENV }
   })
 
@@ -418,6 +419,7 @@ describe('Check environment', () => {
     jest.resetModules()
     lambdaMock.reset()
     secretMock.reset()
+    cloudFrontMock.reset()
     process.env = { ...OLD_ENV }
   })
 
@@ -447,8 +449,8 @@ describe('Check environment', () => {
 
   test('CFDistributionConfig is not defined', async () => {
     setSecretEnv()
-    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionName = 'fingerprint-pro-lambda-function'
     mockSecret(correctToken)
 
     const event = generateStatusRequest(correctToken)
@@ -465,8 +467,8 @@ describe('Check environment', () => {
   test('CFDistributionConfig is defined, but empty', async () => {
     setSecretEnv()
     process.env.CFDistributionId = ''
-    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionName = 'fingerprint-pro-lambda-function'
     mockSecret(correctToken)
 
     const event = generateStatusRequest(correctToken)
@@ -486,14 +488,15 @@ describe('Update endpoint', () => {
     jest.resetModules()
     lambdaMock.reset()
     secretMock.reset()
+    cloudFrontMock.reset()
     process.env = { ...OLD_ENV }
   })
 
   test('handle update', async () => {
     setSecretEnv()
     process.env.CFDistributionId = 'ABCDEF123456'
-    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionName = 'fingerprint-pro-lambda-function'
     mockSecret(correctToken)
     lambdaMock
       .on(GetFunctionCommand, {
@@ -511,7 +514,7 @@ describe('Update endpoint', () => {
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
         S3Key: 'releaseV2/lambda_latest.zip',
-        FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+        FunctionName: 'fingerprint-pro-lambda-function',
         Publish: true,
       })
       .resolves({
@@ -540,8 +543,8 @@ describe('Update endpoint', () => {
   test('expect errorCode to be FunctionARNNotFound', async () => {
     setSecretEnv()
     process.env.CFDistributionId = 'ABCDEF123456'
-    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionName = 'fingerprint-pro-lambda-function'
     mockSecret(correctToken)
     lambdaMock
       .on(GetFunctionCommand, {
@@ -590,8 +593,8 @@ describe('Update endpoint', () => {
   test('expect errorCode to be AWSResourceNotFound', async () => {
     setSecretEnv()
     process.env.CFDistributionId = 'ABCDEF123456'
-    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionName = 'fingerprint-pro-lambda-function'
     mockSecret(correctToken)
     lambdaMock
       .on(GetFunctionCommand, {
@@ -654,7 +657,7 @@ describe('Update endpoint', () => {
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
         S3Key: 'releaseV2/lambda_latest.zip',
-        FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+        FunctionName: 'fingerprint-pro-lambda-function',
         Publish: true,
       })
       .resolves({
@@ -677,8 +680,8 @@ describe('Update endpoint', () => {
   test('expect errorCode to be Cache Behavior Pattern not defined', async () => {
     setSecretEnv()
     process.env.CFDistributionId = 'ABCDEF123456'
-    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionName = 'fingerprint-pro-lambda-function'
     mockSecret(correctToken)
     lambdaMock
       .on(GetFunctionCommand, {
@@ -696,7 +699,7 @@ describe('Update endpoint', () => {
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
         S3Key: 'releaseV2/lambda_latest.zip',
-        FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+        FunctionName: 'fingerprint-pro-lambda-function',
         Publish: true,
       })
       .resolves({
@@ -750,8 +753,8 @@ describe('Update endpoint', () => {
   test('expect errorCode to be Lambda Function ARN not found', async () => {
     setSecretEnv()
     process.env.CFDistributionId = 'ABCDEF123456'
-    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionName = 'fingerprint-pro-lambda-function'
     mockSecret(correctToken)
     lambdaMock
       .on(GetFunctionCommand, {
@@ -769,7 +772,7 @@ describe('Update endpoint', () => {
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
         S3Key: 'releaseV2/lambda_latest.zip',
-        FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+        FunctionName: 'fingerprint-pro-lambda-function',
         Publish: true,
       })
       .resolves({})
