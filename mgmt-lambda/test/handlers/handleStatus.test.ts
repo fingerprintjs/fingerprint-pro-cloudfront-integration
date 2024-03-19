@@ -3,9 +3,13 @@ import { LambdaClient, GetFunctionCommand } from '@aws-sdk/client-lambda'
 import type { DeploymentSettings } from '../../model/DeploymentSettings'
 import { handleStatus } from '../../handlers/statusHandler'
 import 'aws-sdk-client-mock-jest'
+import { CloudFrontClient, GetDistributionCommand } from '@aws-sdk/client-cloudfront'
+import { IntegrationStatus } from '../../model/IntegrationStatus'
 
 const lambdaMock = mockClient(LambdaClient)
+const cloudFrontMock = mockClient(CloudFrontClient)
 const lambdaClient = new LambdaClient({ region: 'us-east-1' })
+const cloudFrontClient = new CloudFrontClient({ region: 'us-east-1' })
 const options: DeploymentSettings = {
   CFDistributionId: 'ABCDEF123456',
   LambdaFunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:1',
@@ -59,15 +63,117 @@ describe('Handle mgmt-status', () => {
         },
       })
 
-    const status = await handleStatus(lambdaClient, options)
+    cloudFrontMock
+      .on(GetDistributionCommand, {
+        Id: options.CFDistributionId,
+      })
+      .resolves({
+        Distribution: {
+          Id: 'ABCDEF123456',
+          ARN: 'arn:aws:cloudfront:ABCDEF123456',
+          LastModifiedTime: new Date(),
+          InProgressInvalidationBatches: 0,
+          DomainName: undefined,
+          DistributionConfig: {
+            CallerReference: undefined,
+            Enabled: true,
+            Comment: 'none',
+            Origins: {
+              Quantity: 1,
+              Items: [
+                {
+                  Id: 'fpcdn.io',
+                  DomainName: 'fpcdn.io',
+                  OriginPath: '',
+                  CustomHeaders: {
+                    Quantity: 0,
+                    Items: [],
+                  },
+                  S3OriginConfig: {
+                    OriginAccessIdentity: undefined,
+                  },
+                  CustomOriginConfig: {
+                    HTTPPort: undefined,
+                    HTTPSPort: 443,
+                    OriginProtocolPolicy: undefined,
+                    OriginSslProtocols: {
+                      Quantity: 1,
+                      Items: ['TLSv1.2'],
+                    },
+                    OriginReadTimeout: 100,
+                    OriginKeepaliveTimeout: 100,
+                  },
+                  ConnectionAttempts: 5,
+                  ConnectionTimeout: 100,
+                  OriginShield: {
+                    Enabled: false,
+                    OriginShieldRegion: 'us-east-1',
+                  },
+                  OriginAccessControlId: 'no-id',
+                },
+              ],
+            },
+            DefaultCacheBehavior: {
+              TargetOriginId: undefined,
+              ViewerProtocolPolicy: undefined,
+              AllowedMethods: {
+                Quantity: 2,
+                Items: ['GET', 'POST'],
+              },
+              SmoothStreaming: false,
+              Compress: true,
+              LambdaFunctionAssociations: {
+                Quantity: 1,
+                Items: [
+                  {
+                    LambdaFunctionARN: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
+                    EventType: 'origin-request',
+                    IncludeBody: true,
+                  },
+                ],
+              },
+              FunctionAssociations: {
+                Quantity: 0,
+                Items: [],
+              },
+              MinTTL: 0,
+              DefaultTTL: 180,
+              MaxTTL: 180,
+            },
+          },
+          AliasICPRecordals: [],
+          Status: 'Deployed',
+        },
+        ETag: 'ABCDEF123456',
+      })
+
+    const status = await handleStatus(lambdaClient, cloudFrontClient, options)
     expect(status.statusCode).toBe(200)
 
-    const functionInfo = JSON.parse(status.body)
-    expect(functionInfo['Configuration']['FunctionName']).toBe('fingerprint-pro-lambda-function')
+    const result = JSON.parse(status.body) as IntegrationStatus
+
+    expect(result.lambdaFunction?.functionName).toBe('fingerprint-pro-lambda-function')
+    expect(result.cloudFrontDistribution?.id).toBe('ABCDEF123456')
 
     expect(lambdaMock).toHaveReceivedCommandWith(GetFunctionCommand, {
       FunctionName: options.LambdaFunctionName,
     })
     expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
-  })
+  }),
+    it('error while communicating with AWS', async () => {
+      lambdaMock
+        .on(GetFunctionCommand, {
+          FunctionName: options.LambdaFunctionName,
+        })
+        .rejects()
+
+      cloudFrontMock
+        .on(GetDistributionCommand, {
+          Id: options.CFDistributionId,
+        })
+        .rejects()
+
+      const status = await handleStatus(lambdaClient, cloudFrontClient, options)
+      expect(status.statusCode).toBe(500)
+    })
 })
