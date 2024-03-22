@@ -25,10 +25,8 @@ export async function handleStatus(
     cloudFrontDistribution: cloudFrontDistributionInformation,
   }
 
-  const statusCode = lambdaFunctionInformation && cloudFrontDistributionInformation ? 200 : 500
-
   return {
-    statusCode: statusCode,
+    statusCode: 200,
     body: JSON.stringify(result),
     headers: {
       'content-type': 'application/json',
