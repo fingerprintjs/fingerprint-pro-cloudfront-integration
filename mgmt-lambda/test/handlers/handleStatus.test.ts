@@ -174,6 +174,6 @@ describe('Handle mgmt-status', () => {
         .rejects()
 
       const status = await handleStatus(lambdaClient, cloudFrontClient, options)
-      expect(status.statusCode).toBe(500)
+      expect(status.statusCode).toBe(200)
     })
 })

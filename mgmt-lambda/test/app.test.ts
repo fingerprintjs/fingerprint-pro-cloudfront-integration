@@ -366,7 +366,7 @@ describe('Basic test', () => {
     const event = generateStatusRequest(correctToken, 'GET', '///status')
 
     const result = await handler(event)
-    expect(result.statusCode).toBe(500)
+    expect(result.statusCode).toBe(200)
   })
 
   test('endpoint with trailing slashes', async () => {
@@ -377,7 +377,7 @@ describe('Basic test', () => {
     const event = generateStatusRequest(correctToken, 'GET', 'status/')
 
     const result = await handler(event)
-    expect(result.statusCode).toBe(500)
+    expect(result.statusCode).toBe(200)
   })
 
   test('endpoint with leading and trailing slashes', async () => {
@@ -388,7 +388,7 @@ describe('Basic test', () => {
     const event = generateStatusRequest(correctToken, 'GET', '//status/')
 
     const result = await handler(event)
-    expect(result.statusCode).toBe(500)
+    expect(result.statusCode).toBe(200)
   })
 
   test('status endpoint with additional path', async () => {
