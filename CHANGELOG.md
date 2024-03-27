@@ -1,3 +1,16 @@
+## [2.1.0-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.1-rc.2...v2.1.0-rc.1) (2024-03-27)
+
+
+### Features
+
+* check version's state after Lambda@Edge function upgrade ([12e5aad](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/12e5aadec9e0100a82880ed2aa39b6158d90ad48))
+* status endpoint: return necessary information about Lambda and CloudFront ([2f3ceed](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/2f3ceed6f21abe21db5ad22960c6e4f91097b678))
+
+
+### Bug Fixes
+
+* handle requests with trailing and leading slashes in URI ([cabe27a](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/cabe27ad3cf53448fdd883ffc78366d8e88660f0))
+
 ## [2.0.1-rc.2](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.1-rc.1...v2.0.1-rc.2) (2024-03-14)
 
 
