@@ -11,5 +11,6 @@ jobs:
     uses: fingerprintjs/dx-team-toolkit/.github/workflows/release-typescript-project.yml@v1
     with:
       nodeVersion: 20
+      appId: ${{ vars.APP_ID }}
     secrets:
-      GH_RELEASE_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}

@@ -1,3 +1,37 @@
+## [2.1.0-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.1-rc.2...v2.1.0-rc.1) (2024-03-27)
+
+
+### Features
+
+* check version's state after Lambda@Edge function upgrade ([12e5aad](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/12e5aadec9e0100a82880ed2aa39b6158d90ad48))
+* status endpoint: return necessary information about Lambda and CloudFront ([2f3ceed](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/2f3ceed6f21abe21db5ad22960c6e4f91097b678))
+
+
+### Bug Fixes
+
+* handle requests with trailing and leading slashes in URI ([cabe27a](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/cabe27ad3cf53448fdd883ffc78366d8e88660f0))
+
+## [2.0.1-rc.2](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.1-rc.1...v2.0.1-rc.2) (2024-03-14)
+
+
+### Bug Fixes
+
+* use default region for getting secret ([ec596ec](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/ec596ec9d28869a082d783c8af491b7be65e9699))
+
+## [2.0.1-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.0...v2.0.1-rc.1) (2024-03-11)
+
+
+### Bug Fixes
+
+* normalize secret before retrieving values ([26ab35f](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/26ab35fdfae90a796f8a6822bcfe26613a95653d))
+
+## [2.0.0-rc.2](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.0-rc.1...v2.0.0-rc.2) (2024-03-08)
+
+
+### Bug Fixes
+
+* normalize secret before retrieving values ([e51702e](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/e51702e6bfe54db2ff7969be37f9646b815469c8))
+
 ## [2.0.0](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.4.0...v2.0.0) (2024-03-01)
 
 

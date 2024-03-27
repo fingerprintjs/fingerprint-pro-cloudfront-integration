@@ -1,3 +1,4 @@
 export function resource(name: string) {
-  return `fpjs-dev-e2e-cloudfront-${name}`
+  const suffix = process.env.RESOURCE_SUFFIX ?? ''
+  return `fpjs-dev-e2e-cloudfront-${name}${suffix ? `-${suffix}-` : ''}`
 }
