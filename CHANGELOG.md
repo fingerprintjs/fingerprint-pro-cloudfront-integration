@@ -1,3 +1,10 @@
+## [2.1.0-rc.2](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.1.0-rc.1...v2.1.0-rc.2) (2024-03-29)
+
+
+### Bug Fixes
+
+* don't set code 500 in status endpoint responses ([b4a4d04](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/b4a4d04f9d36848c4242bd8674c279059e1572c2))
+
 ## [2.1.0-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.1-rc.2...v2.1.0-rc.1) (2024-03-27)
 
 
