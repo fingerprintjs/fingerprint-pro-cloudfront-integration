@@ -12,7 +12,6 @@ import {
 } from '@aws-sdk/client-cloudfront'
 import {
   GetFunctionCommand,
-  GetFunctionCommandOutput,
   FunctionConfiguration,
   LambdaClient,
   ListVersionsByFunctionCommand,
@@ -33,18 +32,34 @@ export async function handleUpdate(
   console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distribution.`)
   console.info(`Settings: ${JSON.stringify(settings)}`)
 
-  const isLambdaFunctionExist = await checkIfLambdaFunctionWithNameExists(lambdaClient, settings.LambdaFunctionName)
-  if (!isLambdaFunctionExist) {
+  const functionInformationBeforeUpdate = await getLambdaFunctionInformation(lambdaClient, settings.LambdaFunctionName)
+  if (!functionInformationBeforeUpdate?.FunctionArn) {
     throw new ApiException(ErrorCode.LambdaFunctionNotFound)
   }
+  const currentRevisionId = functionInformationBeforeUpdate?.RevisionId
+  if (!currentRevisionId) {
+    console.error('Lambda@Edge function expected to have a revious ID of the current deployment')
+    throw new ApiException(ErrorCode.LambdaFunctionCurrentRevisionNotDefined)
+  }
 
-  const listVersionsBeforeUpdate = await listLambdaFunctionVersions(lambdaClient, settings.LambdaFunctionName)
-  const functionVersionArn = await updateLambdaFunctionCode(lambdaClient, settings.LambdaFunctionName)
-  const listVersionsAfterUpdate = await listLambdaFunctionVersions(lambdaClient, settings.LambdaFunctionName)
-
-  const newVersions = Array.from(listVersionsAfterUpdate.values()).filter(
-    (conf) => !listVersionsBeforeUpdate.has(conf.Version)
+  const newVersionConfiguration = await updateLambdaFunctionCode(
+    lambdaClient,
+    settings.LambdaFunctionName,
+    currentRevisionId
   )
+  const newRevisionId = newVersionConfiguration.RevisionId
+  if (!newRevisionId) {
+    console.error('New revision for Lambda@Edge function was not created')
+    throw new ApiException(ErrorCode.LambdaFunctionUpdateRevisionNotCreated)
+  }
+  const functionArn = newVersionConfiguration.FunctionArn
+  if (!functionArn) {
+    console.error('Function ARN for new version is not defined')
+    throw new ApiException(ErrorCode.LambdaFunctionARNNotFound)
+  }
+
+  const listVersionsAfterUpdate = await listLambdaFunctionVersions(lambdaClient, settings.LambdaFunctionName)
+  const newVersions = Array.from(listVersionsAfterUpdate.values()).filter((conf) => conf.RevisionId === newRevisionId)
   if (newVersions.length !== 1) {
     console.error(`Excepted one new version, but found: ${newVersions.length} versions`)
     throw new ApiException(ErrorCode.LambdaFunctionWrongNewVersionsCount)
@@ -52,17 +67,13 @@ export async function handleUpdate(
 
   const newVersion = newVersions[0]
 
-  if (newVersion.State !== State.Active) {
+  const functionInformationAfterUpdate = await getLambdaFunctionInformation(lambdaClient, settings.LambdaFunctionName)
+  if (functionInformationAfterUpdate?.State !== State.Active) {
     console.error(`New version ${newVersion.Version} is not in ${State.Active} state`)
     throw new ApiException(ErrorCode.LambdaFunctionNewVersionNotActive)
   }
 
-  await updateCloudFrontConfig(
-    cloudFrontClient,
-    settings.CFDistributionId,
-    settings.LambdaFunctionName,
-    functionVersionArn
-  )
+  await updateCloudFrontConfig(cloudFrontClient, settings.CFDistributionId, settings.LambdaFunctionName, functionArn)
 
   return {
     statusCode: 200,
@@ -188,16 +199,37 @@ async function invalidateFingerprintIntegrationCache(
   console.info(`Invalidation has finished, ${JSON.stringify(invalidationResult)}`)
 }
 
+async function getLambdaFunctionInformation(
+  lambdaClient: LambdaClient,
+  functionName: string
+): Promise<FunctionConfiguration | undefined> {
+  console.info(`Getting lambda function information for ${functionName}`)
+  const command = new GetFunctionCommand({
+    FunctionName: functionName,
+  })
+  console.info(`Sending get command to Lambda runtime with data ${JSON.stringify(command)}`)
+  const result = await lambdaClient.send(command)
+
+  console.info(`Got get command result: ${JSON.stringify(result)}`)
+
+  return result.Configuration
+}
+
 /**
  * @throws {import('@aws-sdk/client-lambda').LambdaServiceException}
  * @throws {ApiException}
  */
-async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName: string): Promise<string> {
+async function updateLambdaFunctionCode(
+  lambdaClient: LambdaClient,
+  functionName: string,
+  revisionId: string
+): Promise<FunctionConfiguration> {
   console.info('Preparing command to update function code')
   const command = new UpdateFunctionCodeCommand({
     S3Bucket: defaults.LAMBDA_DISTRIBUTION_BUCKET,
     S3Key: defaults.LAMBDA_DISTRIBUTION_BUCKET_KEY,
     FunctionName: functionName,
+    RevisionId: revisionId,
     Publish: true,
   })
   console.info(`Sending update command to Lambda runtime with data ${JSON.stringify(command)}`)
@@ -215,7 +247,7 @@ async function updateLambdaFunctionCode(lambdaClient: LambdaClient, functionName
 
   console.info(`Got Lambda function update result, functionARN: ${result.FunctionArn}`)
 
-  return result.FunctionArn
+  return result
 }
 
 async function listLambdaFunctionVersions(
@@ -236,14 +268,4 @@ async function listLambdaFunctionVersions(
   }
 
   return new Map(result.Versions?.filter((conf) => conf !== undefined).map((conf) => [conf.Version, conf]))
-}
-
-/**
- * @throws {import('@aws-sdk/client-lambda').LambdaServiceException}
- */
-async function checkIfLambdaFunctionWithNameExists(client: LambdaClient, functionName: string): Promise<boolean> {
-  const command = new GetFunctionCommand({ FunctionName: functionName })
-  const result: GetFunctionCommandOutput = await client.send(command)
-
-  return result?.Configuration?.FunctionArn != null
 }

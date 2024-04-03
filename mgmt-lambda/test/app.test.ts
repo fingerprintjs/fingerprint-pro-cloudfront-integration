@@ -65,6 +65,34 @@ const existingLambda: GetFunctionResponse = {
     Runtime: 'nodejs20.x',
     Version: '$LATEST',
     Handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
+    RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
+    State: State.Active,
+  },
+}
+
+const existingLambdaAfterUpdate: GetFunctionResponse = {
+  Configuration: {
+    FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+    LastModified: '2024-03-13T19:48:15.722+0000',
+    LastUpdateStatus: 'Successful',
+    Runtime: 'nodejs20.x',
+    Version: '$LATEST',
+    Handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
+    RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
+    State: State.Active,
+  },
+}
+
+const existingNonActiveLambdaAfterUpdate: GetFunctionResponse = {
+  Configuration: {
+    FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+    LastModified: '2024-03-13T19:48:15.722+0000',
+    LastUpdateStatus: 'Successful',
+    Runtime: 'nodejs20.x',
+    Version: '$LATEST',
+    Handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
+    RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
+    State: State.Pending,
   },
 }
 
@@ -76,6 +104,7 @@ const lambdaVersionsBeforeUpdate: ListVersionsByFunctionResponse = {
       Version: '1',
       LastModified: '2024-01-12T09:47:00.123+0200',
       State: State.Active,
+      RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
     },
   ],
 }
@@ -88,6 +117,7 @@ const lambdaVersionsAfterUpdate: ListVersionsByFunctionResponse = {
       Version: '1',
       LastModified: '2024-01-12T09:47:00.123+0200',
       State: State.Active,
+      RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
     },
     {
       FunctionName: 'fingerprint-pro-lambda-function',
@@ -95,6 +125,7 @@ const lambdaVersionsAfterUpdate: ListVersionsByFunctionResponse = {
       Version: '2',
       LastModified: '2024-03-13T10:47:00.123+0200',
       State: State.Active,
+      RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
     },
   ],
 }
@@ -104,6 +135,7 @@ const functionInfo: GetFunctionResponse = {
     FunctionName: 'fingerprint-pro-lambda-function',
     FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
     Version: '$LATEST',
+    RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
   },
 }
 
@@ -502,13 +534,8 @@ describe('Update endpoint', () => {
       .on(GetFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolves(existingLambda)
-
-    lambdaMock
-      .on(GetFunctionCommand, {
-        FunctionName: process.env.LambdaFunctionName,
-      })
-      .resolves(functionInfo)
+      .resolvesOnce(existingLambda)
+      .resolvesOnce(existingLambdaAfterUpdate)
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
@@ -519,13 +546,13 @@ describe('Update endpoint', () => {
       })
       .resolves({
         FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
+        RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
       })
 
     lambdaMock
       .on(ListVersionsByFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolvesOnce(lambdaVersionsBeforeUpdate)
       .resolvesOnce(lambdaVersionsAfterUpdate)
 
     cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves(cloudFrontConfigBeforeUpdate)
@@ -573,7 +600,6 @@ describe('Update endpoint', () => {
       .on(ListVersionsByFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolvesOnce(lambdaVersionsBeforeUpdate)
       .resolvesOnce(lambdaVersionsAfterUpdate)
 
     cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves(cloudFrontConfigBeforeUpdate)
@@ -638,19 +664,13 @@ describe('Update endpoint', () => {
       .on(GetFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolves(existingLambda)
-
-    lambdaMock
-      .on(GetFunctionCommand, {
-        FunctionName: process.env.LambdaFunctionName,
-      })
-      .resolves(functionInfo)
+      .resolvesOnce(existingLambda)
+      .resolvesOnce(existingLambdaAfterUpdate)
 
     lambdaMock
       .on(ListVersionsByFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolvesOnce(lambdaVersionsBeforeUpdate)
       .resolvesOnce(lambdaVersionsAfterUpdate)
 
     lambdaMock
@@ -658,10 +678,12 @@ describe('Update endpoint', () => {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
         S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
+        RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
       })
       .resolves({
         FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
+        RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
       })
 
     cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves({})
@@ -687,29 +709,23 @@ describe('Update endpoint', () => {
       .on(GetFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolves(existingLambda)
-
-    lambdaMock
-      .on(GetFunctionCommand, {
-        FunctionName: process.env.LambdaFunctionName,
-      })
-      .resolves(functionInfo)
+      .resolvesOnce(existingLambda)
+      .resolvesOnce(existingLambdaAfterUpdate)
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
         S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
+        RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
       })
-      .resolves({
+      .resolvesOnce({
         FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
+        RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
       })
 
-    lambdaMock
-      .on(ListVersionsByFunctionCommand)
-      .resolvesOnce(lambdaVersionsBeforeUpdate)
-      .resolvesOnce(lambdaVersionsAfterUpdate)
+    lambdaMock.on(ListVersionsByFunctionCommand).resolvesOnce(lambdaVersionsAfterUpdate)
 
     cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves({
       ...cloudFrontConfigBeforeUpdate,
@@ -760,28 +776,57 @@ describe('Update endpoint', () => {
       .on(GetFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolves(existingLambda)
-
-    lambdaMock
-      .on(GetFunctionCommand, {
-        FunctionName: process.env.LambdaFunctionName,
-      })
-      .resolves(functionInfo)
+      .resolvesOnce(existingLambda)
+      .resolvesOnce(existingLambdaAfterUpdate)
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
         S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
+        RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
       })
-      .resolves({})
+      .resolves({
+        RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
+      })
 
     const event = generateUpdateRequest(correctToken)
 
     const result = await handler(event)
     expect(result.statusCode).toBe(500)
     expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.LambdaFunctionARNNotFound)
+  })
+
+  test('expect errorCode to be Lambda Function Revision ID not found', async () => {
+    setSecretEnv()
+    process.env.CFDistributionId = 'ABCDEF123456'
+    process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
+    process.env.LambdaFunctionName = 'fingerprint-pro-lambda-function'
+    mockSecret(correctToken)
+    lambdaMock
+      .on(GetFunctionCommand, {
+        FunctionName: process.env.LambdaFunctionName,
+      })
+      .resolvesOnce(existingLambda)
+
+    lambdaMock
+      .on(UpdateFunctionCodeCommand, {
+        S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
+        S3Key: 'releaseV2/lambda_latest.zip',
+        FunctionName: 'fingerprint-pro-lambda-function',
+        RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
+        Publish: true,
+      })
+      .resolves({
+        FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
+      })
+
+    const event = generateUpdateRequest(correctToken)
+
+    const result = await handler(event)
+    expect(result.statusCode).toBe(500)
+    expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.LambdaFunctionUpdateRevisionNotCreated)
   })
 
   test('expect errorCode to be latest version not in active state', async () => {
@@ -794,30 +839,26 @@ describe('Update endpoint', () => {
       .on(GetFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolves(existingLambda)
-
-    lambdaMock
-      .on(GetFunctionCommand, {
-        FunctionName: process.env.LambdaFunctionName,
-      })
-      .resolves(functionInfo)
+      .resolvesOnce(existingLambda)
+      .resolvesOnce(existingNonActiveLambdaAfterUpdate)
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
         S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+        RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
       })
       .resolves({
         FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
+        RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
       })
 
     lambdaMock
       .on(ListVersionsByFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolvesOnce(lambdaVersionsBeforeUpdate)
       .resolvesOnce({
         Versions: [
           {
@@ -825,14 +866,14 @@ describe('Update endpoint', () => {
             FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
             Version: '1',
             LastModified: '2024-01-12T09:47:00.123+0200',
-            State: State.Active,
+            RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
           },
           {
             FunctionName: 'fingerprint-pro-lambda-function',
             FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
             Version: '2',
             LastModified: '2024-03-13T10:47:00.123+0200',
-            State: State.Pending,
+            RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
           },
         ],
       })
@@ -860,30 +901,27 @@ describe('Update endpoint', () => {
       .on(GetFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolves(existingLambda)
-
-    lambdaMock
-      .on(GetFunctionCommand, {
-        FunctionName: process.env.LambdaFunctionName,
-      })
-      .resolves(functionInfo)
+      .resolvesOnce(existingLambda)
+      .resolvesOnce(existingLambdaAfterUpdate)
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
         S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
         S3Key: 'releaseV2/lambda_latest.zip',
         FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
+        RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
       })
       .resolves({
         FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
+        RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
       })
 
     lambdaMock
       .on(ListVersionsByFunctionCommand, {
         FunctionName: process.env.LambdaFunctionName,
       })
-      .resolves(lambdaVersionsBeforeUpdate)
+      .resolvesOnce(lambdaVersionsBeforeUpdate)
 
     cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves(cloudFrontConfigBeforeUpdate)
 

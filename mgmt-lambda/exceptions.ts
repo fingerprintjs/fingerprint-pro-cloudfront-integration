@@ -10,6 +10,8 @@ export enum ErrorCode {
   LambdaFunctionARNNotFound = 'E7100',
   LambdaFunctionWrongNewVersionsCount = 'E8000',
   LambdaFunctionNewVersionNotActive = 'E8100',
+  LambdaFunctionCurrentRevisionNotDefined = 'E8200',
+  LambdaFunctionUpdateRevisionNotCreated = 'E8300',
 }
 
 export class ApiException extends Error {
