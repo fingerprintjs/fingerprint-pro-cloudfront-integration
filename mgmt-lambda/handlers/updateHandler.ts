@@ -38,7 +38,7 @@ export async function handleUpdate(
   }
   const currentRevisionId = functionInformationBeforeUpdate?.RevisionId
   if (!currentRevisionId) {
-    console.error('Lambda@Edge function expected to have a revious ID of the current deployment')
+    console.error('Lambda@Edge function expected to have a revision ID of the current deployment')
     throw new ApiException(ErrorCode.LambdaFunctionCurrentRevisionNotDefined)
   }
 
