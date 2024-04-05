@@ -3,6 +3,8 @@ export enum CustomerVariableType {
   GetResultPath = 'fpjs_get_result_path',
   PreSharedSecret = 'fpjs_pre_shared_secret',
   AgentDownloadPath = 'fpjs_agent_download_path',
+  FpCdnUrl = 'fpjs_cdn_url',
+  FpIngressBaseHost = 'fpjs_ingress_base_host',
 }
 
 export type CustomerVariableValue = string | null | undefined

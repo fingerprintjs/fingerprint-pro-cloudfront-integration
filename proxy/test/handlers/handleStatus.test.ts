@@ -200,6 +200,18 @@ describe('Get status info', () => {
             "resolvedBy": "test provider",
             "value": "download",
           },
+          {
+            "envVarName": "fpjs_cdn_url",
+            "isSet": true,
+            "resolvedBy": "test provider",
+            "value": "fpcdn.io",
+          },
+          {
+            "envVarName": "fpjs_ingress_base_host",
+            "isSet": true,
+            "resolvedBy": "test provider",
+            "value": "api.fpjs.io",
+          },
         ],
         "version": "__lambda_func_version__",
       }
@@ -239,6 +251,18 @@ describe('Get status info', () => {
             "resolvedBy": "test provider",
             "value": "download",
           },
+          {
+            "envVarName": "fpjs_cdn_url",
+            "isSet": true,
+            "resolvedBy": "test provider",
+            "value": "fpcdn.io",
+          },
+          {
+            "envVarName": "fpjs_ingress_base_host",
+            "isSet": true,
+            "resolvedBy": "test provider",
+            "value": "api.fpjs.io",
+          },
         ],
         "version": "__lambda_func_version__",
       }
@@ -277,6 +301,18 @@ describe('Get status info', () => {
             "isSet": true,
             "resolvedBy": "test provider",
             "value": "download",
+          },
+          {
+            "envVarName": "fpjs_cdn_url",
+            "isSet": true,
+            "resolvedBy": "test provider",
+            "value": "fpcdn.io",
+          },
+          {
+            "envVarName": "fpjs_ingress_base_host",
+            "isSet": true,
+            "resolvedBy": "test provider",
+            "value": "api.fpjs.io",
           },
         ],
         "version": "__lambda_func_version__",

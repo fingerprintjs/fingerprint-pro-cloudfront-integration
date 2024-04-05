@@ -17,6 +17,7 @@ import {
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
 import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
 import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
+import { getFpCdnUrl, getFpIngressBaseHost } from './utils/customer-variables/selectors'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   const request = event.Records[0].cf.request
@@ -26,6 +27,16 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
     new SecretsManagerVariables(request),
     new HeaderCustomerVariables(request),
   ])
+
+  const fpCdnUrl = await getFpCdnUrl(customerVariables)
+  const fpIngressBaseHost = await getFpIngressBaseHost(customerVariables)
+  if (!fpCdnUrl || !fpIngressBaseHost) {
+    return new Promise((resolve) =>
+      resolve({
+        status: '500',
+      })
+    )
+  }
 
   console.debug('Handling request', request)
 
@@ -38,6 +49,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
 
   if (pathname === agentUri) {
     return downloadAgent({
+      fpCdnUrl,
       apiKey: getApiKey(request),
       version: getVersion(request),
       loaderVersion: getLoaderVersion(request),
@@ -53,6 +65,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       suffix = '/' + suffix
     }
     return handleResult({
+      fpIngressBaseHost,
       region: getRegion(request),
       querystring: request.querystring,
       method: request.method,
