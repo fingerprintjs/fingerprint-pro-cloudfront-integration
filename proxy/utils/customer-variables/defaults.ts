@@ -5,6 +5,8 @@ const defaultCustomerVariables: Record<CustomerVariableType, CustomerVariableVal
   [CustomerVariableType.GetResultPath]: 'resultId',
   [CustomerVariableType.PreSharedSecret]: null,
   [CustomerVariableType.AgentDownloadPath]: 'agent',
+  [CustomerVariableType.FpCdnUrl]: '__FPCDN__',
+  [CustomerVariableType.FpIngressBaseHost]: '__INGRESS_API__',
 }
 
 export function getDefaultCustomerVariable(variable: CustomerVariableType): CustomerVariableValue {

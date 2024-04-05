@@ -8,7 +8,7 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
   return new Promise((resolve) => {
     const data: any[] = []
 
-    const url = new URL('https://__FPCDN__')
+    const url = new URL(`https://${options.fpCdnUrl}`)
     url.pathname = getEndpoint(options.apiKey, options.version, options.loaderVersion)
     addTrafficMonitoringSearchParamsForProCDN(url)
 
