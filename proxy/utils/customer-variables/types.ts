@@ -7,6 +7,11 @@ export enum CustomerVariableType {
   FpIngressBaseHost = 'fpjs_ingress_base_host',
 }
 
+export const internalVariables: Set<CustomerVariableType> = new Set<CustomerVariableType>([
+  CustomerVariableType.FpCdnUrl,
+  CustomerVariableType.FpIngressBaseHost,
+])
+
 export type CustomerVariableValue = string | null | undefined
 
 export type CustomerVariablesRecord = Record<CustomerVariableType, CustomerVariableValue>
