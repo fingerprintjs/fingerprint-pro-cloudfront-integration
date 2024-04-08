@@ -47,7 +47,7 @@ function renderEnvInfo(envInfo: EnvVarInfo[]) {
   }
 
   const children = envInfo
-    .filter((info) => !info.isSet || !info.resolvedBy || !info.isInternal)
+    .filter((info) => (!info.isSet || !info.resolvedBy) && !info.isInternal)
     .map(
       (info) => `
         <div class="env-info-item">
