@@ -36,9 +36,11 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
 }
 
 function renderEnvInfo(envInfo: EnvVarInfo[]) {
-  const isAlSet = envInfo.every((info) => info.isSet && info.resolvedBy)
+  const isAllCustomerDefinedVariablesSet = envInfo
+    .filter((info) => !info.isInternal)
+    .every((info) => info.isSet && info.resolvedBy)
 
-  if (isAlSet) {
+  if (isAllCustomerDefinedVariablesSet) {
     return `
       <div>
         ✅ All environment variables are set
