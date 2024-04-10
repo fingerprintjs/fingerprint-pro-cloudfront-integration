@@ -67,6 +67,7 @@ const existingLambda: GetFunctionResponse = {
     Handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
     RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
     State: State.Active,
+    CodeSha256: 'M51rf9QNIaPQTR5+dVKv3H1h1pdogffdb5epfsaoBoN=',
   },
 }
 
@@ -80,6 +81,7 @@ const existingLambdaAfterUpdate: GetFunctionResponse = {
     Handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
     RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
     State: State.Active,
+    CodeSha256: 'W28rD7QNIwBRTR4+dVKv3H1h1p4Hqfw2b5epWPuoNqA=',
   },
 }
 
@@ -93,6 +95,7 @@ const existingNonActiveLambdaAfterUpdate: GetFunctionResponse = {
     Handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
     RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
     State: State.Pending,
+    CodeSha256: 'W28rD7QNIwBRTR4+dVKv3H1h1p4Hqfw2b5epWPuoNqA=',
   },
 }
 
