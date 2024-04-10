@@ -134,13 +134,13 @@ Resources:
       Timeout: 10
       Role: !GetAtt FpIntLambdaFunctionExecutionRole.Arn
 
-  FingerprintProCloudFrontLambdaVersion:  
+  FingerprintProCloudFrontLambdaVersion:
     Type: AWS::Lambda::Version
     DependsOn:
       - FingerprintProCloudFrontLambda
     Properties:
       FunctionName: !Ref FingerprintProCloudFrontLambda
-      Description: Lambda@Edge function's version reference (v1)
+      Description: Lambda@Edge function definition
 
   ## CloudFront distribution and related settings
 
