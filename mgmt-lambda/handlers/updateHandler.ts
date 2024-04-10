@@ -41,6 +41,7 @@ export async function handleUpdate(
     console.error('Lambda@Edge function expected to have a revision ID of the current deployment')
     throw new ApiException(ErrorCode.LambdaFunctionCurrentRevisionNotDefined)
   }
+  const currentCodeSha256 = functionInformationBeforeUpdate.CodeSha256
 
   const newVersionConfiguration = await updateLambdaFunctionCode(
     lambdaClient,
@@ -66,6 +67,22 @@ export async function handleUpdate(
   }
 
   const newVersion = newVersions[0]
+  const newVersionCodeSha256 = newVersion.CodeSha256
+
+  if (currentCodeSha256 === newVersionCodeSha256) {
+    console.info(`New version's code SHA256 is equal to the previous $LATEST code SHA256`)
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ status: 'Update is not required' }),
+      headers: {
+        'content-type': 'application/json',
+      },
+    }
+  } else {
+    console.info(
+      `New version's SHA256 is not equals to the previous one. Continue with updating CloudFront resources...`
+    )
+  }
 
   const functionInformationAfterUpdate = await getLambdaFunctionInformation(lambdaClient, settings.LambdaFunctionName)
   if (functionInformationAfterUpdate?.State !== State.Active) {
