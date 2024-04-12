@@ -14,8 +14,6 @@ new aws.secretsmanager.SecretVersion(secretName, {
     fpjs_get_result_path: process.env.FPJS_GET_RESULT_PATH ?? 'visitorId',
     fpjs_pre_shared_secret: process.env.FPJS_PRE_SHARED_SECRET ?? '',
     fpjs_agent_download_path: process.env.FPJS_AGENT_DOWNLOAD_PATH ?? 'agent',
-    fpjs_cdn_url: process.env.FPJS_CDN_URL ?? 'fpcdn.io',
-    fpjs_ingress_base_host: process.env.FPJS_INGRESS_BASE_HOST ?? 'api.fpjs.io',
   }),
 })
 
