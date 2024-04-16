@@ -31,7 +31,7 @@ export async function handleUpdate(
   settings: DeploymentSettings
 ): Promise<APIGatewayProxyResult> {
   console.info(`Going to upgrade Fingerprint Pro function association at CloudFront distribution.`)
-  console.info(`Settings: ${JSON.stringify(settings)}`)
+  console.info(`Settings: ${JSON.stringify(settings)}.`)
 
   const isLambdaFunctionExist = await checkIfLambdaFunctionWithNameExists(lambdaClient, settings.LambdaFunctionName)
   if (!isLambdaFunctionExist) {
