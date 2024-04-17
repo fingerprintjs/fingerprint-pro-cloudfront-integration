@@ -11,29 +11,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: 'Install pnpm'
-        uses: pnpm/action-setup@ebcfd6995dade4b0104ac774445cef8b3b4635b0
+      - name: Install node.js
+        uses: actions/setup-node@v3
         with:
-          version: 8
-
-      - name: 'Install latest node version'
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ inputs.nodeVersion }}
-          cache: ${{ env.PACKAGE_MANAGER }}
+          node-version-file: '.node-version'
 
       - name: Get current date
         id: date
         run: echo "today=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_OUTPUT
 
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install
       - name: Build
-        run: pnpm build
+        run: yarn build
         env:
           FPCDN: ${{ secrets.FPCDN }}
           INGRESS_API: ${{ secrets.INGRESS_API }}
@@ -44,16 +48,7 @@ jobs:
           GITHUB_REAL_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
 
       - name: Prepare e2e directory
-        run: cp -r dist e2e && cp package.json e2e && cp pnpm-lock.yaml e2e
-
-      - name: Build for mock tests
-        run: rm -rf dist && pnpm build
-        env:
-          FPCDN: ${{ secrets.MOCK_FPCDN }}
-          INGRESS_API: ${{ secrets.MOCK_INGRESS_API }}
-
-      - name: Add mock dist
-        run: cp -r dist e2e/mock-dist
+        run: cp -r dist e2e && cp package.json e2e && cp yarn.lock e2e
 
       - name: Deploy
         uses: s0/git-publish-subdir-action@92faf786f11dfa44fc366ac3eb274d193ca1af7e

@@ -4,12 +4,6 @@ module.exports = {
   testEnvironment: 'node',
   testRegex: '/test/.+test.tsx?$',
   passWithNoTests: true,
-  collectCoverageFrom: [
-    './proxy/**/**.ts',
-    '!**/model/**.ts',
-    '!./proxy/app.ts',
-    '!**/index.ts',
-    './mgmt-lambda/**/**.ts',
-  ],
+  collectCoverageFrom: ['./proxy/**/**.ts', '!**/handlers/**.ts', '!**/model/**.ts', '!./proxy/app.ts', '!**/index.ts'],
   coverageReporters: ['lcov', 'json-summary', ['text', { file: 'coverage.txt', path: './' }]],
 }

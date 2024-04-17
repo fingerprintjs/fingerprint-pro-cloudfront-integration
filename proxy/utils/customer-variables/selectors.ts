@@ -22,9 +22,3 @@ export const getResultPath = async (variables: CustomerVariables) =>
 
 export const getPreSharedSecret = async (variables: CustomerVariables) =>
   variables.getVariable(CustomerVariableType.PreSharedSecret).then(extractVariable)
-
-export const getFpCdnUrl = async (variables: CustomerVariables) =>
-  variables.getVariable(CustomerVariableType.FpCdnUrl).then(extractVariable)
-
-export const getFpIngressBaseHost = async (variables: CustomerVariables) =>
-  variables.getVariable(CustomerVariableType.FpIngressBaseHost).then(extractVariable)

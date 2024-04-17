@@ -1,4 +1,0 @@
-packages:
-  - "proxy/*"
-  - "mgmt-lambda/*"
-  - "e2e/*"

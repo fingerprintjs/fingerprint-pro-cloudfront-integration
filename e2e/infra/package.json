@@ -3,19 +3,19 @@
   "main": "index.ts",
   "license": "MIT",
   "scripts": {
-    "lambda:up": "cd lambda && pnpm run up",
-    "lambda:destroy": "cd lambda && pnpm run destroy",
-    "lambda:export": "cd lambda && pnpm run export",
-    "cloudfront:up": "cd cloudfront && pnpm run up",
-    "cloudfront:destroy": "cd cloudfront && pnpm run destroy",
-    "cloudfront:export": "cd cloudfront && pnpm run export"
+    "lambda:up": "cd lambda && yarn up",
+    "lambda:destroy": "cd lambda && yarn destroy",
+    "lambda:export": "cd lambda && yarn export",
+    "cloudfront:up": "cd cloudfront && yarn up",
+    "cloudfront:destroy": "cd cloudfront && yarn destroy",
+    "cloudfront:export": "cd cloudfront && yarn export"
   },
   "devDependencies": {
-    "@types/node": "^20.11.24"
+    "@types/node": "^18.11.9"
   },
   "dependencies": {
-    "@pulumi/aws": "^6.24.0",
-    "@pulumi/awsx": "^2.5.0",
-    "@pulumi/pulumi": "^3.107.0"
+    "@pulumi/pulumi": "^3.0.0",
+    "@pulumi/aws": "^5.41.0",
+    "@pulumi/awsx": "^1.0.2"
   }
 }

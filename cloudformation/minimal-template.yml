@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Minimal template for Fingerprint Pro Lambda@Edge function for CloudFront integration
+Parameters:
+  SecretName:
+    AllowedPattern: ^([a-zA-Z0-9\/_+=.@\-])+$
+    Description: AWS Secret Name
+    Type: String
+  SecretRegion:
+    AllowedPattern: ^([a-z0-9\-])+$
+    Description: AWS Region where secret is stored
+    Type: String
+
+Resources:
+  FpIntLambdaFunctionExecutionRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      SamResourceId: FpIntLambdaFunctionExecutionRole
+    Properties:
+      RoleName: !Join ['-', ['fingerprint-pro-lambda-role', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+              - edgelambda.amazonaws.com
+      Policies:
+      - PolicyName: LambdaExecutionPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: arn:aws:logs:*:*:*
+      - PolicyName: AWSSecretAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: 
+              Fn::Sub: arn:aws:secretsmanager:${SecretRegion}:${AWS::AccountId}:secret:${SecretName}-??????
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  FingerprintProCloudfrontLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      Handler: fingerprintjs-pro-cloudfront-lambda-function.handler
+      Runtime: nodejs16.x
+      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip
+      MemorySize: 128
+      Timeout: 3
+      Role: !GetAtt FpIntLambdaFunctionExecutionRole.Arn
+
+  FingerprintProCDNCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: !Join [ '-', ['FingerprintProCDNCachePolicy', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+        MinTTL: 0
+        MaxTTL: 180
+        DefaultTTL: 180
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: whitelist
+            QueryStrings:
+              - version
+              - loaderVersion
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
+  
+Outputs:
+  LambdaFunctionName:
+    Description: Fingerprint Pro Lambda function name
+    Value:
+      Ref: FingerprintProCloudfrontLambda
+    Export:
+      Name: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  CachePolicyName:
+    Description: Cache policy name
+    Value:
+      Ref: FingerprintProCDNCachePolicy
+    Export:
+      Name: !Join [ '-', ['FingerprintProCDNCachePolicy', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]

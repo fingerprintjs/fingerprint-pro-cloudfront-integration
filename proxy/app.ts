@@ -12,33 +12,23 @@ import {
   getApiKey,
   getLoaderVersion,
   removeTrailingSlashes,
-  setLogLevel,
 } from './utils'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
 import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
 import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
-import { getFpCdnUrl, getFpIngressBaseHost } from './utils/customer-variables/selectors'
+import { createLogger } from './logger'
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
   const request = event.Records[0].cf.request
-  setLogLevel(request)
+
+  const logger = createLogger(request)
 
   const customerVariables = new CustomerVariables([
     new SecretsManagerVariables(request),
     new HeaderCustomerVariables(request),
   ])
 
-  const fpCdnUrl = await getFpCdnUrl(customerVariables)
-  const fpIngressBaseHost = await getFpIngressBaseHost(customerVariables)
-  if (!fpCdnUrl || !fpIngressBaseHost) {
-    return new Promise((resolve) =>
-      resolve({
-        status: '500',
-      })
-    )
-  }
-
-  console.debug('Handling request', request)
+  logger.debug('Handling request', request)
 
   const resultUri = await getResultUri(customerVariables)
   const resultUriRegex = new RegExp(`^${resultUri}(/.*)?$`)
@@ -49,12 +39,12 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
 
   if (pathname === agentUri) {
     return downloadAgent({
-      fpCdnUrl,
-      apiKey: getApiKey(request),
-      version: getVersion(request),
-      loaderVersion: getLoaderVersion(request),
+      apiKey: getApiKey(request, logger),
+      version: getVersion(request, logger),
+      loaderVersion: getLoaderVersion(request, logger),
       method: request.method,
       headers: filterRequestHeaders(request),
+      logger,
     })
   } else if (resultPathMatches?.length) {
     let suffix = ''
@@ -65,12 +55,12 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
       suffix = '/' + suffix
     }
     return handleResult({
-      fpIngressBaseHost,
-      region: getRegion(request),
+      region: getRegion(request, logger),
       querystring: request.querystring,
       method: request.method,
       headers: await prepareHeadersForIngressAPI(request, customerVariables),
       body: request.body?.data || '',
+      logger,
       suffix,
     })
   } else {
@@ -83,7 +73,7 @@ export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFront
     return new Promise((resolve) =>
       resolve({
         status: '404',
-      })
+      }),
     )
   }
 }

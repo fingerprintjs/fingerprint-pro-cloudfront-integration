@@ -4,10 +4,7 @@ env:
     GITHUB_TOKEN: "fpjs-dev-cloudfront-secrets:GITHUB_TOKEN"
 phases:
   install:
-    runtime-versions:
-      nodejs: 20
     commands:
-      - npm i -g pnpm
       - echo $COMMIT_ID
       - echo $CODEBUILD_SOURCE_VERSION
       - echo $CODEBUILD_BUILD_ID
@@ -19,37 +16,29 @@ phases:
           -H "Authorization: Bearer $GITHUB_TOKEN"\
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_ID \
-          -d "{\"state\":\"pending\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/$AWS_ACCOUNT_ID/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests for release are running\",\"context\":\"e2e-release\"}"
+          -d "{\"state\":\"pending\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/708050157146/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests for release are running\",\"context\":\"e2e-release\"}"
       - ls -a
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
-      - pnpm install
-      - pnpm -C website install && pnpm -C website build
-      - cd tests && pnpm install && npx playwright install --with-deps && cd ..
+      - yarn install
+      - yarn install --cwd=e2e/infra
+      - yarn install --cwd=e2e/website
+      - yarn install --cwd=e2e/tests
+      - cd e2e/tests && npx playwright install --with-deps && cd ../..
       - UNPACK_TO_DIST=true node scripts/downloadGithubRelease.mjs
   pre_build:
     commands:
       - pwd
-      - pulumi version      
+      - pulumi version
+      - cd e2e/website && yarn build && cd ../..
       - cd e2e/infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../..
       - cd e2e/infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../..
-      - cd e2e/infra && pnpm run lambda:up && pnpm run lambda:export && pnpm run cloudfront:up && pnpm run cloudfront:export && cd ../..
-    finally:
-      - |
-        if [ "$CODEBUILD_BUILD_SUCCEEDING" -eq 0 ]; then
-          curl \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN"\
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_ID \
-            -d "{\"state\":\"error\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/$AWS_ACCOUNT_ID/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests for release failed during the pre-build step\",\"context\":\"e2e-release\"}"
-        fi
+      - cd e2e/infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../..
   build:
     commands:
       - ls -a
-      - cd e2e/tests && pnpm test
+      - cd e2e/tests && yarn test
     finally:
       - cd ../..
       - echo $CODEBUILD_BUILD_SUCCEEDING
@@ -63,5 +52,5 @@ phases:
           -H "Authorization: Bearer $GITHUB_TOKEN"\
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_ID \
-          -d "{\"state\":\"$STATUS\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/$AWS_ACCOUNT_ID/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests for release finished\",\"context\":\"e2e-release\"}"
-      - cd e2e/infra && pnpm cloudfront:destroy && pnpm lambda:destroy && cd ../..
+          -d "{\"state\":\"$STATUS\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/708050157146/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests for release finished\",\"context\":\"e2e-release\"}"
+      - cd e2e/infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../..

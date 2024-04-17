@@ -1,10 +1,10 @@
 import { CustomerVariableProvider, CustomerVariableType, CustomerVariableValue } from '../types'
-import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { SecretsManager } from 'aws-sdk'
 import { CloudFrontRequest } from 'aws-lambda'
 import { getHeaderValue } from '../../headers'
 import { retrieveSecret } from './retrieve-secret'
 import { NonNullableObject } from '../../types'
-import { DEFAULT_REGION, SECRET_NAME_HEADER_KEY } from '../defaults'
+import { createLogger } from '../../../logger'
 
 interface SecretsInfo {
   secretName: string | null
@@ -16,16 +16,25 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
 
   private secretsInfo?: SecretsInfo
 
-  private readonly secretsManager?: SecretsManagerClient
+  private readonly secretsManager?: SecretsManager
 
-  constructor(private readonly request: CloudFrontRequest) {
+  private headers: Record<keyof SecretsInfo, string> = {
+    secretName: 'fpjs_secret_name',
+    secretRegion: 'fpjs_secret_region',
+  }
+
+  constructor(
+    private readonly request: CloudFrontRequest,
+    SecretsManagerImpl: typeof SecretsManager = SecretsManager,
+    private readonly logger = createLogger(),
+  ) {
     this.readSecretsInfoFromHeaders()
 
     if (SecretsManagerVariables.isValidSecretInfo(this.secretsInfo)) {
       try {
-        this.secretsManager = new SecretsManagerClient({ region: this.secretsInfo.secretRegion })
+        this.secretsManager = new SecretsManagerImpl({ region: this.secretsInfo.secretRegion })
       } catch (error) {
-        console.error('Failed to create secrets manager', {
+        logger.error('Failed to create secrets manager', {
           error,
           secretsInfo: this.secretsInfo,
         })
@@ -45,9 +54,9 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
     }
 
     try {
-      return await retrieveSecret(this.secretsManager, this.secretsInfo!.secretName!)
+      return await retrieveSecret(this.secretsManager, this.secretsInfo!.secretName!, this.logger)
     } catch (error) {
-      console.error('Error retrieving secret from secrets manager', {
+      this.logger.error('Error retrieving secret from secrets manager', {
         error,
         secretsInfo: this.secretsInfo,
       })
@@ -59,8 +68,8 @@ export class SecretsManagerVariables implements CustomerVariableProvider {
   private readSecretsInfoFromHeaders() {
     if (!this.secretsInfo) {
       this.secretsInfo = {
-        secretName: getHeaderValue(this.request, SECRET_NAME_HEADER_KEY),
-        secretRegion: DEFAULT_REGION,
+        secretName: getHeaderValue(this.request, this.headers.secretName),
+        secretRegion: getHeaderValue(this.request, this.headers.secretRegion),
       }
     }
   }

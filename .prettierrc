@@ -1,1 +1,6 @@
-"@fingerprintjs/prettier-config-dx-team"
+{
+  "printWidth": 120,
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "all"
+}

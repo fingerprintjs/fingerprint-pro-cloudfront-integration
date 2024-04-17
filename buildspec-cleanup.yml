@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - pnpm install
+      - yarn install
   build:
     commands:
       - node e2e/scripts/cleanup.mjs

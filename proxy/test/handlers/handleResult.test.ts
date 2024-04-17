@@ -35,11 +35,9 @@ describe('Result Endpoint', function () {
 
     expect(handleResult).toHaveBeenCalledTimes(1)
     expect(https.request).toHaveBeenCalledWith(
-      expect.objectContaining<Partial<URL>>({
-        href: `https://eu.${origin}/${queryStringWithRegion('eu')}`,
-      }),
+      new URL(`https://eu.${origin}/${queryStringWithRegion('eu')}`),
       expect.anything(),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -55,7 +53,7 @@ describe('Result Endpoint', function () {
     expect(https.request).toHaveBeenCalledWith(
       new URL(`https://${origin}/${queryStringWithRegion('us')}`),
       expect.anything(),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -73,7 +71,7 @@ describe('Result Endpoint', function () {
     expect(https.request).toHaveBeenCalledWith(
       new URL(`https://${origin}/${queryStringWithUSRegion}`),
       expect.anything(),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -89,7 +87,7 @@ describe('Result Endpoint', function () {
     expect(https.request).toHaveBeenCalledWith(
       new URL(`https://${origin}/${suffix}?${iiParam}`),
       expect.anything(),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -107,7 +105,7 @@ describe('Result Endpoint', function () {
     expect(https.request).toHaveBeenCalledWith(
       new URL(`https://${origin}/${queryStringWithUSRegion}`),
       expect.anything(),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -123,7 +121,7 @@ describe('Result Endpoint', function () {
     expect(https.request).toHaveBeenCalledWith(
       new URL(`https://${origin}/${suffix}?${iiParam}`),
       expect.anything(),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -132,11 +130,9 @@ describe('Result Endpoint', function () {
     await handler(event)
     expect(handleResult).toHaveBeenCalledTimes(1)
     expect(https.request).toHaveBeenCalledWith(
-      expect.objectContaining<Partial<URL>>({
-        href: `https://${origin}/${queryString}`,
-      }),
+      new URL(`https://${origin}/${queryString}`),
       expect.anything(),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -145,11 +141,9 @@ describe('Result Endpoint', function () {
     await handler(event)
     expect(handleResult).toHaveBeenCalledTimes(1)
     expect(https.request).toHaveBeenCalledWith(
-      expect.objectContaining<Partial<URL>>({
-        href: `https://${origin}/with/suffix${queryString}`,
-      }),
+      new URL(`https://${origin}/with/suffix${queryString}`),
       expect.anything(),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -163,11 +157,9 @@ describe('Result Endpoint', function () {
 
     expect(handleResult).toHaveBeenCalledTimes(1)
     expect(https.request).toHaveBeenCalledWith(
-      expect.objectContaining<Partial<URL>>({
-        href: `https://eu.${origin}/with/suffix${queryStringWithRegion('eu')}`,
-      }),
+      new URL(`https://eu.${origin}/with/suffix${queryStringWithRegion('eu')}`),
       expect.anything(),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -217,7 +209,7 @@ describe('Result Endpoint', function () {
 
     const options = requestSpy.mock.calls[0][1]
     expect(options.headers.cookie).toEqual(
-      '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow=='
+      '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow==',
     )
   })
 

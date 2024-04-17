@@ -4,10 +4,7 @@ env:
     GITHUB_TOKEN: "fpjs-dev-cloudfront-secrets:GITHUB_TOKEN"
 phases:
   install:
-    runtime-versions:
-      nodejs: 20
     commands:
-      - npm i -g pnpm
       - export COMMIT_SHA=$(cat meta.json | jq -r '.sha')
       - echo $COMMIT_SHA
       - echo $CODEBUILD_BUILD_ID
@@ -19,37 +16,25 @@ phases:
           -H "Authorization: Bearer $GITHUB_TOKEN"\
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_SHA \
-          -d "{\"state\":\"pending\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests are running\",\"context\":\"e2e\"}"
+          -d "{\"state\":\"pending\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/708050157146/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests are running\",\"context\":\"e2e\"}"
       - ls -a
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
       - pulumi version
+      - yarn install && yarn install --cwd=infra && yarn install --cwd=website && yarn install --cwd=tests
+      - cd tests && npx playwright install --with-deps && cd ..
   pre_build:
     commands:
       - pwd
-      - ls -lah
       - pulumi version
-      - pnpm install
-      - pnpm -C website install && pnpm -C website build
-      - cd tests && pnpm install && npx playwright install --with-deps && cd ..
-      - cd infra/lambda && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd ../../
-      - cd infra/cloudfront && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd ../../
-      - cd infra && pnpm install && pnpm run lambda:up && pnpm run lambda:export && pnpm run cloudfront:up && pnpm run cloudfront:export && cd ../
-    finally:
-      - |
-        if [ "$CODEBUILD_BUILD_SUCCEEDING" -eq 0 ]; then
-          curl \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN"\
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_SHA \
-            -d "{\"state\":\"error\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests failed during the pre-build step\",\"context\":\"e2e\"}"
-        fi
+      - cd website && yarn build && cd ../
+      - cd infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../
+      - cd infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../
+      - cd infra && yarn lambda:up && yarn lambda:export && yarn cloudfront:up && yarn cloudfront:export && cd ../
   build:
     commands:
       - ls -a
-      - cd tests && pnpm test
+      - cd tests && yarn test
     finally:
       - cd ../
       - echo $CODEBUILD_BUILD_SUCCEEDING
@@ -63,5 +48,5 @@ phases:
           -H "Authorization: Bearer $GITHUB_TOKEN"\
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_SHA \
-          -d "{\"state\":\"$STATUS\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests finished\",\"context\":\"e2e\"}"
-      - cd infra && pnpm cloudfront:destroy && pnpm lambda:destroy && cd ../
+          -d "{\"state\":\"$STATUS\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/708050157146/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests finished\",\"context\":\"e2e\"}"
+      - cd infra && yarn cloudfront:destroy && yarn lambda:destroy && cd ../

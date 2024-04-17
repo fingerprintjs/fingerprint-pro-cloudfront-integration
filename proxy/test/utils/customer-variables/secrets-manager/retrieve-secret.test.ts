@@ -1,42 +1,34 @@
-import { mockClient } from 'aws-sdk-client-mock'
-import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
+import { getMockSecretsManager } from '../../../aws'
 import { clearSecretsCache, retrieveSecret } from '../../../../utils/customer-variables/secrets-manager/retrieve-secret'
-import 'aws-sdk-client-mock-jest'
+import { createLogger } from '../../../../logger'
 
-const secretName = 'test'
-const mock = mockClient(SecretsManagerClient)
-const client = new SecretsManagerClient({})
+const { mockSecret, MockSecretsManager, getSecretValue } = getMockSecretsManager()
+
+const logger = createLogger()
 
 describe('retrieve secret', () => {
   beforeEach(() => {
     clearSecretsCache()
 
-    mock.reset()
+    MockSecretsManager.mockClear()
+    getSecretValue.mockClear()
   })
 
   it('caches result even if it is null', async () => {
-    mock
-      .on(GetSecretValueCommand, {
-        SecretId: secretName,
-      })
-      .resolves({})
+    mockSecret.asUndefined()
 
-    await retrieveSecret(client, secretName)
-    await retrieveSecret(client, secretName)
+    await retrieveSecret(new MockSecretsManager() as any, 'test', logger)
+    await retrieveSecret(new MockSecretsManager() as any, 'test', logger)
 
-    expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 1)
+    expect(getSecretValue).toHaveBeenCalledTimes(1)
   })
 
   it('caches result even if it secrets manager throws', async () => {
-    mock
-      .on(GetSecretValueCommand, {
-        SecretId: secretName,
-      })
-      .rejects('mocked rejection')
+    mockSecret.asError(new Error('error'))
 
-    await retrieveSecret(client, secretName)
-    await retrieveSecret(client, secretName)
+    await retrieveSecret(new MockSecretsManager() as any, 'test', logger)
+    await retrieveSecret(new MockSecretsManager() as any, 'test', logger)
 
-    expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 1)
+    expect(getSecretValue).toHaveBeenCalledTimes(1)
   })
 })

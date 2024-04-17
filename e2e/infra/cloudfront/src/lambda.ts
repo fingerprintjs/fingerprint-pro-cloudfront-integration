@@ -2,7 +2,7 @@ import * as aws from '@pulumi/aws'
 import { resource } from '../../utils/resource'
 
 export const lambdaCachePolicy = new aws.cloudfront.CachePolicy(resource('lambda-cache-policy'), {
-  minTtl: 0,
+  minTtl: 1,
   maxTtl: 180,
   defaultTtl: 180,
   parametersInCacheKeyAndForwardedToOrigin: {

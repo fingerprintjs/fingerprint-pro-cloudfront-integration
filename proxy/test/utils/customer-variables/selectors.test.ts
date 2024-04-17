@@ -4,11 +4,10 @@ import { HeaderCustomerVariables } from '../../../utils/customer-variables/heade
 import { getAgentUri, getResultUri, getStatusUri } from '../../../utils'
 import { SecretsManagerVariables } from '../../../utils/customer-variables/secrets-manager/secrets-manager-variables'
 import { CustomerVariablesRecord, CustomerVariableType } from '../../../utils/customer-variables/types'
+import { Blob } from 'buffer'
 import { clearSecretsCache } from '../../../utils/customer-variables/secrets-manager/retrieve-secret'
-import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
+import { getMockSecretsManager } from '../../aws'
 import { getBehaviorPath } from '../../../utils/customer-variables/selectors'
-import { mockClient } from 'aws-sdk-client-mock'
-import 'aws-sdk-client-mock-jest'
 
 describe('customer variables selectors', () => {
   describe('from headers', () => {
@@ -148,10 +147,10 @@ describe('customer variables selectors', () => {
   })
 
   describe('from secrets manager', () => {
-    const mock = mockClient(SecretsManagerClient)
+    const { getSecretValue, MockSecretsManager, mockSecret } = getMockSecretsManager()
 
     const getSecretsManagerCustomerVariables = (request: CloudFrontRequest) =>
-      new CustomerVariables([new SecretsManagerVariables(request)])
+      new CustomerVariables([new SecretsManagerVariables(request, MockSecretsManager as any)])
 
     const stringToArrayBuffer = (str: string) => {
       const buf = new ArrayBuffer(str.length)
@@ -161,9 +160,6 @@ describe('customer variables selectors', () => {
       }
       return bufView
     }
-
-    const secretName = 'my_secret'
-    const secretRegion = 'us-east-1'
 
     const req: CloudFrontRequest = {
       clientIp: '1.1.1.1',
@@ -184,13 +180,13 @@ describe('customer variables selectors', () => {
             fpjs_secret_name: [
               {
                 key: 'fpjs_secret_name',
-                value: secretName,
+                value: 'my_secret',
               },
             ],
             fpjs_secret_region: [
               {
                 key: 'fpjs_secret_region',
-                value: secretRegion,
+                value: 'eu-west-1',
               },
             ],
           },
@@ -209,21 +205,25 @@ describe('customer variables selectors', () => {
 
       await checkVariables()
 
-      expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 1)
-      expect(mock).toHaveReceivedCommandWith(GetSecretValueCommand, {
-        SecretId: secretName,
+      expect(MockSecretsManager).toHaveBeenCalledWith({
+        region: 'eu-west-1',
+      })
+      expect(getSecretValue).toHaveBeenCalledTimes(1)
+      expect(getSecretValue).toHaveBeenCalledWith({
+        SecretId: 'my_secret',
       })
 
       await checkVariables()
 
       // Ensure that the secret is only fetched once
-      expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 1)
+      expect(getSecretValue).toHaveBeenCalledTimes(1)
     }
 
     beforeEach(() => {
       clearSecretsCache()
 
-      mock.reset()
+      MockSecretsManager.mockClear()
+      getSecretValue.mockClear()
     })
 
     const variablesRecord = {
@@ -235,34 +235,22 @@ describe('customer variables selectors', () => {
     const variablesRecordStr = JSON.stringify(variablesRecord)
 
     test.each([
+      new Blob([variablesRecordStr]),
       stringToArrayBuffer(variablesRecordStr),
-      new TextEncoder().encode(variablesRecordStr),
       Buffer.from(variablesRecordStr),
     ])('positive scenario for custom origin with buffer secret', async (buffer) => {
-      mock
-        .on(GetSecretValueCommand, {
-          SecretId: secretName,
-        })
-        .resolves({
-          SecretBinary: buffer,
-        })
+      mockSecret.asBuffer(buffer)
 
       await runAssertions()
     })
 
     test('positive scenario for custom origin with string secret', async () => {
-      mock
-        .on(GetSecretValueCommand, {
-          SecretId: secretName,
-        })
-        .resolves({
-          SecretString: variablesRecordStr,
-        })
+      mockSecret.asString(variablesRecordStr)
 
       await runAssertions()
     })
 
-    test('positive scenario for s3 origin with string secret', async () => {
+    test('positive scenerio for s3 origin with string secret', async () => {
       const req: CloudFrontRequest = {
         clientIp: '1.1.1.1',
         method: 'GET',
@@ -279,13 +267,13 @@ describe('customer variables selectors', () => {
               fpjs_secret_name: [
                 {
                   key: 'fpjs_secret_name',
-                  value: secretName,
+                  value: 'my_secret',
                 },
               ],
               fpjs_secret_region: [
                 {
                   key: 'fpjs_secret_region',
-                  value: secretRegion,
+                  value: 'eu-west-1',
                 },
               ],
             },
@@ -293,24 +281,20 @@ describe('customer variables selectors', () => {
         },
       }
 
-      mock
-        .on(GetSecretValueCommand, {
-          SecretId: secretName,
-        })
-        .resolves({
-          SecretString: variablesRecordStr,
-        })
+      mockSecret.asString(variablesRecordStr)
 
       await runAssertions(req)
     })
   })
 
   describe('from secrets manager and headers', () => {
-    const mock = mockClient(SecretsManagerClient)
-    //const client = new SecretsManagerClient({})
+    const { getSecretValue, MockSecretsManager, mockSecret } = getMockSecretsManager()
 
     const getCustomerVariables = (request: CloudFrontRequest) =>
-      new CustomerVariables([new SecretsManagerVariables(request), new HeaderCustomerVariables(request)])
+      new CustomerVariables([
+        new SecretsManagerVariables(request, MockSecretsManager as any),
+        new HeaderCustomerVariables(request),
+      ])
 
     const req: CloudFrontRequest = {
       clientIp: '1.1.1.1',
@@ -372,42 +356,31 @@ describe('customer variables selectors', () => {
     beforeEach(() => {
       clearSecretsCache()
 
-      mock.reset()
+      MockSecretsManager.mockClear()
+      getSecretValue.mockClear()
     })
 
     it('should fallback to headers if secrets manager value is empty', async () => {
-      mock
-        .on(GetSecretValueCommand, {
-          SecretId: 'my_secret',
-        })
-        .resolves({})
+      mockSecret.asUndefined()
 
       const result = await getBehaviorPath(getCustomerVariables(req))
 
       expect(result).toBe('eifjdsnmzxcn')
-      expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 1)
+      expect(getSecretValue).toHaveBeenCalledTimes(1)
     })
 
     it('should fallback to headers if secrets manager constructor throws', async () => {
-      mock
-        .on(GetSecretValueCommand, {
-          SecretId: 'my_secret',
-        })
-        .rejects({})
+      MockSecretsManager.mockImplementation(() => {
+        throw new Error('error')
+      })
 
       const result = await getBehaviorPath(getCustomerVariables(req))
 
       expect(result).toBe('eifjdsnmzxcn')
-      expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 1)
+      expect(getSecretValue).toHaveBeenCalledTimes(0)
     })
 
     it('should fallback to headers if secrets manager related headers are empty', async () => {
-      mock
-        .on(GetSecretValueCommand, {
-          SecretId: 'my_secret',
-        })
-        .resolves({})
-
       const req: CloudFrontRequest = {
         clientIp: '1.1.1.1',
         method: 'GET',
@@ -456,7 +429,7 @@ describe('customer variables selectors', () => {
       const result = await getBehaviorPath(getCustomerVariables(req))
 
       expect(result).toBe('eifjdsnmzxcn')
-      expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 0)
+      expect(getSecretValue).toHaveBeenCalledTimes(0)
     })
   })
 })

@@ -7,11 +7,11 @@ import { updateResponseHeaders, addTrafficMonitoringSearchParamsForVisitorIdRequ
 
 export function handleResult(options: ResultOptions): Promise<CloudFrontResultResponse> {
   return new Promise((resolve) => {
-    console.debug('Handling result:', { options })
+    options.logger.debug('Handling result:', { options })
 
     const data: any[] = []
 
-    const url = new URL(getIngressAPIHost(options.region, options.fpIngressBaseHost) + options.suffix)
+    const url = new URL(getIngressAPIHost(options.region) + options.suffix)
     decodeURIComponent(options.querystring)
       .split('&')
       .filter((it) => it.includes('='))
@@ -24,7 +24,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
       })
     addTrafficMonitoringSearchParamsForVisitorIdRequest(url)
 
-    console.debug(`Performing request: ${url.toString()}`)
+    options.logger.debug(`Performing request: ${url.toString()}`)
 
     const request = https.request(
       url,
@@ -38,7 +38,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
         response.on('end', () => {
           const payload = Buffer.concat(data)
 
-          console.debug('Response from Ingress API', {
+          options.logger.debug('Response from Ingress API', {
             statusCode: response.statusCode,
             payload: payload.toString('utf-8'),
           })
@@ -51,13 +51,13 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
             body: payload.toString('base64'),
           })
         })
-      }
+      },
     )
 
     request.write(Buffer.from(options.body, 'base64'))
 
     request.on('error', (error) => {
-      console.error('unable to handle result', { error })
+      options.logger.error('unable to handle result', { error })
       resolve({
         status: '500',
         statusDescription: 'Bad request',
@@ -103,7 +103,7 @@ function generateRequestUniqueId(): string {
   return generateRandomString(2)
 }
 
-function getIngressAPIHost(region: Region, baseHost: string): string {
+function getIngressAPIHost(region: Region): string {
   const prefix = region === Region.us ? '' : `${region}.`
-  return `https://${prefix}${baseHost}`
+  return `https://${prefix}__INGRESS_API__`
 }

@@ -1,6 +1,7 @@
 import path from 'path'
 import { getStackOutput } from '../../infra/utils/getStackOutput'
 import { wait } from './utils/wait'
+import fetch from 'node-fetch'
 
 const stackPath = path.resolve(__dirname, '../../infra/cloudfront')
 
@@ -64,7 +65,7 @@ export async function waitForCloudfront(waitMs = 1000) {
 
         await wait(waitMs)
       })
-    })
+    }),
   )
 }
 

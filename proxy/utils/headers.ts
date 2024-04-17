@@ -53,7 +53,7 @@ const CACHE_CONTROL_HEADER_NAME = 'cache-control'
 
 export async function prepareHeadersForIngressAPI(
   request: CloudFrontRequest,
-  variables: CustomerVariables
+  variables: CustomerVariables,
 ): Promise<OutgoingHttpHeaders> {
   const headers = filterRequestHeaders(request)
 
