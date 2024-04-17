@@ -1,3 +1,12 @@
+## [2.1.0-rc.3](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.1.0-rc.2...v2.1.0-rc.3) (2024-04-17)
+
+
+### Features
+
+* add ability to override API hosts in AWS Secret ([11af4c4](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/11af4c4617050f404995c5ed297b97443afb67ff))
+* check CodeSha256 before upgrading consequent resources ([7fdbd21](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/7fdbd21c9c339112baf524ab231bd60b81a639d3))
+* use revisionId for Lambda code deployment ([934dd37](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/934dd37f77969328b6e4d15147dac3895301a22c))
+
 ## [1.4.0](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.3.3...v1.4.0) (2023-12-14)
 
 

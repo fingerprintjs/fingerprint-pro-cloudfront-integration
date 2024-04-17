@@ -1,6 +1,6 @@
 {
   "name": "@fingerprintjs/fingerprint-pro-cloudfront-lambda-function",
-  "version": "1.4.0",
+  "version": "2.1.0-rc.3",
   "description": "Fingerprint Pro CloudFront lambda@edge function",
   "author": "FingerprintJS, Inc (https://fingerprint.com)",
   "license": "MIT",
