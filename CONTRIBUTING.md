@@ -59,6 +59,6 @@ When that happens, an automated PR is created to `main` branch, and E2E tests ru
 
 The integration is automatically released on every push to the main branch if there are relevant changes. The workflow must be approved by one of the maintainers, first.
 
-### How to keep your worker up-to-date
+### How to keep your integration up-to-date
 
 CloudFront Integration by Fingerprint always uses the latest stable version for the customers and upgrades customer Lambda@Edge automatically by running CodePipeline once a new version of Lambda@Edge function is available on the public [S3 bucket](s3://fingerprint-pro-cloudfront-integration-lambda-function/release/lambda_latest.zip). The serverless application that contains the CodePipeline is responsible for delivering new updates from the S3 bucket to the customer's infrastructure.
