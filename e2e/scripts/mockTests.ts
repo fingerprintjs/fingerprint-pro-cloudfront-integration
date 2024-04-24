@@ -16,6 +16,12 @@ async function main() {
 
   const cloudfrontUrls = getCloudfrontUrls()
 
+  const version = process.env.VERSION
+
+  if (!version) {
+    throw new Error('VERSION is not set.')
+  }
+
   const apiUrl = getEnv('API_URL')
   const behaviorPath = getEnv('FPJS_BEHAVIOR_PATH')
   const agentPath = `${behaviorPath}/${getEnv('FPJS_AGENT_DOWNLOAD_PATH')}`
@@ -27,9 +33,15 @@ async function main() {
   for (const [name, url] of Object.entries(cloudfrontUrls)) {
     console.info(`Running mock e2e tests for ${name}`, url)
 
+    const agentUrl = new URL(url)
+    agentUrl.pathname = agentPath
+
+    const resultUrl = new URL(url)
+    resultUrl.pathname = resultPath
+
     try {
       execSync(
-        `npm exec -y "git+https://github.com/fingerprintjs/dx-team-mock-for-proxy-integrations-e2e-tests.git" -- --api-url="https://${apiUrl}" --host="${url}" --cdn-proxy-path="${agentPath}" --ingress-proxy-path="${resultPath}"`,
+        `npm exec -y "git+https://github.com/fingerprintjs/dx-team-mock-for-proxy-integrations-e2e-tests.git" -- --api-url="https://${apiUrl}" --cdn-proxy-url="${agentUrl.toString()}" --ingress-proxy-url="${resultUrl.toString()}" --traffic-name="fingerprintjs-pro-cloudfront" --integration-version="${version}"`,
         {
           stdio: 'inherit',
         }
