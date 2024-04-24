@@ -1,6 +1,5 @@
 import { execSync } from 'child_process'
 import { getCloudfrontUrls } from '../tests/src/cloudfront'
-import pkg from '../../package.json'
 
 function getEnv(name: string) {
   const value = process.env[name]
@@ -16,6 +15,12 @@ async function main() {
   let hasError = false
 
   const cloudfrontUrls = getCloudfrontUrls()
+
+  const version = process.env.VERSION
+
+  if (!version) {
+    throw new Error('VERSION is not set.')
+  }
 
   const apiUrl = getEnv('API_URL')
   const behaviorPath = getEnv('FPJS_BEHAVIOR_PATH')
@@ -36,7 +41,7 @@ async function main() {
 
     try {
       execSync(
-        `npm exec -y "git+https://github.com/fingerprintjs/dx-team-mock-for-proxy-integrations-e2e-tests.git" -- --api-url="https://${apiUrl}" --cdn-proxy-url="${agentUrl.toString()}" --ingress-proxy-url="${resultUrl.toString()}" --traffic-name="fingerprintjs-pro-cloudfront" --integration-version="${pkg.version}"`,
+        `npm exec -y "git+https://github.com/fingerprintjs/dx-team-mock-for-proxy-integrations-e2e-tests.git" -- --api-url="https://${apiUrl}" --cdn-proxy-url="${agentUrl.toString()}" --ingress-proxy-url="${resultUrl.toString()}" --traffic-name="fingerprintjs-pro-cloudfront" --integration-version="${version}"`,
         {
           stdio: 'inherit',
         }

@@ -9,7 +9,9 @@ phases:
     commands:
       - npm i -g pnpm
       - export COMMIT_SHA=$(cat meta.json | jq -r '.sha')
+      - export VERSION=$(cat meta.json | jq -r '.version')
       - echo $COMMIT_SHA
+      - echo $VERSION
       - echo $CODEBUILD_BUILD_ID
       - echo $CODEBUILD_PUBLIC_BUILD_URL
       - |
