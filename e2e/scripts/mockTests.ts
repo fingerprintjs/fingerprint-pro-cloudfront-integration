@@ -1,5 +1,6 @@
 import { execSync } from 'child_process'
 import { getCloudfrontUrls } from '../tests/src/cloudfront'
+import pkg from '../../package.json'
 
 function getEnv(name: string) {
   const value = process.env[name]
@@ -27,9 +28,15 @@ async function main() {
   for (const [name, url] of Object.entries(cloudfrontUrls)) {
     console.info(`Running mock e2e tests for ${name}`, url)
 
+    const agentUrl = new URL(url)
+    agentUrl.pathname = agentPath
+
+    const resultUrl = new URL(url)
+    resultUrl.pathname = resultPath
+
     try {
       execSync(
-        `npm exec -y "git+https://github.com/fingerprintjs/dx-team-mock-for-proxy-integrations-e2e-tests.git" -- --api-url="https://${apiUrl}" --host="${url}" --cdn-proxy-path="${agentPath}" --ingress-proxy-path="${resultPath}"`,
+        `npm exec -y "git+https://github.com/fingerprintjs/dx-team-mock-for-proxy-integrations-e2e-tests.git" -- --api-url="https://${apiUrl}" --cdn-proxy-url="${agentUrl.toString()}" --ingress-proxy-url="${resultUrl.toString()}" --traffic-name="fingerprintjs-pro-cloudfront" --integration-version="${pkg.version}"`,
         {
           stdio: 'inherit',
         }
