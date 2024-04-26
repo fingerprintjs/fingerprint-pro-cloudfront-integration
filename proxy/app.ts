@@ -133,9 +133,8 @@ export function handleRequestWithRoutes(
   customerVariables: CustomerVariables,
   routes: Route[]
 ): Promise<CloudFrontResultResponse> {
-  const url = new URL(request.uri)
   for (const route of routes) {
-    const matches = url.pathname.match(route.pathPattern)
+    const matches = request.uri.match(route.pathPattern)
     if (matches) {
       return route.handler(request, customerVariables, matches)
     }

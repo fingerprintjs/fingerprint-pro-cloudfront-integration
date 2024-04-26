@@ -14,7 +14,7 @@ export const mockRequest = (
   return {
     clientIp: '1.1.1.1',
     method: method,
-    uri: `https://example.com/${uri}`,
+    uri,
     querystring,
     headers: {
       host: [
