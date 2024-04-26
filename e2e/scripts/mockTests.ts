@@ -26,6 +26,10 @@ async function main() {
   const behaviorPath = getEnv('FPJS_BEHAVIOR_PATH')
   const agentPath = `${behaviorPath}/${getEnv('FPJS_AGENT_DOWNLOAD_PATH')}`
   const resultPath = `${behaviorPath}/${getEnv('FPJS_GET_RESULT_PATH')}`
+  console.info(`apiURL = ${apiUrl}`)
+  console.info(`behaviorPath = ${behaviorPath}`)
+  console.info(`agentPath = ${agentPath}`)
+  console.info(`resultPath = ${resultPath}`)
 
   console.info('Agent download path:', agentPath)
   console.info('Get result path:', resultPath)
