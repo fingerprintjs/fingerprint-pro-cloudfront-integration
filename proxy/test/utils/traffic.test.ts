@@ -1,7 +1,7 @@
 import {
   addTrafficMonitoringSearchParamsForProCDN,
   addTrafficMonitoringSearchParamsForVisitorIdRequest,
-} from '../../utils/traffic'
+} from '../../utils'
 
 describe('test procdn call', () => {
   test('test', () => {

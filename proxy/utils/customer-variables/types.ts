@@ -1,5 +1,4 @@
 export enum CustomerVariableType {
-  BehaviourPath = 'fpjs_behavior_path',
   GetResultPath = 'fpjs_get_result_path',
   PreSharedSecret = 'fpjs_pre_shared_secret',
   AgentDownloadPath = 'fpjs_agent_download_path',

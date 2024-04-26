@@ -16,17 +16,16 @@ describe('Validate secret', () => {
 
   it('throws if object contains invalid values', () => {
     const object = {
-      [CustomerVariableType.BehaviourPath]: {},
+      [CustomerVariableType.AgentDownloadPath]: {},
     }
 
     expect(() => validateSecret(object)).toThrow(
-      'Secrets Manager secret contains an invalid value fpjs_behavior_path: [object Object]'
+      'Secrets Manager secret contains an invalid value fpjs_agent_download_path: [object Object]'
     )
   })
 
   it('does not throw for object with partial values', () => {
     const object = {
-      [CustomerVariableType.BehaviourPath]: undefined,
       [CustomerVariableType.PreSharedSecret]: null,
       [CustomerVariableType.GetResultPath]: 'result',
     }

@@ -1,4 +1,4 @@
-import { getApiKey, getLoaderVersion, getRegion } from '../../utils/request'
+import { getApiKey, getLoaderVersion, getRegion } from '../../utils'
 import { CloudFrontRequest } from 'aws-lambda'
 
 describe('api key', () => {

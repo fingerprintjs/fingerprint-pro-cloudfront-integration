@@ -14,7 +14,7 @@ export const mockRequest = (
   return {
     clientIp: '1.1.1.1',
     method: method,
-    uri,
+    uri: `https://example.com/${uri}`,
     querystring,
     headers: {
       host: [
@@ -47,12 +47,6 @@ export const mockRequest = (
             {
               key: 'fpjs_agent_download_path',
               value: 'greiodsfkljlds',
-            },
-          ],
-          fpjs_behavior_path: [
-            {
-              key: 'fpjs_behavior_path',
-              value: 'behavior',
             },
           ],
           fpjs_get_result_path: [
