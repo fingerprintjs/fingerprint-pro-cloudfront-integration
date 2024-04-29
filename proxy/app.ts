@@ -64,6 +64,7 @@ async function handleDownloadScript(
   }
 
   return downloadAgent({
+    querystring: request.querystring,
     fpCdnUrl,
     apiKey: getApiKey(request),
     version: getVersion(request),
