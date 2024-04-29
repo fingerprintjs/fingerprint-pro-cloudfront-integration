@@ -98,6 +98,25 @@ describe('Download agent endpoint', () => {
     )
   })
 
+  test('Call with a custom query', async () => {
+    const request = mockRequest(
+      '/behavior/greiodsfkljlds',
+      'apiKey=ujKG34hUYKLJKJ1F&version=5&loaderVersion=3.6.5&someKey=someValue'
+    )
+
+    const event = mockEvent(request)
+
+    await handler(event)
+
+    expect(downloadAgent).toHaveBeenCalledTimes(1)
+
+    const [url] = requestSpy.mock.calls[0]
+
+    expect(url.toString()).toEqual(
+      `https://${origin}/v5/ujKG34hUYKLJKJ1F/loader_v3.6.5.js?ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn&someKey=someValue`
+    )
+  })
+
   test('Browser cache set to an hour when original value is higher', async () => {
     const request = mockRequest('/behavior/greiodsfkljlds')
 
