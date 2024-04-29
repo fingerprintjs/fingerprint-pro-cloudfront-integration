@@ -387,13 +387,13 @@ Outputs:
     Export:
       Name: !Join ['-', ['is-cloudfront-distribution-created-by-deployment', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
   FingerprintProMgmtLambda:
-    Description: Fingerprint Pro Lambda function name
+    Description: Fingerprint Pro Lambda management function name
     Value:
       Ref: FingerprintProMgmtLambda
     Export:
       Name: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
   MgmtLambdaFunctionUrl:
-    Description: Fingerprint Pro management Lambda function name
+    Description: Fingerprint Pro management Lambda function's public URL
     Value:
       Fn::GetAtt: MgmtFunctionURL.FunctionUrl
     Export:
@@ -403,10 +403,10 @@ Outputs:
     Value:
       Ref: FingerprintIntegrationSettingsSecret
     Export:
-      Name: !Join ['-', ['fingerprint-pro-integration-settings-secret', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      Name: !Join ['-', ['fingerprint-pro-cloudfront-integration-settings-secret', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
   MgmtSettingsSecret:
     Description: Fingerprint Pro Management Lambda settings secret
     Value:
       Ref: MgmtSettingsSecret
     Export:
-      Name: !Join ['-', ['fingerprint-pro-mgmt-lambda-settings-secret', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+      Name: !Join ['-', ['fingerprint-pro-mgmt-settings-secret', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
