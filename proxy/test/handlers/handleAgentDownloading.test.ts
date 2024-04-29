@@ -240,7 +240,7 @@ describe('Download agent endpoint', () => {
     })
   })
 
-  test('Req body and headers are the same, expect cookies, which should include only _iidt cookie', async () => {
+  test('Req body and headers are the same, except cookies, which should be dropped', async () => {
     const request = mockRequest('/behavior/greiodsfkljlds')
 
     Object.assign(request.headers, {
@@ -293,7 +293,6 @@ describe('Download agent endpoint', () => {
     expect(body).toEqual(agentScript)
 
     expect(options.headers).toEqual({
-      cookie: '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow==',
       'cache-control': 'no-cache',
       'accept-language': 'en-US',
       'user-agent': 'Mozilla/5.0',

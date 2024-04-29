@@ -70,7 +70,7 @@ async function handleDownloadScript(
     version: getVersion(request),
     loaderVersion: getLoaderVersion(request),
     method: request.method,
-    headers: filterRequestHeaders(request),
+    headers: filterRequestHeaders(request, true),
   })
 }
 
