@@ -95,13 +95,14 @@ async function handleIngressAPI(
   if (suffix.length > 0 && !suffix.startsWith('/')) {
     suffix = '/' + suffix
   }
+  const isIngressCall = suffix.length === 0
 
   return handleResult({
     fpIngressBaseHost,
     region: getRegion(request),
     querystring: request.querystring,
     method: request.method,
-    headers: await prepareHeadersForIngressAPI(request, customerVariables),
+    headers: await prepareHeadersForIngressAPI(request, customerVariables, isIngressCall),
     body: request.body?.data || '',
     suffix,
   })

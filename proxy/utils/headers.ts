@@ -53,8 +53,12 @@ const CACHE_CONTROL_HEADER_NAME = 'cache-control'
 
 export async function prepareHeadersForIngressAPI(
   request: CloudFrontRequest,
-  variables: CustomerVariables
+  variables: CustomerVariables,
+  isIngressCall: boolean
 ): Promise<OutgoingHttpHeaders> {
+  if (!isIngressCall) {
+    return filterRequestHeaders(request, true)
+  }
   const headers = filterRequestHeaders(request)
 
   headers['fpjs-proxy-client-ip'] = request.clientIp
