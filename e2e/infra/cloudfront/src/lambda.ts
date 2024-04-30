@@ -3,8 +3,8 @@ import { resource } from '../../utils/resource'
 
 export const lambdaCachePolicy = new aws.cloudfront.CachePolicy(resource('lambda-cache-policy'), {
   minTtl: 0,
-  maxTtl: 0,
-  defaultTtl: 0,
+  maxTtl: 180,
+  defaultTtl: 180,
   parametersInCacheKeyAndForwardedToOrigin: {
     headersConfig: {
       headerBehavior: 'none',
@@ -13,7 +13,10 @@ export const lambdaCachePolicy = new aws.cloudfront.CachePolicy(resource('lambda
       cookieBehavior: 'none',
     },
     queryStringsConfig: {
-      queryStringBehavior: 'none',
+      queryStringBehavior: 'allExcept',
+      queryStrings: {
+        items: ['version'],
+      },
     },
   },
 })
