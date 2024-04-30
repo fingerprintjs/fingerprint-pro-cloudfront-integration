@@ -222,8 +222,8 @@ describe('Handle mgmt-update', () => {
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
-        S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'releaseV2/lambda_latest.zip',
+        S3Bucket: 'fingerprint-pro-cloudfront-integration',
+        S3Key: 'v2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
@@ -284,8 +284,8 @@ describe('Handle mgmt-update', () => {
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
-        S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'releaseV2/lambda_latest.zip',
+        S3Bucket: 'fingerprint-pro-cloudfront-integration',
+        S3Key: 'v2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
@@ -318,8 +318,8 @@ describe('Handle mgmt-update', () => {
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
-        S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'releaseV2/lambda_latest.zip',
+        S3Bucket: 'fingerprint-pro-cloudfront-integration',
+        S3Key: 'v2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
@@ -400,8 +400,8 @@ describe('Handle mgmt-update', () => {
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
-        S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'releaseV2/lambda_latest.zip',
+        S3Bucket: 'fingerprint-pro-cloudfront-integration',
+        S3Key: 'v2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
@@ -500,8 +500,8 @@ describe('Handle mgmt-update', () => {
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
-        S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'releaseV2/lambda_latest.zip',
+        S3Bucket: 'fingerprint-pro-cloudfront-integration',
+        S3Key: 'v2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
@@ -536,8 +536,8 @@ describe('Handle mgmt-update', () => {
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
-        S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'releaseV2/lambda_latest.zip',
+        S3Bucket: 'fingerprint-pro-cloudfront-integration',
+        S3Key: 'v2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
@@ -595,8 +595,8 @@ describe('Handle mgmt-update', () => {
 
     lambdaMock
       .on(UpdateFunctionCodeCommand, {
-        S3Bucket: 'fingerprint-pro-cloudfront-integration-lambda-function',
-        S3Key: 'releaseV2/lambda_latest.zip',
+        S3Bucket: 'fingerprint-pro-cloudfront-integration',
+        S3Key: 'v2/lambda_latest.zip',
         FunctionName: 'fingerprint-pro-lambda-function',
         RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
         Publish: true,
