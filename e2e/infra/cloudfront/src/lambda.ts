@@ -13,9 +13,9 @@ export const lambdaCachePolicy = new aws.cloudfront.CachePolicy(resource('lambda
       cookieBehavior: 'none',
     },
     queryStringsConfig: {
-      queryStringBehavior: 'allExcept',
+      queryStringBehavior: 'whitelist',
       queryStrings: {
-        items: ['version', 'loaderVersion', 'q'],
+        items: ['version', 'loaderVersion'],
       },
     },
   },
