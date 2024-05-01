@@ -129,7 +129,7 @@ Resources:
       FunctionName: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: fingerprintjs-pro-cloudfront-lambda-function.handler
       Runtime: nodejs20.x
-      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/lambda_latest.zip
+      CodeUri: s3://fingerprint-pro-cloudfront-integration/v2/lambda_latest.zip
       MemorySize: 128
       Timeout: 10
       Role: !GetAtt FpIntLambdaFunctionExecutionRole.Arn
@@ -266,7 +266,7 @@ Resources:
             Action:
               - s3:GetObject
               - s3:GetObjectVersion
-            Resource: arn:aws:s3:::fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/lambda_latest.zip
+            Resource: arn:aws:s3:::fingerprint-pro-cloudfront-integration/v2/lambda_latest.zip
       - PolicyName: FpLambdaUpdate
         PolicyDocument:
           Version: '2012-10-17'
@@ -325,7 +325,7 @@ Resources:
       FunctionName: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: fingerprintjs-pro-cloudfront-mgmt-lambda-function.handler
       Runtime: nodejs20.x
-      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/mgmt_lambda_latest.zip
+      CodeUri: s3://fingerprint-pro-cloudfront-integration/v2/mgmt_lambda_latest.zip
       MemorySize: 128
       Timeout: 120
       Role: !GetAtt FpMgmtLambdaFunctionExecutionRole.Arn
