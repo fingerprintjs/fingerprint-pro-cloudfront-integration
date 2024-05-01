@@ -6,11 +6,7 @@ Parameters:
   DistributionId:
     Description: CloudFront distribution ID. Leave it empty to create a new distribution
     Default: ""
-    Type: String
-  FpjsBehaviorPath:
-    AllowedPattern: ^([a-zA-Z0-9\-])+$
-    Description: FPJS_BEHAVIOR_PATH value
-    Type: String
+    Type: String  
   FpjsGetResultPath:
     AllowedPattern: ^([a-zA-Z0-9\-])+$
     Description: FPJS_GET_RESULT_PATH value
@@ -55,12 +51,6 @@ Resources:
             - !Join
                 - ','
                 - - !Join
-                      - ':'
-                      - - '"fpjs_behavior_path"'
-                        - !Sub
-                            - '"${value}"'
-                            - value: !Ref FpjsBehaviorPath
-                  - !Join
                       - ':'
                       - - '"fpjs_get_result_path"'
                         - !Sub
