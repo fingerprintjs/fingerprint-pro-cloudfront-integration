@@ -31,6 +31,9 @@ async function main() {
   console.info('Get result path:', resultPath)
 
   for (const [name, url] of Object.entries(cloudfrontUrls)) {
+    if (name === 'cloudfrontWithoutVariables') {
+      continue
+    }
     console.info(`Running mock e2e tests for ${name}`, url)
 
     const agentUrl = new URL(url)

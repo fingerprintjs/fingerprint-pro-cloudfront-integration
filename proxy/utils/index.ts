@@ -11,7 +11,14 @@ import {
   addTrafficMonitoringSearchParamsForProCDN,
 } from './traffic'
 import { getAgentUri, getResultUri, getStatusUri } from './customer-variables/selectors'
-import { removeTrailingSlashes } from './routing'
+import {
+  removeTrailingSlashesAndMultiSlashes,
+  addTrailingWildcard,
+  replaceDot,
+  createRoute,
+  addPathnameMatchBeforeRoute,
+  addEndingTrailingSlashToRoute,
+} from './routing'
 import { setLogLevel } from './log'
 
 export {
@@ -29,6 +36,11 @@ export {
   getRegion,
   addTrafficMonitoringSearchParamsForVisitorIdRequest,
   addTrafficMonitoringSearchParamsForProCDN,
-  removeTrailingSlashes,
+  removeTrailingSlashesAndMultiSlashes,
+  addTrailingWildcard,
+  replaceDot,
+  createRoute,
+  addPathnameMatchBeforeRoute,
+  addEndingTrailingSlashToRoute,
   setLogLevel,
 }

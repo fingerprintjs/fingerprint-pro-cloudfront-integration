@@ -120,7 +120,7 @@ describe('test fpjs-headers preparation', () => {
         },
       },
     }
-    const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req))
+    const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req), true)
     expect(headers['fpjs-proxy-client-ip']).toBe('1.1.1.1')
     expect(headers['fpjs-proxy-secret']).toBe('qwertyuio1356767')
     expect(headers['fpjs-proxy-forwarded-host']).toBe('foo.bar')
@@ -225,7 +225,7 @@ describe('test fpjs-headers preparation', () => {
         },
       },
     }
-    const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req))
+    const headers = await prepareHeadersForIngressAPI(req, getCustomerVariables(req), true)
     expect(headers['fpjs-proxy-client-ip']).toBe('1.1.1.1')
     expect(headers.hasOwnProperty('fpjs-proxy-secret')).toBeFalsy()
     expect(headers['fpjs-proxy-forwarded-host']).toBe('foo.bar')
@@ -335,6 +335,100 @@ describe('filterRequestHeaders', () => {
     expect(headers.hasOwnProperty('x-amz-cf-yyy')).toBe(false)
     expect(headers.hasOwnProperty('x-edge-qqq')).toBe(false)
     expect(headers.hasOwnProperty('strict-transport-security')).toBe(false)
+  })
+})
+
+describe('filterRequestHeaders dropCookies', () => {
+  test('test filterRequestHeaders dropCookies', () => {
+    const req: CloudFrontRequest = {
+      clientIp: '1.1.1.1',
+      method: 'GET',
+      uri: 'fpjs/agent',
+      querystring: 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2',
+      headers: {
+        'content-type': [
+          {
+            key: 'content-type',
+            value: 'application/json',
+          },
+        ],
+        'content-length': [
+          {
+            key: 'content-length',
+            value: '24354',
+          },
+        ],
+        host: [
+          {
+            key: 'host',
+            value: 'foo.bar',
+          },
+        ],
+        'transfer-encoding': [
+          {
+            key: 'transfer-encoding',
+            value: 'br',
+          },
+        ],
+        via: [
+          {
+            key: 'via',
+            value: 'cloudfront.net',
+          },
+        ],
+        cookie: [
+          {
+            key: 'cookie',
+            value: '_iidt=7A03Gwg; _vid_t=gEFRuIQlzYmv692/UL4GLA==',
+          },
+        ],
+        'x-amzn-cf-id': [
+          {
+            key: 'x-amzn-cf-id',
+            value: 'some value',
+          },
+        ],
+        'x-amz-cf-id': [
+          {
+            key: 'x-amz-cf-id',
+            value: 'some value',
+          },
+        ],
+        'x-amz-cf-yyy': [
+          {
+            key: 'x-amz-cf-yyy',
+            value: 'some value',
+          },
+        ],
+        'x-amzn-cf-zzz': [
+          {
+            key: 'x-amzn-cf-zzz',
+            value: 'some-value',
+          },
+        ],
+        'x-custom-header': [
+          {
+            key: 'x-custom-header',
+            value: 'value123899',
+          },
+        ],
+        'x-edge-qqq': [
+          {
+            key: 'x-edge-qqq',
+            value: 'some value',
+          },
+        ],
+        'strict-transport-security': [
+          {
+            key: 'strict-transport-security',
+            value: 'max-age=600',
+          },
+        ],
+      },
+    }
+    const headers = filterRequestHeaders(req, true)
+
+    expect(headers.cookie).toBeFalsy()
   })
 })
 

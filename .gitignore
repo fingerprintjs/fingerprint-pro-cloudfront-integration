@@ -109,3 +109,6 @@ dist
 # Pulumi
 .pulumi
 stack.json
+
+# misc
+.DS_Store
