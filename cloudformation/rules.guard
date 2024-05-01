@@ -1,10 +1,3 @@
-let SecretName = "FingerprintIntegrationSettings"
-let DistributionId = "ABCDEF123456"
-let FpjsBehaviorPath = "fpjs"
-let FpjsGetResultPath = "result"
-let FpjsAgentDownloadPath = "agent"
-let FpjsPreSharedSecret = "secret-string-123"
-
 rule check_conditions {
     Conditions.CreateCloudFrontDistribution exists
     Conditions.CreateCloudFrontDistribution is_struct
