@@ -207,6 +207,8 @@ Resources:
               OriginKeepaliveTimeout: 5
               OriginProtocolPolicy: https-only
               OriginReadTimeout: 30
+              OriginSSLProtocols:
+                - TLSv1.2
         PriceClass: PriceClass_100
 
   ## Management Lambda function (responsible for switching CloudFront distribution to the new Fingerprint Pro Lambda@Edge version)
