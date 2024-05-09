@@ -1,0 +1,11 @@
+{
+  "name": "e2e-tests",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.42.0"
+  },
+  "scripts": {
+    "test": "playwright test"
+  }
+}
