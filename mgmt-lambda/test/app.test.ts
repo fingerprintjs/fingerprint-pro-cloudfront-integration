@@ -85,20 +85,6 @@ const existingLambdaAfterUpdate: GetFunctionResponse = {
   },
 }
 
-const existingNonActiveLambdaAfterUpdate: GetFunctionResponse = {
-  Configuration: {
-    FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
-    LastModified: '2024-03-13T19:48:15.722+0000',
-    LastUpdateStatus: 'Successful',
-    Runtime: 'nodejs20.x',
-    Version: '$LATEST',
-    Handler: 'fingerprintjs-pro-cloudfront-lambda-function.handler',
-    RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
-    State: State.Pending,
-    CodeSha256: 'W28rD7QNIwBRTR4+dVKv3H1h1p4Hqfw2b5epWPuoNqA=',
-  },
-}
-
 const lambdaVersionsBeforeUpdate: ListVersionsByFunctionResponse = {
   Versions: [
     {
@@ -735,7 +721,15 @@ describe('Update endpoint', () => {
       DistributionConfig: {
         ...cloudFrontConfigBeforeUpdate.DistributionConfig,
         CallerReference: undefined,
-        Origins: undefined,
+        Origins: {
+          Quantity: 1,
+          Items: [
+            {
+              Id: 'fpcdn.io',
+              DomainName: 'fpcdn.io',
+            },
+          ],
+        },
         DefaultCacheBehavior: undefined,
         Comment: undefined,
         Enabled: undefined,
@@ -830,68 +824,6 @@ describe('Update endpoint', () => {
     const result = await handler(event)
     expect(result.statusCode).toBe(500)
     expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.LambdaFunctionUpdateRevisionNotCreated)
-  })
-
-  test('expect errorCode to be latest version not in active state', async () => {
-    setSecretEnv()
-    process.env.CFDistributionId = 'ABCDEF123456'
-    process.env.LambdaFunctionName = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
-    process.env.LambdaFunctionArn = 'fingerprint-pro-lambda-function'
-    mockSecret(correctToken)
-    lambdaMock
-      .on(GetFunctionCommand, {
-        FunctionName: process.env.LambdaFunctionName,
-      })
-      .resolvesOnce(existingLambda)
-      .resolvesOnce(existingNonActiveLambdaAfterUpdate)
-
-    lambdaMock
-      .on(UpdateFunctionCodeCommand, {
-        S3Bucket: 'fingerprint-pro-cloudfront-integration',
-        S3Key: 'v2/lambda_latest.zip',
-        FunctionName: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
-        RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
-        Publish: true,
-      })
-      .resolves({
-        FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function:3',
-        RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
-      })
-
-    lambdaMock
-      .on(ListVersionsByFunctionCommand, {
-        FunctionName: process.env.LambdaFunctionName,
-      })
-      .resolvesOnce({
-        Versions: [
-          {
-            FunctionName: 'fingerprint-pro-lambda-function',
-            FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
-            Version: '1',
-            LastModified: '2024-01-12T09:47:00.123+0200',
-            RevisionId: '4a847a75-4dc6-4c7c-971b-459c89be333f',
-          },
-          {
-            FunctionName: 'fingerprint-pro-lambda-function',
-            FunctionArn: 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function',
-            Version: '2',
-            LastModified: '2024-03-13T10:47:00.123+0200',
-            RevisionId: 'b4b060ce-0554-49cb-9639-69c2b5eeef11',
-          },
-        ],
-      })
-
-    cloudFrontMock.on(GetDistributionConfigCommand, { Id: 'ABCDEF123456' }).resolves(cloudFrontConfigBeforeUpdate)
-
-    cloudFrontMock.on(CreateInvalidationCommand, createInvalidation).resolves({})
-
-    cloudFrontMock.on(UpdateDistributionCommand, updatedCloudFrontConfig).resolves({})
-
-    const event = generateUpdateRequest(correctToken)
-
-    const result = await handler(event)
-    expect(result.statusCode).toBe(500)
-    expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.LambdaFunctionNewVersionNotActive)
   })
 
   test('expect errorCode to be latest version not present', async () => {

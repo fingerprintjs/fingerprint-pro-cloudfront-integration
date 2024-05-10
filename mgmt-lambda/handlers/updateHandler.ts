@@ -15,14 +15,18 @@ import {
   FunctionConfiguration,
   LambdaClient,
   ListVersionsByFunctionCommand,
-  State,
   UpdateFunctionCodeCommand,
+  UpdateFunctionCodeCommandOutput,
 } from '@aws-sdk/client-lambda'
 import { ApiException, ErrorCode } from '../exceptions'
+import { delay } from '../utils/delay'
+
+const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT = 3
+const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_DELAY = 15_000 // Milliseconds
 
 /**
  * @throws {ApiException}
- * @throws {import('@aws-sdk/client-lambda').LambdaServiceException}
+ * @throws {import("@aws-sdk/client-lambda").LambdaServiceException}
  */
 export async function handleUpdate(
   lambdaClient: LambdaClient,
@@ -83,13 +87,6 @@ export async function handleUpdate(
       `New version's SHA256 is not equals to the previous one. Continue with updating CloudFront resources...`
     )
   }
-
-  const functionInformationAfterUpdate = await getLambdaFunctionInformation(lambdaClient, settings.LambdaFunctionName)
-  if (functionInformationAfterUpdate?.State !== State.Active) {
-    console.error(`New version ${newVersion.Version} is not in ${State.Active} state`)
-    throw new ApiException(ErrorCode.LambdaFunctionNewVersionNotActive)
-  }
-
   await updateCloudFrontConfig(cloudFrontClient, settings.CFDistributionId, settings.LambdaFunctionName, functionArn)
 
   return {
@@ -124,17 +121,19 @@ async function updateCloudFrontConfig(
 
   let fpCacheBehaviorsFound = 0
   let fpCacheBehaviorsUpdated = 0
-  const pathPatterns = []
+  const invalidationPathPatterns: string[] = []
+  const fpCDNOrigins = distributionConfig.Origins?.Items?.filter((it) => it.DomainName === defaults.FP_CDN_URL)
+  console.log('fpCDNOrigins.length', fpCDNOrigins?.length)
 
-  if (distributionConfig.DefaultCacheBehavior?.TargetOriginId === defaults.FP_CDN_URL) {
+  if (fpCDNOrigins?.some((origin) => origin.Id === distributionConfig.DefaultCacheBehavior?.TargetOriginId)) {
     fpCacheBehaviorsFound++
-    const lambdas = distributionConfig.DefaultCacheBehavior.LambdaFunctionAssociations?.Items?.filter(
+    const lambdas = distributionConfig.DefaultCacheBehavior?.LambdaFunctionAssociations?.Items?.filter(
       (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`)
     )
     if (lambdas?.length === 1) {
       lambdas[0].LambdaFunctionARN = latestFunctionArn
       fpCacheBehaviorsUpdated++
-      pathPatterns.push('/*')
+      invalidationPathPatterns.push('/*')
       console.info('Updated Fingerprint Pro Lambda@Edge function association in the default cache behavior')
     } else {
       console.info(
@@ -143,7 +142,9 @@ async function updateCloudFrontConfig(
     }
   }
 
-  const fpCbs = distributionConfig.CacheBehaviors?.Items?.filter((it) => it.TargetOriginId === defaults.FP_CDN_URL)
+  const fpCbs = distributionConfig.CacheBehaviors?.Items?.filter((cb) =>
+    fpCDNOrigins?.some((origin) => origin.Id === cb.TargetOriginId)
+  )
   if (fpCbs && fpCbs?.length > 0) {
     fpCacheBehaviorsFound += fpCbs.length
     fpCbs.forEach((cacheBehavior) => {
@@ -158,7 +159,7 @@ async function updateCloudFrontConfig(
           if (!cacheBehavior.PathPattern.startsWith('/')) {
             pathPattern = '/' + pathPattern
           }
-          pathPatterns.push(pathPattern)
+          invalidationPathPatterns.push(pathPattern)
         } else {
           console.error(`Path pattern is not defined for cache behavior ${JSON.stringify(cacheBehavior)}`)
         }
@@ -178,7 +179,7 @@ async function updateCloudFrontConfig(
   if (fpCacheBehaviorsUpdated === 0) {
     throw new ApiException(ErrorCode.LambdaFunctionAssociationNotFound)
   }
-  if (pathPatterns.length === 0) {
+  if (invalidationPathPatterns.length === 0) {
     throw new ApiException(ErrorCode.CacheBehaviorPatternNotDefined)
   }
 
@@ -189,11 +190,34 @@ async function updateCloudFrontConfig(
   }
 
   const updateConfigCommand = new UpdateDistributionCommand(updateParams)
-  const updateCFResult = await cloudFrontClient.send(updateConfigCommand)
-  console.info(`CloudFront update has finished, ${JSON.stringify(updateCFResult)}`)
+  let updateCFResult: UpdateFunctionCodeCommandOutput
 
-  console.info('Going to invalidate routes for upgraded cache behavior')
-  invalidateFingerprintIntegrationCache(cloudFrontClient, cloudFrontDistributionId, pathPatterns)
+  let triedAttempts = 0
+  while (triedAttempts < CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT) {
+    console.info(
+      `Attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT} started to update CloudFront config`
+    )
+    try {
+      updateCFResult = await cloudFrontClient.send(updateConfigCommand)
+      console.info(
+        `CloudFront config updated successfully on attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT}`
+      )
+      console.info(`CloudFront update has finished, ${JSON.stringify(updateCFResult)}`)
+      console.info('Going to invalidate routes for upgraded cache behavior')
+      invalidateFingerprintIntegrationCache(cloudFrontClient, cloudFrontDistributionId, invalidationPathPatterns)
+      return
+    } catch (e) {
+      console.error(
+        `Attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT} failed for updating CloudFront config`,
+        e
+      )
+      if (triedAttempts + 1 === CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT) {
+        throw e
+      }
+      await delay(CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_DELAY)
+    }
+    triedAttempts++
+  }
 }
 
 async function invalidateFingerprintIntegrationCache(
@@ -233,7 +257,7 @@ async function getLambdaFunctionInformation(
 }
 
 /**
- * @throws {import('@aws-sdk/client-lambda').LambdaServiceException}
+ * @throws {import("@aws-sdk/client-lambda").LambdaServiceException}
  * @throws {ApiException}
  */
 async function updateLambdaFunctionCode(

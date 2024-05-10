@@ -242,7 +242,7 @@ describe('Handle mgmt-update', () => {
     const result = await handleUpdate(lambdaClient, cloudFrontClient, settings)
     expect(result.statusCode).toBe(200)
 
-    expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 2)
+    expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(GetDistributionConfigCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(UpdateDistributionCommand, 1)
@@ -377,7 +377,7 @@ describe('Handle mgmt-update', () => {
       })
     )
 
-    expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 2)
+    expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(GetDistributionConfigCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(UpdateDistributionCommand, 0)
@@ -449,7 +449,7 @@ describe('Handle mgmt-update', () => {
       })
     )
 
-    expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 2)
+    expect(lambdaMock).toHaveReceivedCommandTimes(GetFunctionCommand, 1)
     expect(lambdaMock).toHaveReceivedCommandTimes(UpdateFunctionCodeCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(GetDistributionConfigCommand, 1)
     expect(cloudFrontMock).toHaveReceivedCommandTimes(UpdateDistributionCommand, 0)
@@ -552,7 +552,15 @@ describe('Handle mgmt-update', () => {
       DistributionConfig: {
         ...cloudFrontConfigBeforeUpdate.DistributionConfig,
         CallerReference: undefined,
-        Origins: undefined,
+        Origins: {
+          Quantity: 1,
+          Items: [
+            {
+              Id: 'fpcdn.io',
+              DomainName: 'fpcdn.io',
+            },
+          ],
+        },
         DefaultCacheBehavior: undefined,
         Comment: undefined,
         Enabled: undefined,
