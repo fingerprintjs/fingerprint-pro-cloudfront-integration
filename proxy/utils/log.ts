@@ -7,7 +7,8 @@ import { getHeaderValue } from './headers'
  */
 export function setLogLevel(request?: CloudFrontRequest) {
   const debugValue = request ? getHeaderValue(request, 'fpjs_debug') : undefined
-  if (!debugValue) {
-    console.debug = () => null
+  if (debugValue === 'true') {
+    return
   }
+  console.debug = () => null
 }
