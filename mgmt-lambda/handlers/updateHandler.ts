@@ -19,6 +19,10 @@ import {
   UpdateFunctionCodeCommand,
 } from '@aws-sdk/client-lambda'
 import { ApiException, ErrorCode } from '../exceptions'
+import { delay } from '../utils/delay'
+
+const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT = 3
+const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_DELAY = 15_000 // Milliseconds
 
 /**
  * @throws {ApiException}
@@ -90,7 +94,34 @@ export async function handleUpdate(
     throw new ApiException(ErrorCode.LambdaFunctionNewVersionNotActive)
   }
 
-  await updateCloudFrontConfig(cloudFrontClient, settings.CFDistributionId, settings.LambdaFunctionName, functionArn)
+  let triedAttempts = 0
+  while (triedAttempts < CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT) {
+    console.info(
+      `Attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT} started to update CloudFront config`
+    )
+    try {
+      await updateCloudFrontConfig(
+        cloudFrontClient,
+        settings.CFDistributionId,
+        settings.LambdaFunctionName,
+        functionArn
+      )
+      console.info(
+        `CloudFront config updated successfully on attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT}`
+      )
+      break
+    } catch (e) {
+      console.error(
+        `Attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT} failed for updating CloudFront config`,
+        e
+      )
+      if (triedAttempts + 1 === CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT) {
+        throw e
+      }
+      await delay(CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_DELAY)
+    }
+    triedAttempts++
+  }
 
   return {
     statusCode: 200,
