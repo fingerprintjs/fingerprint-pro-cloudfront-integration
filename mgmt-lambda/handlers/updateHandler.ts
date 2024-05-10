@@ -22,7 +22,7 @@ import { ApiException, ErrorCode } from '../exceptions'
 
 /**
  * @throws {ApiException}
- * @throws {import('@aws-sdk/client-lambda').LambdaServiceException}
+ * @throws {import("@aws-sdk/client-lambda").LambdaServiceException}
  */
 export async function handleUpdate(
   lambdaClient: LambdaClient,
@@ -125,10 +125,12 @@ async function updateCloudFrontConfig(
   let fpCacheBehaviorsFound = 0
   let fpCacheBehaviorsUpdated = 0
   const pathPatterns = []
+  const fpCDNOrigins = distributionConfig.Origins?.Items?.filter((it) => it.DomainName === defaults.FP_CDN_URL)
+  console.log('fpCDNOrigins.length', fpCDNOrigins?.length)
 
-  if (distributionConfig.DefaultCacheBehavior?.TargetOriginId === defaults.FP_CDN_URL) {
+  if (fpCDNOrigins?.some((origin) => origin.Id === distributionConfig.DefaultCacheBehavior?.TargetOriginId)) {
     fpCacheBehaviorsFound++
-    const lambdas = distributionConfig.DefaultCacheBehavior.LambdaFunctionAssociations?.Items?.filter(
+    const lambdas = distributionConfig.DefaultCacheBehavior?.LambdaFunctionAssociations?.Items?.filter(
       (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`)
     )
     if (lambdas?.length === 1) {
@@ -143,7 +145,9 @@ async function updateCloudFrontConfig(
     }
   }
 
-  const fpCbs = distributionConfig.CacheBehaviors?.Items?.filter((it) => it.TargetOriginId === defaults.FP_CDN_URL)
+  const fpCbs = distributionConfig.CacheBehaviors?.Items?.filter((cb) =>
+    fpCDNOrigins?.some((origin) => origin.Id === cb.TargetOriginId)
+  )
   if (fpCbs && fpCbs?.length > 0) {
     fpCacheBehaviorsFound += fpCbs.length
     fpCbs.forEach((cacheBehavior) => {
@@ -233,7 +237,7 @@ async function getLambdaFunctionInformation(
 }
 
 /**
- * @throws {import('@aws-sdk/client-lambda').LambdaServiceException}
+ * @throws {import("@aws-sdk/client-lambda").LambdaServiceException}
  * @throws {ApiException}
  */
 async function updateLambdaFunctionCode(
