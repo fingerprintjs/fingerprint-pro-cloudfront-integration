@@ -206,14 +206,11 @@ async function updateCloudFrontConfig(
       console.info('Going to invalidate routes for upgraded cache behavior')
       invalidateFingerprintIntegrationCache(cloudFrontClient, cloudFrontDistributionId, invalidationPathPatterns)
       return
-    } catch (e: any) {
+    } catch (e) {
       console.error(
         `Attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT} failed for updating CloudFront config`,
         e
       )
-      if (e instanceof ApiException) {
-        throw e
-      }
       if (triedAttempts + 1 === CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT) {
         throw e
       }
