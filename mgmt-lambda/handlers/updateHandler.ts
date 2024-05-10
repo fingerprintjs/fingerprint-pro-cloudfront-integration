@@ -15,7 +15,6 @@ import {
   FunctionConfiguration,
   LambdaClient,
   ListVersionsByFunctionCommand,
-  State,
   UpdateFunctionCodeCommand,
 } from '@aws-sdk/client-lambda'
 import { ApiException, ErrorCode } from '../exceptions'
@@ -88,12 +87,6 @@ export async function handleUpdate(
     )
   }
 
-  const functionInformationAfterUpdate = await getLambdaFunctionInformation(lambdaClient, settings.LambdaFunctionName)
-  if (functionInformationAfterUpdate?.State !== State.Active) {
-    console.error(`New version ${newVersion.Version} is not in ${State.Active} state`)
-    throw new ApiException(ErrorCode.LambdaFunctionNewVersionNotActive)
-  }
-
   let triedAttempts = 0
   while (triedAttempts < CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT) {
     console.info(
@@ -155,7 +148,7 @@ async function updateCloudFrontConfig(
 
   let fpCacheBehaviorsFound = 0
   let fpCacheBehaviorsUpdated = 0
-  const pathPatterns = []
+  const invalidationPathPatterns: string[] = []
   const fpCDNOrigins = distributionConfig.Origins?.Items?.filter((it) => it.DomainName === defaults.FP_CDN_URL)
   console.log('fpCDNOrigins.length', fpCDNOrigins?.length)
 
@@ -167,7 +160,7 @@ async function updateCloudFrontConfig(
     if (lambdas?.length === 1) {
       lambdas[0].LambdaFunctionARN = latestFunctionArn
       fpCacheBehaviorsUpdated++
-      pathPatterns.push('/*')
+      invalidationPathPatterns.push('/*')
       console.info('Updated Fingerprint Pro Lambda@Edge function association in the default cache behavior')
     } else {
       console.info(
@@ -193,7 +186,7 @@ async function updateCloudFrontConfig(
           if (!cacheBehavior.PathPattern.startsWith('/')) {
             pathPattern = '/' + pathPattern
           }
-          pathPatterns.push(pathPattern)
+          invalidationPathPatterns.push(pathPattern)
         } else {
           console.error(`Path pattern is not defined for cache behavior ${JSON.stringify(cacheBehavior)}`)
         }
@@ -213,7 +206,7 @@ async function updateCloudFrontConfig(
   if (fpCacheBehaviorsUpdated === 0) {
     throw new ApiException(ErrorCode.LambdaFunctionAssociationNotFound)
   }
-  if (pathPatterns.length === 0) {
+  if (invalidationPathPatterns.length === 0) {
     throw new ApiException(ErrorCode.CacheBehaviorPatternNotDefined)
   }
 
@@ -228,7 +221,7 @@ async function updateCloudFrontConfig(
   console.info(`CloudFront update has finished, ${JSON.stringify(updateCFResult)}`)
 
   console.info('Going to invalidate routes for upgraded cache behavior')
-  invalidateFingerprintIntegrationCache(cloudFrontClient, cloudFrontDistributionId, pathPatterns)
+  invalidateFingerprintIntegrationCache(cloudFrontClient, cloudFrontDistributionId, invalidationPathPatterns)
 }
 
 async function invalidateFingerprintIntegrationCache(
