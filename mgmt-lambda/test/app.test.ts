@@ -721,7 +721,15 @@ describe('Update endpoint', () => {
       DistributionConfig: {
         ...cloudFrontConfigBeforeUpdate.DistributionConfig,
         CallerReference: undefined,
-        Origins: undefined,
+        Origins: {
+          Quantity: 1,
+          Items: [
+            {
+              Id: 'fpcdn.io',
+              DomainName: 'fpcdn.io',
+            },
+          ],
+        },
         DefaultCacheBehavior: undefined,
         Comment: undefined,
         Enabled: undefined,

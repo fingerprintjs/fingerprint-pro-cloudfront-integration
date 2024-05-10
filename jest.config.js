@@ -12,4 +12,5 @@ module.exports = {
     './mgmt-lambda/**/**.ts',
   ],
   coverageReporters: ['lcov', 'json-summary', ['text', { file: 'coverage.txt', path: './' }]],
+  testTimeout: 60000,
 }

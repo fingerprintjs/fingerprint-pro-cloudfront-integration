@@ -16,6 +16,7 @@ import {
   LambdaClient,
   ListVersionsByFunctionCommand,
   UpdateFunctionCodeCommand,
+  UpdateFunctionCodeCommandOutput,
 } from '@aws-sdk/client-lambda'
 import { ApiException, ErrorCode } from '../exceptions'
 import { delay } from '../utils/delay'
@@ -86,35 +87,7 @@ export async function handleUpdate(
       `New version's SHA256 is not equals to the previous one. Continue with updating CloudFront resources...`
     )
   }
-
-  let triedAttempts = 0
-  while (triedAttempts < CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT) {
-    console.info(
-      `Attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT} started to update CloudFront config`
-    )
-    try {
-      await updateCloudFrontConfig(
-        cloudFrontClient,
-        settings.CFDistributionId,
-        settings.LambdaFunctionName,
-        functionArn
-      )
-      console.info(
-        `CloudFront config updated successfully on attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT}`
-      )
-      break
-    } catch (e) {
-      console.error(
-        `Attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT} failed for updating CloudFront config`,
-        e
-      )
-      if (triedAttempts + 1 === CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT) {
-        throw e
-      }
-      await delay(CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_DELAY)
-    }
-    triedAttempts++
-  }
+  await updateCloudFrontConfig(cloudFrontClient, settings.CFDistributionId, settings.LambdaFunctionName, functionArn)
 
   return {
     statusCode: 200,
@@ -217,11 +190,37 @@ async function updateCloudFrontConfig(
   }
 
   const updateConfigCommand = new UpdateDistributionCommand(updateParams)
-  const updateCFResult = await cloudFrontClient.send(updateConfigCommand)
-  console.info(`CloudFront update has finished, ${JSON.stringify(updateCFResult)}`)
+  let updateCFResult: UpdateFunctionCodeCommandOutput
 
-  console.info('Going to invalidate routes for upgraded cache behavior')
-  invalidateFingerprintIntegrationCache(cloudFrontClient, cloudFrontDistributionId, invalidationPathPatterns)
+  let triedAttempts = 0
+  while (triedAttempts < CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT) {
+    console.info(
+      `Attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT} started to update CloudFront config`
+    )
+    try {
+      updateCFResult = await cloudFrontClient.send(updateConfigCommand)
+      console.info(
+        `CloudFront config updated successfully on attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT}`
+      )
+      console.info(`CloudFront update has finished, ${JSON.stringify(updateCFResult)}`)
+      console.info('Going to invalidate routes for upgraded cache behavior')
+      invalidateFingerprintIntegrationCache(cloudFrontClient, cloudFrontDistributionId, invalidationPathPatterns)
+      return
+    } catch (e: any) {
+      console.error(
+        `Attempt ${triedAttempts + 1}/${CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT} failed for updating CloudFront config`,
+        e
+      )
+      if (e instanceof ApiException) {
+        throw e
+      }
+      if (triedAttempts + 1 === CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT) {
+        throw e
+      }
+      await delay(CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_DELAY)
+    }
+    triedAttempts++
+  }
 }
 
 async function invalidateFingerprintIntegrationCache(
