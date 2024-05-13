@@ -445,7 +445,7 @@ describe('Handle mgmt-update', () => {
 
     await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
       expect.objectContaining({
-        code: ErrorCode.CacheBehaviorPatternNotDefined,
+        code: ErrorCode.LambdaFunctionAssociationNotFound,
       })
     )
 
@@ -589,7 +589,7 @@ describe('Handle mgmt-update', () => {
 
     await expect(handleUpdate(lambdaClient, cloudFrontClient, settings)).rejects.toThrow(
       expect.objectContaining({
-        code: ErrorCode.CacheBehaviorNotFound,
+        code: ErrorCode.CacheBehaviorPatternNotDefined,
       })
     )
   })
