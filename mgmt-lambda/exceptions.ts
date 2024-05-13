@@ -6,6 +6,7 @@ export enum ErrorCode {
   CloudFrontDistributionNotFound = 'E4100',
   CacheBehaviorNotFound = 'E5100',
   CacheBehaviorPatternNotDefined = 'E5200',
+  LambdaFunctionUpdateFailed = 'E6000',
   LambdaFunctionAssociationNotFound = 'E6100',
   LambdaFunctionARNNotFound = 'E7100',
   LambdaFunctionWrongNewVersionsCount = 'E8000',
