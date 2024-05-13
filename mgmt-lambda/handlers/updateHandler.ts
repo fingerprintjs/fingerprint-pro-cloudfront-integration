@@ -152,7 +152,7 @@ async function updateCloudFrontConfig(
       continue
     }
 
-    fpCacheBehaviorsUpdated++
+    fpCacheBehaviorsFound++
     const lambdaAssocList = getCacheBehaviorLambdaFunctionAssociations(cacheBehavior, lambdaFunctionName)
     if (lambdaAssocList?.length === 1) {
       lambdaAssocList[0].LambdaFunctionARN = latestFunctionArn
