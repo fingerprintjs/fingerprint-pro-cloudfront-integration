@@ -20,6 +20,11 @@ import {
 } from '@aws-sdk/client-lambda'
 import { ApiException, ErrorCode } from '../exceptions'
 import { delay } from '../utils/delay'
+import {
+  doesCacheBehaviorUseOrigins,
+  getCacheBehaviorLambdaFunctionAssociations,
+  getFPCDNOrigins,
+} from '../utils/cloudfrontUtils'
 
 const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT = 3
 const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_DELAY = 15_000 // Milliseconds
@@ -119,19 +124,19 @@ async function updateCloudFrontConfig(
 
   const distributionConfig = cfConfig.DistributionConfig
 
+  const { DefaultCacheBehavior, CacheBehaviors } = distributionConfig
+
   let fpCacheBehaviorsFound = 0
   let fpCacheBehaviorsUpdated = 0
   const invalidationPathPatterns: string[] = []
-  const fpCDNOrigins = distributionConfig.Origins?.Items?.filter((it) => it.DomainName === defaults.FP_CDN_URL)
+  const fpCDNOrigins = getFPCDNOrigins(distributionConfig)
   console.log('fpCDNOrigins.length', fpCDNOrigins?.length)
 
-  if (fpCDNOrigins?.some((origin) => origin.Id === distributionConfig.DefaultCacheBehavior?.TargetOriginId)) {
+  if (doesCacheBehaviorUseOrigins(distributionConfig.DefaultCacheBehavior, fpCDNOrigins)) {
     fpCacheBehaviorsFound++
-    const lambdas = distributionConfig.DefaultCacheBehavior?.LambdaFunctionAssociations?.Items?.filter(
-      (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`)
-    )
-    if (lambdas?.length === 1) {
-      lambdas[0].LambdaFunctionARN = latestFunctionArn
+    const lambdaAssocList = getCacheBehaviorLambdaFunctionAssociations(DefaultCacheBehavior, lambdaFunctionName)
+    if (lambdaAssocList?.length === 1) {
+      lambdaAssocList[0].LambdaFunctionARN = latestFunctionArn
       fpCacheBehaviorsUpdated++
       invalidationPathPatterns.push('/*')
       console.info('Updated Fingerprint Pro Lambda@Edge function association in the default cache behavior')
@@ -142,35 +147,31 @@ async function updateCloudFrontConfig(
     }
   }
 
-  const fpCbs = distributionConfig.CacheBehaviors?.Items?.filter((cb) =>
-    fpCDNOrigins?.some((origin) => origin.Id === cb.TargetOriginId)
-  )
-  if (fpCbs && fpCbs?.length > 0) {
-    fpCacheBehaviorsFound += fpCbs.length
-    fpCbs.forEach((cacheBehavior) => {
-      const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
-        (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`)
-      )
-      if (lambdas?.length === 1) {
-        lambdas[0].LambdaFunctionARN = latestFunctionArn
-        fpCacheBehaviorsUpdated++
-        if (cacheBehavior.PathPattern) {
-          let pathPattern = cacheBehavior.PathPattern
-          if (!cacheBehavior.PathPattern.startsWith('/')) {
-            pathPattern = '/' + pathPattern
-          }
-          invalidationPathPatterns.push(pathPattern)
-        } else {
-          console.error(`Path pattern is not defined for cache behavior ${JSON.stringify(cacheBehavior)}`)
+  for (const cacheBehavior of CacheBehaviors?.Items || []) {
+    if (!doesCacheBehaviorUseOrigins(cacheBehavior, fpCDNOrigins)) {
+      continue
+    }
+
+    fpCacheBehaviorsUpdated++
+    const lambdaAssocList = getCacheBehaviorLambdaFunctionAssociations(cacheBehavior, lambdaFunctionName)
+    if (lambdaAssocList?.length === 1) {
+      lambdaAssocList[0].LambdaFunctionARN = latestFunctionArn
+      fpCacheBehaviorsUpdated++
+      if (cacheBehavior.PathPattern) {
+        let pathPattern = cacheBehavior.PathPattern
+        if (!cacheBehavior.PathPattern.startsWith('/')) {
+          pathPattern = '/' + pathPattern
         }
+        invalidationPathPatterns.push(pathPattern)
       } else {
-        console.info(
-          `Cache behavior ${JSON.stringify(
-            cacheBehavior
-          )} has targeted to FP CDN, but has no Fingerprint Pro Lambda@Edge association`
-        )
+        console.error(`Path pattern is not defined for cache behavior ${JSON.stringify(cacheBehavior)}`)
       }
-    })
+      console.info('Updated Fingerprint Pro Lambda@Edge function association in the default cache behavior')
+    } else {
+      console.info(
+        'The default cache behavior has targeted to FP CDN, but has no Fingerprint Pro Lambda@Edge association'
+      )
+    }
   }
 
   if (fpCacheBehaviorsFound === 0) {

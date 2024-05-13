@@ -2,12 +2,16 @@ import { APIGatewayProxyResult } from 'aws-lambda'
 import type { DeploymentSettings } from '../model/DeploymentSettings'
 import { LambdaClient, GetFunctionCommand } from '@aws-sdk/client-lambda'
 import { CloudFrontClient, GetDistributionCommand } from '@aws-sdk/client-cloudfront'
-import { defaults } from '../DefaultSettings'
 import type {
   IntegrationStatus,
   LambdaFunctionInformation,
   CloudFrontDistributionInformation,
 } from '../model/IntegrationStatus'
+import {
+  doesCacheBehaviorUseOrigins,
+  getCacheBehaviorLambdaFunctionAssociations,
+  getFPCDNOrigins,
+} from '../utils/cloudfrontUtils'
 
 export async function handleStatus(
   lambdaClient: LambdaClient,
@@ -66,29 +70,23 @@ async function getCloudFrontDistributionInformation(
   try {
     const result = await cloudFrontClient.send(command)
 
+    const fpCDNOrigins = getFPCDNOrigins(result.Distribution?.DistributionConfig)
     let cacheBehaviorsWithFingerprintFunction = 0
-    if (result.Distribution?.DistributionConfig?.DefaultCacheBehavior?.TargetOriginId === defaults.FP_CDN_URL) {
-      const lambdas =
-        result.Distribution?.DistributionConfig?.DefaultCacheBehavior.LambdaFunctionAssociations?.Items?.filter(
-          (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${functionName}:`)
-        )
-      if (lambdas) {
-        cacheBehaviorsWithFingerprintFunction += lambdas.length
-      }
+    if (doesCacheBehaviorUseOrigins(result.Distribution?.DistributionConfig?.DefaultCacheBehavior, fpCDNOrigins)) {
+      const lambdaAssocList = getCacheBehaviorLambdaFunctionAssociations(
+        result.Distribution?.DistributionConfig?.DefaultCacheBehavior,
+        functionName
+      )
+      cacheBehaviorsWithFingerprintFunction += lambdaAssocList.length
     }
 
-    const fpCbs = result.Distribution?.DistributionConfig?.CacheBehaviors?.Items?.filter(
-      (it) => it.TargetOriginId === defaults.FP_CDN_URL
-    )
-    if (fpCbs && fpCbs?.length > 0) {
-      fpCbs.forEach((cacheBehavior) => {
-        const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
-          (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${functionName}:`)
-        )
-        if (lambdas) {
-          cacheBehaviorsWithFingerprintFunction += lambdas.length
-        }
-      })
+    for (const cacheBehavior of result.Distribution?.DistributionConfig?.CacheBehaviors?.Items || []) {
+      if (!doesCacheBehaviorUseOrigins(cacheBehavior, fpCDNOrigins)) {
+        continue
+      }
+
+      const lambdaAssocList = getCacheBehaviorLambdaFunctionAssociations(cacheBehavior, functionName)
+      cacheBehaviorsWithFingerprintFunction += lambdaAssocList.length
     }
 
     return {

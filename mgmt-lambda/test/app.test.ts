@@ -688,7 +688,7 @@ describe('Update endpoint', () => {
     expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.CloudFrontDistributionNotFound)
   })
 
-  test('expect errorCode to be Cache Behavior Pattern not defined', async () => {
+  test('expect errorCode to be Cache Behavior not found', async () => {
     setSecretEnv()
     process.env.CFDistributionId = 'ABCDEF123456'
     process.env.LambdaFunctionArn = 'arn:aws:lambda:us-east-1:1234567890:function:fingerprint-pro-lambda-function'
@@ -760,7 +760,7 @@ describe('Update endpoint', () => {
 
     const result = await handler(event)
     expect(result.statusCode).toBe(500)
-    expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.CacheBehaviorPatternNotDefined)
+    expect(JSON.parse(result.body).errorCode).toBe(ErrorCode.CacheBehaviorNotFound)
   })
 
   test('expect errorCode to be Lambda Function ARN not found', async () => {
