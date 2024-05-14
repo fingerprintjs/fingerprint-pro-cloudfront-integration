@@ -163,10 +163,12 @@ async function updateCloudFrontConfig(
           pathPattern = '/' + pathPattern
         }
         invalidationPathPatterns.push(pathPattern)
+        console.info(
+          `Updated Fingerprint Pro Lambda@Edge function association in the cache behavior with path ${cacheBehavior.PathPattern}`
+        )
       } else {
         console.error(`Path pattern is not defined for cache behavior ${JSON.stringify(cacheBehavior)}`)
       }
-      console.info('Updated Fingerprint Pro Lambda@Edge function association in the default cache behavior')
     } else {
       console.info(
         `Cache behavior ${JSON.stringify(
