@@ -26,8 +26,8 @@ import {
   getFPCDNOrigins,
 } from '../utils/cloudfrontUtils'
 
-const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT = 3
-const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_DELAY = 15_000 // Milliseconds
+const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT = 5
+const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_DELAY = 3000 // Milliseconds
 
 /**
  * @throws {ApiException}
