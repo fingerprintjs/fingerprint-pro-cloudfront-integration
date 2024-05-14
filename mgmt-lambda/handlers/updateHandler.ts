@@ -20,6 +20,11 @@ import {
 } from '@aws-sdk/client-lambda'
 import { ApiException, ErrorCode } from '../exceptions'
 import { delay } from '../utils/delay'
+import {
+  doesCacheBehaviorUseOrigins,
+  getCacheBehaviorLambdaFunctionAssociations,
+  getFPCDNOrigins,
+} from '../utils/cloudfrontUtils'
 
 const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_COUNT = 3
 const CLOUDFRONT_CONFIG_UPDATE_ATTEMPT_DELAY = 15_000 // Milliseconds
@@ -64,7 +69,7 @@ export async function handleUpdate(
   }
 
   const listVersionsAfterUpdate = await listLambdaFunctionVersions(lambdaClient, settings.LambdaFunctionName)
-  const newVersions = Array.from(listVersionsAfterUpdate.values()).filter((conf) => conf.RevisionId === newRevisionId)
+  const newVersions = listVersionsAfterUpdate.filter((conf) => conf?.RevisionId === newRevisionId)
   if (newVersions.length !== 1) {
     console.error(`Excepted one new version, but found: ${newVersions.length} versions`)
     throw new ApiException(ErrorCode.LambdaFunctionWrongNewVersionsCount)
@@ -119,19 +124,19 @@ async function updateCloudFrontConfig(
 
   const distributionConfig = cfConfig.DistributionConfig
 
+  const { DefaultCacheBehavior, CacheBehaviors } = distributionConfig
+
   let fpCacheBehaviorsFound = 0
   let fpCacheBehaviorsUpdated = 0
   const invalidationPathPatterns: string[] = []
-  const fpCDNOrigins = distributionConfig.Origins?.Items?.filter((it) => it.DomainName === defaults.FP_CDN_URL)
+  const fpCDNOrigins = getFPCDNOrigins(distributionConfig)
   console.log('fpCDNOrigins.length', fpCDNOrigins?.length)
 
-  if (fpCDNOrigins?.some((origin) => origin.Id === distributionConfig.DefaultCacheBehavior?.TargetOriginId)) {
+  if (doesCacheBehaviorUseOrigins(DefaultCacheBehavior, fpCDNOrigins)) {
     fpCacheBehaviorsFound++
-    const lambdas = distributionConfig.DefaultCacheBehavior?.LambdaFunctionAssociations?.Items?.filter(
-      (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`)
-    )
-    if (lambdas?.length === 1) {
-      lambdas[0].LambdaFunctionARN = latestFunctionArn
+    const lambdaAssocList = getCacheBehaviorLambdaFunctionAssociations(DefaultCacheBehavior, lambdaFunctionName)
+    if (lambdaAssocList.length === 1) {
+      lambdaAssocList[0].LambdaFunctionARN = latestFunctionArn
       fpCacheBehaviorsUpdated++
       invalidationPathPatterns.push('/*')
       console.info('Updated Fingerprint Pro Lambda@Edge function association in the default cache behavior')
@@ -142,35 +147,35 @@ async function updateCloudFrontConfig(
     }
   }
 
-  const fpCbs = distributionConfig.CacheBehaviors?.Items?.filter((cb) =>
-    fpCDNOrigins?.some((origin) => origin.Id === cb.TargetOriginId)
-  )
-  if (fpCbs && fpCbs?.length > 0) {
-    fpCacheBehaviorsFound += fpCbs.length
-    fpCbs.forEach((cacheBehavior) => {
-      const lambdas = cacheBehavior.LambdaFunctionAssociations?.Items?.filter(
-        (it) => it && it.EventType === 'origin-request' && it.LambdaFunctionARN?.includes(`${lambdaFunctionName}:`)
-      )
-      if (lambdas?.length === 1) {
-        lambdas[0].LambdaFunctionARN = latestFunctionArn
-        fpCacheBehaviorsUpdated++
-        if (cacheBehavior.PathPattern) {
-          let pathPattern = cacheBehavior.PathPattern
-          if (!cacheBehavior.PathPattern.startsWith('/')) {
-            pathPattern = '/' + pathPattern
-          }
-          invalidationPathPatterns.push(pathPattern)
-        } else {
-          console.error(`Path pattern is not defined for cache behavior ${JSON.stringify(cacheBehavior)}`)
+  for (const cacheBehavior of CacheBehaviors?.Items || []) {
+    if (!doesCacheBehaviorUseOrigins(cacheBehavior, fpCDNOrigins)) {
+      continue
+    }
+
+    fpCacheBehaviorsFound++
+    const lambdaAssocList = getCacheBehaviorLambdaFunctionAssociations(cacheBehavior, lambdaFunctionName)
+    if (lambdaAssocList?.length === 1) {
+      lambdaAssocList[0].LambdaFunctionARN = latestFunctionArn
+      fpCacheBehaviorsUpdated++
+      if (cacheBehavior.PathPattern) {
+        let pathPattern = cacheBehavior.PathPattern
+        if (!cacheBehavior.PathPattern.startsWith('/')) {
+          pathPattern = '/' + pathPattern
         }
-      } else {
+        invalidationPathPatterns.push(pathPattern)
         console.info(
-          `Cache behavior ${JSON.stringify(
-            cacheBehavior
-          )} has targeted to FP CDN, but has no Fingerprint Pro Lambda@Edge association`
+          `Updated Fingerprint Pro Lambda@Edge function association in the cache behavior with path ${cacheBehavior.PathPattern}`
         )
+      } else {
+        console.error(`Path pattern is not defined for cache behavior ${JSON.stringify(cacheBehavior)}`)
       }
-    })
+    } else {
+      console.info(
+        `Cache behavior ${JSON.stringify(
+          cacheBehavior
+        )} has targeted to FP CDN, but has no Fingerprint Pro Lambda@Edge association`
+      )
+    }
   }
 
   if (fpCacheBehaviorsFound === 0) {
@@ -204,7 +209,11 @@ async function updateCloudFrontConfig(
       )
       console.info(`CloudFront update has finished, ${JSON.stringify(updateCFResult)}`)
       console.info('Going to invalidate routes for upgraded cache behavior')
-      invalidateFingerprintIntegrationCache(cloudFrontClient, cloudFrontDistributionId, invalidationPathPatterns)
+      invalidateFingerprintIntegrationCache(cloudFrontClient, cloudFrontDistributionId, invalidationPathPatterns).catch(
+        (e) => {
+          console.info(`Cache invalidation has failed: ${e.message}`)
+        }
+      )
       return
     } catch (e) {
       console.error(
@@ -274,15 +283,17 @@ async function updateLambdaFunctionCode(
     Publish: true,
   })
   console.info(`Sending update command to Lambda runtime with data ${JSON.stringify(command)}`)
-  const result = await lambdaClient.send(command)
+  let result: FunctionConfiguration
+  try {
+    result = await lambdaClient.send(command)
+  } catch (e) {
+    console.error(`Lambda function update has failed. Error: ${e}`)
+    throw new ApiException(ErrorCode.LambdaFunctionUpdateFailed)
+  }
 
   console.info(`Got update command result: ${JSON.stringify(result)}`)
 
-  if (!result) {
-    throw new ApiException(ErrorCode.LambdaFunctionARNNotFound)
-  }
-
-  if (!result.FunctionArn) {
+  if (!result?.FunctionArn) {
     throw new ApiException(ErrorCode.LambdaFunctionARNNotFound)
   }
 
@@ -294,7 +305,7 @@ async function updateLambdaFunctionCode(
 async function listLambdaFunctionVersions(
   lambdaClient: LambdaClient,
   functionName: string
-): Promise<Map<string | undefined, FunctionConfiguration>> {
+): Promise<FunctionConfiguration[]> {
   console.info('Getting Lambda function versions')
   const command = new ListVersionsByFunctionCommand({
     FunctionName: functionName,
@@ -308,5 +319,5 @@ async function listLambdaFunctionVersions(
     throw new ApiException(ErrorCode.LambdaFunctionARNNotFound)
   }
 
-  return new Map(result.Versions?.filter((conf) => conf !== undefined).map((conf) => [conf.Version, conf]))
+  return result.Versions || []
 }
