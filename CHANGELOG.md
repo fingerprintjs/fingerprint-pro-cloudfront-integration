@@ -1,3 +1,31 @@
+## [2.0.0-rc.2](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.0-rc.1...v2.0.0-rc.2) (2024-05-15)
+
+
+### Features
+
+* do not throw error if the secret manager has unexpected key ([c6e3078](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/c6e3078b62a3e77c2b51b456e0ffea198958faf1))
+* remove fpjs_behavior_path variable ([4c78f62](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/4c78f627462302959a88f0f3fc2207bd76fb58c8))
+
+
+### Bug Fixes
+
+* agent download reqs did not keep custom queries ([e9ee3c4](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/e9ee3c42d842cc32015addf11db6437a651ad3e5))
+* agent download request headers ([b2dcb89](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/b2dcb89b1537987abee6377c0f915c7c459f7e43))
+* browser cache req headers ([4569f5e](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/4569f5e0d75d03e05a748ad4c1665af451ce3e48))
+* cache behavior origin matching logic ([7b1ff11](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/7b1ff11aaae90d7b6ed798d6a867b9f65b10fca6))
+* check set log level if true ([15d9d53](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/15d9d53b27bebd5121f2e24a5deca8d04fb70688))
+* cloudfront update logic add attempt ([106b332](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/106b3322af55df3df4c3ebdeb08a53d3f488712b))
+* mgmt lambda counter bug ([dbd4642](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/dbd4642dce93ee58b8ef945359351be9af921336))
+* remove FPJS_DEBUG header from the template ([e58d6cd](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/e58d6cdc5338edb7df2e0d8c15fb26d0b1187283))
+* set log level ([a02fbf9](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/a02fbf9595851dad67b52c7b6edfb5c5db0b5540))
+* treat request.uri as the path, not the URL ([131f2b7](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/131f2b74a394c851fa8dbe01115108f3549ea696))
+
+
+### Documentation
+
+* **README:** fix typo ([cac192c](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/cac192cf6225320ffa97c75bc663d71b8ed3a9c9))
+* **README:** update links to v2, add deprecation notice ([caa5cfa](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/caa5cfa355fb59d174e258d49e38f4433ba7c0ca))
+
 ## [2.0.0-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.4.0...v2.0.0-rc.1) (2024-04-22)
 
 
