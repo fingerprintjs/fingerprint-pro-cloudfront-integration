@@ -99,6 +99,6 @@ async function getCloudFrontDistributionInformation(
     }
   } catch (error) {
     console.error('Unable to get CloudFront distribution information', error)
-    return undefined
+    return
   }
 }
