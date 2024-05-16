@@ -10,10 +10,13 @@ const secret = new aws.secretsmanager.Secret(secretName, {
 new aws.secretsmanager.SecretVersion(secretName, {
   secretId: secret.id,
   secretString: JSON.stringify({
-    fpjs_behavior_path: process.env.FPJS_BEHAVIOR_PATH ?? 'fpjs',
     fpjs_get_result_path: process.env.FPJS_GET_RESULT_PATH ?? 'visitorId',
     fpjs_pre_shared_secret: process.env.FPJS_PRE_SHARED_SECRET ?? '',
     fpjs_agent_download_path: process.env.FPJS_AGENT_DOWNLOAD_PATH ?? 'agent',
+    // Note: `fpjs_behavior_path` is not used since v2.
+    // It's a left-over value from v1 to cover migration case and
+    // make sure v2 wouldn't fail if unexpected variables are added to the secret
+    fpjs_behavior_path: process.env.FPJS_BEHAVIOR_PATH ?? 'fpjs',
   }),
 })
 
@@ -52,7 +55,11 @@ const lambdaRole = new aws.iam.Role(
   }
 )
 
-const lambdaCodePaths = ['../../../dist', '../../dist']
+const distDir = process.env.DIST_DIR ?? 'dist'
+
+console.info('distDir', distDir)
+
+const lambdaCodePaths = [`../../../${distDir}`, `../../${distDir}`]
 const lambdaCodePath = lambdaCodePaths.find((lambdaPath) => fs.existsSync(lambdaPath))
 
 if (!lambdaCodePath) {

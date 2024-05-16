@@ -62,7 +62,7 @@ describe('Download agent endpoint', () => {
     const [url] = requestSpy.mock.calls[0]
 
     expect(url.toString()).toEqual(
-      `https://${origin}/v3/ujKG34hUYKLJKJ1F?ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`
+      `https://${origin}/v3/ujKG34hUYKLJKJ1F?apiKey=ujKG34hUYKLJKJ1F&ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`
     )
   })
 
@@ -78,7 +78,7 @@ describe('Download agent endpoint', () => {
     const [url] = requestSpy.mock.calls[0]
 
     expect(url.toString()).toEqual(
-      `https://${origin}/v5/ujKG34hUYKLJKJ1F?ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`
+      `https://${origin}/v5/ujKG34hUYKLJKJ1F?apiKey=ujKG34hUYKLJKJ1F&version=5&ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`
     )
   })
 
@@ -94,7 +94,26 @@ describe('Download agent endpoint', () => {
     const [url] = requestSpy.mock.calls[0]
 
     expect(url.toString()).toEqual(
-      `https://${origin}/v5/ujKG34hUYKLJKJ1F/loader_v3.6.5.js?ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`
+      `https://${origin}/v5/ujKG34hUYKLJKJ1F/loader_v3.6.5.js?apiKey=ujKG34hUYKLJKJ1F&version=5&loaderVersion=3.6.5&ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`
+    )
+  })
+
+  test('Call with a custom query', async () => {
+    const request = mockRequest(
+      '/behavior/greiodsfkljlds',
+      'apiKey=ujKG34hUYKLJKJ1F&version=5&loaderVersion=3.6.5&someKey=someValue'
+    )
+
+    const event = mockEvent(request)
+
+    await handler(event)
+
+    expect(downloadAgent).toHaveBeenCalledTimes(1)
+
+    const [url] = requestSpy.mock.calls[0]
+
+    expect(url.toString()).toEqual(
+      `https://${origin}/v5/ujKG34hUYKLJKJ1F/loader_v3.6.5.js?apiKey=ujKG34hUYKLJKJ1F&version=5&loaderVersion=3.6.5&someKey=someValue&ii=fingerprintjs-pro-cloudfront%2F__lambda_func_version__%2Fprocdn`
     )
   })
 
@@ -221,7 +240,7 @@ describe('Download agent endpoint', () => {
     })
   })
 
-  test('Req body and headers are the same, expect cookies, which should include only _iidt cookie', async () => {
+  test('Req body and headers are the same, except cookies, which should be dropped', async () => {
     const request = mockRequest('/behavior/greiodsfkljlds')
 
     Object.assign(request.headers, {
@@ -274,7 +293,6 @@ describe('Download agent endpoint', () => {
     expect(body).toEqual(agentScript)
 
     expect(options.headers).toEqual({
-      cookie: '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow==',
       'cache-control': 'no-cache',
       'accept-language': 'en-US',
       'user-agent': 'Mozilla/5.0',

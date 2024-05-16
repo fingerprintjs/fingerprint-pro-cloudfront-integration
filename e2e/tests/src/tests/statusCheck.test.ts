@@ -8,10 +8,10 @@ cloudfrontTest.describe('Status check', () => {
     })
 
     if (urlType === 'cloudfrontWithoutVariables') {
-      // Assert that there are warnings for every missing variable (should be 4 of them)
+      // Assert that there are warnings for every missing variable (should be 3 of them)
       const envItems = await page.$$('.env-info-item')
 
-      expect(envItems).toHaveLength(4)
+      expect(envItems).toHaveLength(3)
     } else {
       await expect(page.waitForSelector('text="✅ All environment variables are set"')).resolves.not.toThrow()
     }

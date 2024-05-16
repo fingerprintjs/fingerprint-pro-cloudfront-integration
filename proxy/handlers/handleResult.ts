@@ -11,7 +11,7 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
 
     const data: any[] = []
 
-    const url = new URL(getIngressAPIHost(options.region) + options.suffix)
+    const url = new URL(getIngressAPIHost(options.region, options.fpIngressBaseHost) + options.suffix)
     decodeURIComponent(options.querystring)
       .split('&')
       .filter((it) => it.includes('='))
@@ -76,7 +76,7 @@ function generateErrorResponse(err: Error): string {
     v: '2',
     error: {
       code: 'Failed',
-      message: `An error occured with Fingerprint Pro Lambda function. Reason ${err}`,
+      message: `An error occurred with Fingerprint Pro Lambda function. Reason ${err}`,
     },
     requestId: generateRequestId,
     products: {},
@@ -103,7 +103,7 @@ function generateRequestUniqueId(): string {
   return generateRandomString(2)
 }
 
-function getIngressAPIHost(region: Region): string {
+function getIngressAPIHost(region: Region, baseHost: string): string {
   const prefix = region === Region.us ? '' : `${region}.`
-  return `https://${prefix}__INGRESS_API__`
+  return `https://${prefix}${baseHost}`
 }

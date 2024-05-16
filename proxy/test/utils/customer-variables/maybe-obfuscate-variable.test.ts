@@ -11,13 +11,12 @@ describe('maybe obfuscate variable', () => {
     expect(result.value).toBe(OBFUSCATED_VALUE)
   })
 
-  it.each([
-    CustomerVariableType.GetResultPath,
-    CustomerVariableType.BehaviourPath,
-    CustomerVariableType.AgentDownloadPath,
-  ])('should not obfuscate other variables', async (variable) => {
-    const result = await maybeObfuscateVariable(customerVariables, variable)
+  it.each([CustomerVariableType.GetResultPath, CustomerVariableType.AgentDownloadPath])(
+    'should not obfuscate other variables',
+    async (variable) => {
+      const result = await maybeObfuscateVariable(customerVariables, variable)
 
-    expect(result.value).toBe(variables[variable])
-  })
+      expect(result.value).toBe(variables[variable])
+    }
+  )
 })

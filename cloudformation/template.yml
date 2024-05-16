@@ -3,17 +3,9 @@ Transform:
   - AWS::Serverless-2016-10-31
 Description: Fingerprint Pro Lambda@Edge function for CloudFront integration
 Parameters:
-  SecretName:
-    AllowedPattern: ^([a-zA-Z0-9\/_+=.@\-])+$
-    Description: AWS Secret Name
-    Type: String
   DistributionId:
     Description: CloudFront distribution ID. Leave it empty to create a new distribution
     Default: ""
-    Type: String
-  FpjsBehaviorPath:
-    AllowedPattern: ^([a-zA-Z0-9\-])+$
-    Description: FPJS_BEHAVIOR_PATH value
     Type: String
   FpjsGetResultPath:
     AllowedPattern: ^([a-zA-Z0-9\-])+$
@@ -51,7 +43,7 @@ Resources:
     Type: AWS::SecretsManager::Secret
     Properties:
       Description: AWS Secret with a custom Fingerprint integration settings
-      Name: !Ref SecretName
+      Name: !Join ['-', ['fingerprint-pro-cloudfront-integration-settings-secret', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       SecretString:
         !Join
           - ''
@@ -59,12 +51,6 @@ Resources:
             - !Join
                 - ','
                 - - !Join
-                      - ':'
-                      - - '"fpjs_behavior_path"'
-                        - !Sub
-                            - '"${value}"'
-                            - value: !Ref FpjsBehaviorPath
-                  - !Join
                       - ':'
                       - - '"fpjs_get_result_path"'
                         - !Sub
@@ -120,8 +106,7 @@ Resources:
           - Effect: Allow
             Action:
               - secretsmanager:GetSecretValue
-            Resource:
-              Fn::Sub: arn:aws:secretsmanager:us-east-1:${AWS::AccountId}:secret:${SecretName}-??????
+            Resource: !Ref FingerprintIntegrationSettingsSecret
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
@@ -134,18 +119,18 @@ Resources:
       FunctionName: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: fingerprintjs-pro-cloudfront-lambda-function.handler
       Runtime: nodejs20.x
-      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/lambda_latest.zip
+      CodeUri: s3://fingerprint-pro-cloudfront-integration/v2/lambda_latest.zip
       MemorySize: 128
       Timeout: 10
       Role: !GetAtt FpIntLambdaFunctionExecutionRole.Arn
 
-  FingerprintProCloudFrontLambdaVersion:  
-    Type: AWS::Lambda::Version    
+  FingerprintProCloudFrontLambdaVersion:
+    Type: AWS::Lambda::Version
     DependsOn:
       - FingerprintProCloudFrontLambda
     Properties:
       FunctionName: !Ref FingerprintProCloudFrontLambda
-      Description: Lambda@Edge function's version reference (v1)
+      Description: Lambda@Edge function definition
 
   ## CloudFront distribution and related settings
 
@@ -201,7 +186,7 @@ Resources:
           LambdaFunctionAssociations:
             - EventType: origin-request
               IncludeBody: true
-              LambdaFunctionARN: !Ref FingerprintProCloudFrontLambdaVersion                
+              LambdaFunctionARN: !Ref FingerprintProCloudFrontLambdaVersion
           OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3 # Default AllViewer policy
           SmoothStreaming: false
           TargetOriginId: fpcdn.io
@@ -211,19 +196,16 @@ Resources:
           - Id: fpcdn.io
             DomainName: fpcdn.io
             OriginCustomHeaders:
-              - HeaderName: FPJS_SECRET_REGION
-                HeaderValue: !Ref AWS::Region
               - HeaderName: FPJS_SECRET_NAME
-                HeaderValue: !Ref SecretName 
-              # Enabled debug logging in Lambda@Edge function. Should be disabled in production env
-              - HeaderName: FPJS_DEBUG
-                HeaderValue: true
+                HeaderValue: !Ref FingerprintIntegrationSettingsSecret
             CustomOriginConfig:
               HTTPPort: 80
               HTTPSPort: 443
               OriginKeepaliveTimeout: 5
               OriginProtocolPolicy: https-only
               OriginReadTimeout: 30
+              OriginSSLProtocols:
+                - TLSv1.2
         PriceClass: PriceClass_100
 
   ## Management Lambda function (responsible for switching CloudFront distribution to the new Fingerprint Pro Lambda@Edge version)
@@ -273,7 +255,7 @@ Resources:
             Action:
               - s3:GetObject
               - s3:GetObjectVersion
-            Resource: arn:aws:s3:::fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/lambda_latest.zip
+            Resource: arn:aws:s3:::fingerprint-pro-cloudfront-integration/v2/lambda_latest.zip
       - PolicyName: FpLambdaUpdate
         PolicyDocument:
           Version: '2012-10-17'
@@ -332,7 +314,7 @@ Resources:
       FunctionName: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
       Handler: fingerprintjs-pro-cloudfront-mgmt-lambda-function.handler
       Runtime: nodejs20.x
-      CodeUri: s3://fingerprint-pro-cloudfront-integration-lambda-function/releaseV2/mgmt_lambda_latest.zip
+      CodeUri: s3://fingerprint-pro-cloudfront-integration/v2/mgmt_lambda_latest.zip
       MemorySize: 128
       Timeout: 120
       Role: !GetAtt FpMgmtLambdaFunctionExecutionRole.Arn
@@ -369,6 +351,12 @@ Outputs:
       Ref: FingerprintProCloudFrontLambda
     Export:
       Name: !Join ['-', ['fingerprint-pro-cloudfront-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  LambdaFunctionVersion:
+    Description: Fingerprint Pro Lambda function version
+    Value:
+      Ref: FingerprintProCloudFrontLambdaVersion
+    Export:
+      Name: !Join ['-', ['fingerprint-pro-cloudfront-lambda-version', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
   CachePolicyName:
     Description: Cache policy name
     Value:
@@ -388,14 +376,26 @@ Outputs:
     Export:
       Name: !Join ['-', ['is-cloudfront-distribution-created-by-deployment', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
   FingerprintProMgmtLambda:
-    Description: Fingerprint Pro Lambda function name
+    Description: Fingerprint Pro Lambda management function name
     Value:
       Ref: FingerprintProMgmtLambda
     Export:
       Name: !Join ['-', ['fingerprint-pro-mgmt-lambda', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
   MgmtLambdaFunctionUrl:
-    Description: Fingerprint Pro management Lambda function name
+    Description: Fingerprint Pro management Lambda function's public URL
     Value:
       Fn::GetAtt: MgmtFunctionURL.FunctionUrl
     Export:
       Name: !Join ['-', ['fingerprint-pro-mgmt-lambda-url', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  FingerprintIntegrationSettingsSecret:
+    Description: Fingerprint Pro CloudFront integration settings secret
+    Value:
+      Ref: FingerprintIntegrationSettingsSecret
+    Export:
+      Name: !Join ['-', ['fingerprint-pro-cloudfront-integration-settings-secret', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]
+  MgmtSettingsSecret:
+    Description: Fingerprint Pro Management Lambda settings secret
+    Value:
+      Ref: MgmtSettingsSecret
+    Export:
+      Name: !Join ['-', ['fingerprint-pro-mgmt-settings-secret', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]]]]

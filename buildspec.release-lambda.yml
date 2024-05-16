@@ -15,9 +15,9 @@ phases:
       - zip -r latest.zip fingerprintjs-pro-cloudfront-lambda-function.js
       - zip -r latest_mgmt.zip fingerprintjs-pro-cloudfront-mgmt-lambda-function.js
 
-      - aws s3api get-object --bucket fingerprint-pro-cloudfront-integration-lambda-function --key releaseV2/lambda_latest.zip previous.zip
-      - aws s3api get-object --bucket fingerprint-pro-cloudfront-integration-lambda-function --key releaseV2/mgmt_lambda_latest.zip previous_mgmt.zip
-      - aws s3api get-object --bucket fingerprint-pro-cloudfront-integration-lambda-function --key releaseV2/template.yml previous-template.yml
+      - aws s3api get-object --bucket fingerprint-pro-cloudfront-integration --key v2/lambda_latest.zip previous.zip
+      - aws s3api get-object --bucket fingerprint-pro-cloudfront-integration --key v2/mgmt_lambda_latest.zip previous_mgmt.zip
+      - aws s3api get-object --bucket fingerprint-pro-cloudfront-integration --key v2/template.yml previous-template.yml
 
       - unzip previous.zip -d previous
       - unzip previous_mgmt.zip -d previous_mgmt
@@ -30,35 +30,35 @@ phases:
       - echo $mgmtDiffStatus
       - echo $templateDiffStatus
 
+      - echo "Processing fingerprintjs-pro-cloudfront-lambda-function.js"
       - >-
-        echo "Processing fingerprintjs-pro-cloudfront-lambda-function.js"
         if [ $diffStatus -eq 0 ]; then
           echo "Files are the same. Don't need to upload the file."
         elif [ $diffStatus -eq 1 ]; then
           echo "Files are different. Uploading new version."
-          aws s3api put-object --body latest.zip --bucket fingerprint-pro-cloudfront-integration-lambda-function --key releaseV2/lambda_latest.zip
+          aws s3api put-object --body latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2/lambda_latest.zip
         else
           echo "There was something wrong with the diff command."
         fi
 
+      - echo "Processing fingerprintjs-pro-cloudfront-mgmt-lambda-function.js"
       - >-
-        echo "Processing fingerprintjs-pro-cloudfront-mgmt-lambda-function.js"
         if [ $mgmtDiffStatus -eq 0 ]; then
           echo "Files are the same. Don't need to upload the file."
         elif [ $mgmtDiffStatus -eq 1 ]; then
           echo "Files are different. Uploading new version."
-          aws s3api put-object --body latest_mgmt.zip --bucket fingerprint-pro-cloudfront-integration-lambda-function --key releaseV2/mgmt_lambda_latest.zip
+          aws s3api put-object --body latest_mgmt.zip --bucket fingerprint-pro-cloudfront-integration --key v2/mgmt_lambda_latest.zip
         else
           echo "There was something wrong with the diff command."
         fi
 
+      - echo "Processing template.yml"
       - >-
-        echo "Processing template.yml"
         if [ $templateDiffStatus -eq 0 ]; then
           echo "Files are the same. Don't need to upload the file."
         elif [ $templateDiffStatus -eq 1 ]; then
           echo "Files are different. Uploading new version."
-          aws s3api put-object --body template.yml --bucket fingerprint-pro-cloudfront-integration-lambda-function --key releaseV2/template.yml
+          aws s3api put-object --body template.yml --bucket fingerprint-pro-cloudfront-integration --key v2/template.yml
         else
           echo "There was something wrong with the diff command."
         fi

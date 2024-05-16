@@ -6,9 +6,9 @@ import { SecretsManagerVariables } from '../../../utils/customer-variables/secre
 import { CustomerVariablesRecord, CustomerVariableType } from '../../../utils/customer-variables/types'
 import { clearSecretsCache } from '../../../utils/customer-variables/secrets-manager/retrieve-secret'
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
-import { getBehaviorPath } from '../../../utils/customer-variables/selectors'
 import { mockClient } from 'aws-sdk-client-mock'
 import 'aws-sdk-client-mock-jest'
+import { getAgentDownloadPath } from '../../../utils/customer-variables/selectors'
 
 describe('customer variables selectors', () => {
   describe('from headers', () => {
@@ -44,12 +44,6 @@ describe('customer variables selectors', () => {
                   value: 'greiodsfkljlds',
                 },
               ],
-              fpjs_behavior_path: [
-                {
-                  key: 'fpjs_behavior_path',
-                  value: 'eifjdsnmzxcn',
-                },
-              ],
               fpjs_get_result_path: [
                 {
                   key: 'fpjs_get_result_path',
@@ -63,9 +57,9 @@ describe('customer variables selectors', () => {
 
       const customerVariables = getHeaderCustomerVariables(req)
 
-      expect(await getAgentUri(customerVariables)).toBe('/eifjdsnmzxcn/greiodsfkljlds')
-      expect(await getResultUri(customerVariables)).toBe('/eifjdsnmzxcn/eiwflsdkadlsjdsa')
-      expect(await getStatusUri(customerVariables)).toBe('/eifjdsnmzxcn/status')
+      expect(await getAgentUri(customerVariables)).toBe('/greiodsfkljlds')
+      expect(await getResultUri(customerVariables)).toBe('/eiwflsdkadlsjdsa(/.*)?')
+      expect(getStatusUri()).toBe('/status')
     })
 
     test('positive scenario for s3 origin', async () => {
@@ -94,12 +88,6 @@ describe('customer variables selectors', () => {
                   value: 'greiodsfkljlds',
                 },
               ],
-              fpjs_behavior_path: [
-                {
-                  key: 'fpjs_behavior_path',
-                  value: 'eifjdsnmzxcn',
-                },
-              ],
               fpjs_get_result_path: [
                 {
                   key: 'fpjs_get_result_path',
@@ -113,9 +101,9 @@ describe('customer variables selectors', () => {
 
       const customerVariables = getHeaderCustomerVariables(req)
 
-      expect(await getAgentUri(customerVariables)).toBe('/eifjdsnmzxcn/greiodsfkljlds')
-      expect(await getResultUri(customerVariables)).toBe('/eifjdsnmzxcn/eiwflsdkadlsjdsa')
-      expect(await getStatusUri(customerVariables)).toBe('/eifjdsnmzxcn/status')
+      expect(await getAgentUri(customerVariables)).toBe('/greiodsfkljlds')
+      expect(await getResultUri(customerVariables)).toBe('/eiwflsdkadlsjdsa(/.*)?')
+      expect(getStatusUri()).toBe('/status')
     })
 
     test('no headers', async () => {
@@ -141,9 +129,9 @@ describe('customer variables selectors', () => {
 
       const customerVariables = getHeaderCustomerVariables(req)
 
-      expect(await getAgentUri(customerVariables)).toBe('/fpjs/agent')
-      expect(await getResultUri(customerVariables)).toBe('/fpjs/resultId')
-      expect(await getStatusUri(customerVariables)).toBe('/fpjs/status')
+      expect(await getAgentUri(customerVariables)).toBe('/agent')
+      expect(await getResultUri(customerVariables)).toBe('/resultId(/.*)?')
+      expect(getStatusUri()).toBe('/status')
     })
   })
 
@@ -202,9 +190,9 @@ describe('customer variables selectors', () => {
       const customerVariables = getSecretsManagerCustomerVariables(request)
 
       const checkVariables = async () => {
-        expect(await getAgentUri(customerVariables)).toBe('/behaviour/download')
-        expect(await getResultUri(customerVariables)).toBe('/behaviour/result')
-        expect(await getStatusUri(customerVariables)).toBe('/behaviour/status')
+        expect(await getAgentUri(customerVariables)).toBe('/download')
+        expect(await getResultUri(customerVariables)).toBe('/result(/.*)?')
+        expect(getStatusUri()).toBe('/status')
       }
 
       await checkVariables()
@@ -230,7 +218,6 @@ describe('customer variables selectors', () => {
       [CustomerVariableType.AgentDownloadPath]: 'download',
       [CustomerVariableType.GetResultPath]: 'result',
       [CustomerVariableType.PreSharedSecret]: 'abcd',
-      [CustomerVariableType.BehaviourPath]: 'behaviour',
     } as CustomerVariablesRecord
     const variablesRecordStr = JSON.stringify(variablesRecord)
 
@@ -340,12 +327,6 @@ describe('customer variables selectors', () => {
                 value: 'greiodsfkljlds',
               },
             ],
-            fpjs_behavior_path: [
-              {
-                key: 'fpjs_behavior_path',
-                value: 'eifjdsnmzxcn',
-              },
-            ],
             fpjs_get_result_path: [
               {
                 key: 'fpjs_get_result_path',
@@ -382,9 +363,9 @@ describe('customer variables selectors', () => {
         })
         .resolves({})
 
-      const result = await getBehaviorPath(getCustomerVariables(req))
+      const result = await getAgentDownloadPath(getCustomerVariables(req))
 
-      expect(result).toBe('eifjdsnmzxcn')
+      expect(result).toBe('greiodsfkljlds')
       expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 1)
     })
 
@@ -395,9 +376,9 @@ describe('customer variables selectors', () => {
         })
         .rejects({})
 
-      const result = await getBehaviorPath(getCustomerVariables(req))
+      const result = await getAgentDownloadPath(getCustomerVariables(req))
 
-      expect(result).toBe('eifjdsnmzxcn')
+      expect(result).toBe('greiodsfkljlds')
       expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 1)
     })
 
@@ -436,12 +417,6 @@ describe('customer variables selectors', () => {
                   value: 'greiodsfkljlds',
                 },
               ],
-              fpjs_behavior_path: [
-                {
-                  key: 'fpjs_behavior_path',
-                  value: 'eifjdsnmzxcn',
-                },
-              ],
               fpjs_get_result_path: [
                 {
                   key: 'fpjs_get_result_path',
@@ -453,9 +428,9 @@ describe('customer variables selectors', () => {
         },
       }
 
-      const result = await getBehaviorPath(getCustomerVariables(req))
+      const result = await getAgentDownloadPath(getCustomerVariables(req))
 
-      expect(result).toBe('eifjdsnmzxcn')
+      expect(result).toBe('greiodsfkljlds')
       expect(mock).toHaveReceivedCommandTimes(GetSecretValueCommand, 0)
     })
   })

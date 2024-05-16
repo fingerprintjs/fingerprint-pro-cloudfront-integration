@@ -49,12 +49,6 @@ export const mockRequest = (
               value: 'greiodsfkljlds',
             },
           ],
-          fpjs_behavior_path: [
-            {
-              key: 'fpjs_behavior_path',
-              value: 'behavior',
-            },
-          ],
           fpjs_get_result_path: [
             {
               key: 'fpjs_get_result_path',

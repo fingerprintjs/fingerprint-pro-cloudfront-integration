@@ -352,7 +352,7 @@ describe('Result Endpoint', function () {
       v: '2',
       error: {
         code: 'Failed',
-        message: 'An error occured with Fingerprint Pro Lambda function. Reason Error: Request timeout',
+        message: 'An error occurred with Fingerprint Pro Lambda function. Reason Error: Request timeout',
       },
       products: {},
     })
@@ -413,18 +413,11 @@ describe('Result Endpoint', function () {
 
 describe('Browser caching endpoint', () => {
   let requestSpy: jest.MockInstance<ClientRequest, any>
+  const cacheControlValue = 'max-age=31536000, immutable, private'
 
-  beforeAll(() => {
+  beforeEach(() => {
     requestSpy = jest.spyOn(https, 'request')
-  })
-
-  afterAll(() => {
-    requestSpy.mockRestore()
-  })
-
-  test('cache-control header is returned as is', async () => {
-    const cacheControlValue = 'max-age=31536000, immutable, private'
-    requestSpy.mockImplementationOnce((...args) => {
+    requestSpy.mockImplementation((...args) => {
       const [, options, cb] = args
       options.agent = new Agent()
       const responseStream = new IncomingMessage(new Socket())
@@ -433,8 +426,71 @@ describe('Browser caching endpoint', () => {
       responseStream.emit('end')
       return Reflect.construct(ClientRequest, args)
     })
-    const reqEvent = mockEvent(mockRequest('/behavior/result/some/suffix'))
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
+  test('cache-control header is returned as is', async () => {
+    const reqEvent = mockEvent(mockRequest('/behavior/result/some/suffix', '', 'GET'))
     const response = await handler(reqEvent)
     expect(response?.headers?.['cache-control']?.[0]?.['value']).toBe(cacheControlValue)
+  })
+
+  test('Req headers are the same, except cookies, which should be dropped', async () => {
+    const request = mockRequest('/behavior/result/some/suffix', '', 'GET')
+
+    Object.assign(request.headers, {
+      cookie: [
+        {
+          key: 'cookie',
+          value:
+            '_iidt=GlMQaHMfzYvomxCuA7Uymy7ArmjH04jPkT+enN7j/Xk8tJG+UYcQV+Qw60Ry4huw9bmDoO/smyjQp5vLCuSf8t4Jow==; auth_token=123456',
+        },
+      ],
+      'cache-control': [
+        {
+          key: 'cache-control',
+          value: 'no-cache',
+        },
+      ],
+      'content-type': [
+        {
+          key: 'content-type',
+          value: 'text/javascript; charset=utf-8',
+        },
+      ],
+      'accept-language': [
+        {
+          key: 'accept-language',
+          value: 'en-US',
+        },
+      ],
+      'user-agent': [
+        {
+          key: 'user-agent',
+          value: 'Mozilla/5.0',
+        },
+      ],
+      'x-some-header': [
+        {
+          key: 'x-some-header',
+          value: 'some value',
+        },
+      ],
+    })
+
+    const event = mockEvent(request)
+    await handler(event)
+    const [, options] = requestSpy.mock.calls[0]
+
+    expect(options.headers).toEqual({
+      'cache-control': 'no-cache',
+      'accept-language': 'en-US',
+      'user-agent': 'Mozilla/5.0',
+      'x-some-header': 'some value',
+      'content-type': 'text/javascript; charset=utf-8',
+    })
   })
 })

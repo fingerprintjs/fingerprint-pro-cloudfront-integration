@@ -18,7 +18,8 @@ export function validateSecret(obj: unknown): asserts obj is CustomerVariablesRe
 
   for (const [key, value] of Object.entries(secret)) {
     if (!allowedKeys.includes(key as CustomerVariableType)) {
-      throw new TypeError(`Secrets Manager secret contains an invalid key: ${key}`)
+      console.warn(`Secrets Manager secret contains an invalid key: ${key}`)
+      continue
     }
 
     assertIsCustomerVariableValue(value, key)

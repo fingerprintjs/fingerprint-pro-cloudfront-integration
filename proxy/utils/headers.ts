@@ -53,8 +53,12 @@ const CACHE_CONTROL_HEADER_NAME = 'cache-control'
 
 export async function prepareHeadersForIngressAPI(
   request: CloudFrontRequest,
-  variables: CustomerVariables
+  variables: CustomerVariables,
+  isIngressCall: boolean
 ): Promise<OutgoingHttpHeaders> {
+  if (!isIngressCall) {
+    return filterRequestHeaders(request, true)
+  }
   const headers = filterRequestHeaders(request)
 
   headers['fpjs-proxy-client-ip'] = request.clientIp
@@ -69,9 +73,15 @@ export async function prepareHeadersForIngressAPI(
 
 export const getHost = (request: CloudFrontRequest) => request.headers['host'][0].value
 
-export function filterRequestHeaders(request: CloudFrontRequest): OutgoingHttpHeaders {
+export function filterRequestHeaders(request: CloudFrontRequest, dropCookies = false): OutgoingHttpHeaders {
   return Object.entries(request.headers).reduce((result: { [key: string]: string }, [name, value]) => {
     const headerName = name.toLowerCase()
+    if (dropCookies) {
+      if (headerName === 'cookie') {
+        return result
+      }
+    }
+
     // Lambda@Edge function can't add read-only headers from a client request to Ingress API request
     if (isHeaderAllowedForRequest(headerName)) {
       let headerValue = value[0].value

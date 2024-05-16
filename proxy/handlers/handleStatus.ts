@@ -1,12 +1,13 @@
 import { CloudFrontResultResponse } from 'aws-lambda'
 import { CustomerVariables } from '../utils/customer-variables/customer-variables'
-import { CustomerVariableType, CustomerVariableValue } from '../utils/customer-variables/types'
+import { CustomerVariableType, CustomerVariableValue, internalVariables } from '../utils/customer-variables/types'
 import { maybeObfuscateVariable } from '../utils/customer-variables/maybe-obfuscate-variable'
 
 export interface EnvVarInfo {
   envVarName: string
   value: CustomerVariableValue
   isSet: boolean
+  isInternal: boolean
   // If null, the variable was resolved with the default value, otherwise it was resolved by the provider with the given name
   resolvedBy: string | null
 }
@@ -25,6 +26,7 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
         envVarName: variable,
         value: value.value,
         isSet: Boolean(value.value),
+        isInternal: internalVariables.has(variable),
         resolvedBy: value.resolvedBy,
       }
     })
@@ -34,9 +36,11 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
 }
 
 function renderEnvInfo(envInfo: EnvVarInfo[]) {
-  const isAlSet = envInfo.every((info) => info.isSet && info.resolvedBy)
+  const isAllCustomerDefinedVariablesSet = envInfo
+    .filter((info) => !info.isInternal)
+    .every((info) => info.isSet && info.resolvedBy)
 
-  if (isAlSet) {
+  if (isAllCustomerDefinedVariablesSet) {
     return `
       <div>
         ✅ All environment variables are set
@@ -45,7 +49,7 @@ function renderEnvInfo(envInfo: EnvVarInfo[]) {
   }
 
   const children = envInfo
-    .filter((info) => !info.isSet || !info.resolvedBy)
+    .filter((info) => (!info.isSet || !info.resolvedBy) && !info.isInternal)
     .map(
       (info) => `
         <div class="env-info-item">

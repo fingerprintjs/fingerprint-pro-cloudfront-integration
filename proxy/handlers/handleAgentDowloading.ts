@@ -4,12 +4,17 @@ import https from 'https'
 
 import { updateResponseHeadersForAgentDownload, addTrafficMonitoringSearchParamsForProCDN } from '../utils'
 
+function copySearchParams(oldSearchString: string, newURL: URL): void {
+  newURL.search = oldSearchString
+}
+
 export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultResponse> {
   return new Promise((resolve) => {
     const data: any[] = []
 
-    const url = new URL('https://__FPCDN__')
+    const url = new URL(`https://${options.fpCdnUrl}`)
     url.pathname = getEndpoint(options.apiKey, options.version, options.loaderVersion)
+    copySearchParams(options.querystring, url)
     addTrafficMonitoringSearchParamsForProCDN(url)
 
     console.debug(`Downloading agent from: ${url.toString()}`)

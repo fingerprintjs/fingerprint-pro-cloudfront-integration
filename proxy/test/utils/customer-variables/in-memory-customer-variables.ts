@@ -10,7 +10,8 @@ export function getInMemoryCustomerVariables() {
     [CustomerVariableType.AgentDownloadPath]: 'download',
     [CustomerVariableType.PreSharedSecret]: 'secret',
     [CustomerVariableType.GetResultPath]: 'result',
-    [CustomerVariableType.BehaviourPath]: 'behaviour',
+    [CustomerVariableType.FpCdnUrl]: 'fpcdn.io',
+    [CustomerVariableType.FpIngressBaseHost]: 'api.fpjs.io',
   }
   const provider: CustomerVariableProvider = {
     name: 'test provider',
