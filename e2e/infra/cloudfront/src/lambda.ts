@@ -18,14 +18,4 @@ export const lambdaCachePolicy = new aws.cloudfront.CachePolicy(resource('lambda
   },
 })
 
-export const lambdaOriginPolicy = new aws.cloudfront.OriginRequestPolicy(resource('lambda-origin-policy'), {
-  headersConfig: {
-    headerBehavior: 'allViewer',
-  },
-  cookiesConfig: {
-    cookieBehavior: 'all',
-  },
-  queryStringsConfig: {
-    queryStringBehavior: 'all',
-  },
-})
+export const lambdaOriginPolicy = '216adef6-5c7f-47e4-b989-5492eafa07d3' // default AllViewer policy
