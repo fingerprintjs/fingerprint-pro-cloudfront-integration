@@ -1,3 +1,10 @@
+## [2.0.1-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.0...v2.0.1-rc.1) (2024-05-16)
+
+
+### Bug Fixes
+
+* use default AllViewer policy for e2e tests ([8dfe8d5](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/8dfe8d502145d5b5881086e1bf63d88ed8904274))
+
 ## [2.0.0](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v1.4.0...v2.0.0) (2024-05-16)
 
 

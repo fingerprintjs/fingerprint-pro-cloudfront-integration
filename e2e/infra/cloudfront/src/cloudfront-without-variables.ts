@@ -52,7 +52,7 @@ const cloudfrontDistro = new aws.cloudfront.Distribution(resource('website-witho
       pathPattern: 'fpjs/*',
       viewerProtocolPolicy: 'redirect-to-https',
       cachePolicyId: lambdaCachePolicy.id,
-      originRequestPolicyId: lambdaOriginPolicy.id,
+      originRequestPolicyId: lambdaOriginPolicy,
       allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
       cachedMethods: ['GET', 'HEAD'],
       targetOriginId: s3OriginId,
