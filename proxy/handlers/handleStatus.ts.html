@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>20/20</span>
+                <span class='fraction'>21/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>21/21</span>
             </div>
         
             
@@ -178,7 +178,11 @@
 <a name='L113'></a><a href='#L113'>113</a>
 <a name='L114'></a><a href='#L114'>114</a>
 <a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
@@ -197,24 +201,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">30x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">30x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -225,9 +233,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -295,13 +303,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { CloudFrontResultResponse } from 'aws-lambda'
 import { CustomerVariables } from '../utils/customer-variables/customer-variables'
-import { CustomerVariableType, CustomerVariableValue } from '../utils/customer-variables/types'
+import { CustomerVariableType, CustomerVariableValue, internalVariables } from '../utils/customer-variables/types'
 import { maybeObfuscateVariable } from '../utils/customer-variables/maybe-obfuscate-variable'
 &nbsp;
 export interface EnvVarInfo {
   envVarName: string
   value: CustomerVariableValue
   isSet: boolean
+  isInternal: boolean
   // If null, the variable was resolved with the default value, otherwise it was resolved by the provider with the given name
   resolvedBy: string | null
 }
@@ -320,6 +329,7 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
         envVarName: variable,
         value: value.value,
         isSet: Boolean(value.value),
+        isInternal: internalVariables.has(variable),
         resolvedBy: value.resolvedBy,
       }
     })
@@ -329,9 +339,11 @@ async function getEnvInfo(customerVariables: CustomerVariables) {
 }
 &nbsp;
 function renderEnvInfo(envInfo: EnvVarInfo[]) {
-  const isAlSet = envInfo.every((info) =&gt; info.isSet &amp;&amp; info.resolvedBy)
+  const isAllCustomerDefinedVariablesSet = envInfo
+    .filter((info) =&gt; !info.isInternal)
+    .every((info) =&gt; info.isSet &amp;&amp; info.resolvedBy)
 &nbsp;
-  if (isAlSet) {
+  if (isAllCustomerDefinedVariablesSet) {
     return `
       &lt;div&gt;
         ✅ All environment variables are set
@@ -340,7 +352,7 @@ function renderEnvInfo(envInfo: EnvVarInfo[]) {
   }
 &nbsp;
   const children = envInfo
-    .filter((info) =&gt; !info.isSet || !info.resolvedBy)
+    .filter((info) =&gt; (!info.isSet || !info.resolvedBy) &amp;&amp; !info.isInternal)
     .map(
       (info) =&gt; `
         &lt;div class="env-info-item"&gt;
@@ -415,7 +427,7 @@ export async function handleStatus(customerVariables: CustomerVariables): Promis
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-04-22T11:00:24.592Z
+                at 2024-05-16T09:10:52.499Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>24/24</span>
+                <span class='fraction'>27/27</span>
             </div>
         
             
@@ -39,7 +39,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
@@ -87,54 +87,57 @@
 <a name='L22'></a><a href='#L22'>22</a>
 <a name='L23'></a><a href='#L23'>23</a>
 <a name='L24'></a><a href='#L24'>24</a>
-<a name='L25'></a><a href='#L25'>25</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">200x</span>
+<span class="cline-any cline-yes">132x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-yes">43x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-yes">43x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">46x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">99x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">41x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { CustomerVariables, GetVariableResult } from './customer-variables'
 import { CustomerVariableType } from './types'
 &nbsp;
 const extractVariable = (result: GetVariableResult) =&gt; result.value
 &nbsp;
-export const getAgentUri = async (variables: CustomerVariables) =&gt;
-  `/${await getBehaviorPath(variables)}/${await getAgentDownloadPath(variables)}`
+export const getAgentUri = async (variables: CustomerVariables) =&gt; `/${await getAgentDownloadPath(variables)}`
 &nbsp;
-export const getResultUri = async (variables: CustomerVariables) =&gt;
-  `/${await getBehaviorPath(variables)}/${await getResultPath(variables)}`
+export const getResultUri = async (variables: CustomerVariables) =&gt; `/${await getResultPath(variables)}(/.*)?`
 &nbsp;
-export const getStatusUri = async (variables: CustomerVariables) =&gt; `/${await getBehaviorPath(variables)}/status`
+export const getStatusUri = () =&gt; `/status`
 &nbsp;
 export const getAgentDownloadPath = async (variables: CustomerVariables) =&gt;
   variables.getVariable(CustomerVariableType.AgentDownloadPath).then(extractVariable)
-&nbsp;
-export const getBehaviorPath = async (variables: CustomerVariables) =&gt;
-  variables.getVariable(CustomerVariableType.BehaviourPath).then(extractVariable)
 &nbsp;
 export const getResultPath = async (variables: CustomerVariables) =&gt;
   variables.getVariable(CustomerVariableType.GetResultPath).then(extractVariable)
 &nbsp;
 export const getPreSharedSecret = async (variables: CustomerVariables) =&gt;
   variables.getVariable(CustomerVariableType.PreSharedSecret).then(extractVariable)
+&nbsp;
+export const getFpCdnUrl = async (variables: CustomerVariables) =&gt;
+  variables.getVariable(CustomerVariableType.FpCdnUrl).then(extractVariable)
+&nbsp;
+export const getFpIngressBaseHost = async (variables: CustomerVariables) =&gt;
+  variables.getVariable(CustomerVariableType.FpIngressBaseHost).then(extractVariable)
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -142,7 +145,7 @@ export const getPreSharedSecret = async (variables: CustomerVariables) =&gt;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-04-22T11:00:24.592Z
+                at 2024-05-16T09:10:52.499Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

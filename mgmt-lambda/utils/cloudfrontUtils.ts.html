@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for proxy/utils/traffic.ts</title>
+    <title>Code coverage report for mgmt-lambda/utils/cloudfrontUtils.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">proxy/utils</a> traffic.ts</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">mgmt-lambda/utils</a> cloudfrontUtils.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">88.88% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>8/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
@@ -77,33 +77,66 @@
 <a name='L12'></a><a href='#L12'>12</a>
 <a name='L13'></a><a href='#L13'>13</a>
 <a name='L14'></a><a href='#L14'>14</a>
-<a name='L15'></a><a href='#L15'>15</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">31x</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const LAMBDA_FUNC_VERSION = '__lambda_func_version__'
-const PARAM_NAME = 'ii'
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { CacheBehavior, DefaultCacheBehavior, DistributionConfig, EventType, Origin } from '@aws-sdk/client-cloudfront'
+import { defaults } from '../DefaultSettings'
+import { LambdaFunctionAssociation } from '@aws-sdk/client-cloudfront'
 &nbsp;
-export function addTrafficMonitoringSearchParamsForProCDN(url: URL) {
-  url.searchParams.append(PARAM_NAME, getTrafficMonitoringValue('procdn'))
+export function getFPCDNOrigins(distributionConfig: DistributionConfig | undefined): Origin[] {
+  return distributionConfig?.Origins?.Items?.filter((it) =&gt; it.DomainName === defaults.FP_CDN_URL) || <span class="branch-1 cbranch-no" title="branch not covered" >[]</span>
 }
 &nbsp;
-export function addTrafficMonitoringSearchParamsForVisitorIdRequest(url: URL) {
-  url.searchParams.append(PARAM_NAME, getTrafficMonitoringValue('ingress'))
+export function doesCacheBehaviorUseOrigins(
+  cacheBehavior: DefaultCacheBehavior | CacheBehavior | undefined,
+  origins: Origin[]
+): boolean {
+  return origins?.some((origin) =&gt; origin.Id === cacheBehavior?.TargetOriginId) || false
 }
 &nbsp;
-function getTrafficMonitoringValue(type: 'procdn' | 'ingress'): string {
-  return `fingerprintjs-pro-cloudfront/${LAMBDA_FUNC_VERSION}/${type}`
+export function getCacheBehaviorLambdaFunctionAssociations(
+  cacheBehavior: DefaultCacheBehavior | CacheBehavior | undefined,
+  functionName: string
+): LambdaFunctionAssociation[] {
+  return (
+    cacheBehavior?.LambdaFunctionAssociations?.Items?.filter(
+      (it) =&gt; it &amp;&amp; it.EventType === EventType.origin_request &amp;&amp; it.LambdaFunctionARN?.includes(`${functionName}:`)
+    ) || []
+  )
 }
 &nbsp;</pre></td></tr></table></pre>
 
