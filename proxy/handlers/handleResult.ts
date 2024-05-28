@@ -22,7 +22,9 @@ export function handleResult(options: ResultOptions): Promise<CloudFrontResultRe
         }
         url.searchParams.append(kv[0], kv[1])
       })
-    addTrafficMonitoringSearchParamsForVisitorIdRequest(url)
+    if (options.method === 'POST') {
+      addTrafficMonitoringSearchParamsForVisitorIdRequest(url)
+    }
 
     console.debug(`Performing request: ${url.toString()}`)
 
