@@ -6,6 +6,11 @@ import { ClientRequest, IncomingMessage } from 'http'
 import { Socket } from 'net'
 import { EventEmitter } from 'events'
 import { mockEvent, mockRequest } from '../aws'
+import {
+  addTrafficMonitoringSearchParamsForProCDN,
+  addTrafficMonitoringSearchParamsForVisitorIdRequest,
+} from '../../utils'
+import * as utils from '../../utils'
 
 describe('Result Endpoint', function () {
   const origin: string = '__ingress_api__'
@@ -19,6 +24,8 @@ describe('Result Endpoint', function () {
 
   beforeAll(() => {
     jest.spyOn(handlers, 'handleResult')
+    jest.spyOn(utils, 'addTrafficMonitoringSearchParamsForProCDN')
+    jest.spyOn(utils, 'addTrafficMonitoringSearchParamsForVisitorIdRequest')
     requestSpy = jest.spyOn(https, 'request')
   })
 
@@ -187,6 +194,23 @@ describe('Result Endpoint', function () {
     const iiParam = url.searchParams.get('ii')
 
     expect(iiParam).toEqual('fingerprintjs-pro-cloudfront/__lambda_func_version__/ingress')
+  })
+
+  test('No traffic monitoring on cache endpoint', async () => {
+    const event = mockEvent(
+      mockRequest('/behavior/result', 'apiKey=ujKG34hUYKLJKJ1F&version=3&loaderVersion=3.6.2', 'GET')
+    )
+    await handler(event)
+
+    expect(handleResult).toHaveBeenCalledTimes(1)
+
+    const url = requestSpy.mock.calls[0][0]
+    const iiParam = url.searchParams.get('ii')
+
+    expect(iiParam).toBeFalsy()
+
+    expect(addTrafficMonitoringSearchParamsForVisitorIdRequest).toHaveBeenCalledTimes(0)
+    expect(addTrafficMonitoringSearchParamsForProCDN).toHaveBeenCalledTimes(0)
   })
 
   test('Headers with proxy secret', async () => {

@@ -9,15 +9,15 @@ Parameters:
     Type: String
   FpjsGetResultPath:
     AllowedPattern: ^([a-zA-Z0-9\-])+$
-    Description: FPJS_GET_RESULT_PATH value
+    Description: request path used to send identification requests (aka FPJS_GET_RESULT_PATH)
     Type: String
   FpjsAgentDownloadPath:
     AllowedPattern: ^([a-zA-Z0-9\-])+$
-    Description: FPJS_AGENT_DOWNLOAD_PATH value
+    Description: request path used to send ProCDN requests (aka FPJS_AGENT_DOWNLOAD_PATH)
     Type: String
   FpjsPreSharedSecret:
     AllowedPattern: ^([a-zA-Z0-9\-])+$
-    Description: FPJS_PRE_SHARED_SECRET value
+    Description: shared secret created on the Fingerprint dashboard (aka FPJS_PRE_SHARED_SECRET)
     Type: String
     NoEcho: true
   DomainNames:
@@ -25,7 +25,7 @@ Parameters:
     Default: ""
     Type: String
   ACMCertificateARN:
-    Description: (Optinal) ARN of SSL certificate in AWS Certificate Manager (the certificate could be requested in the AWS Certifucate Manager or uploaded from the third-party service to AWS).
+    Description: (Optional) ARN of SSL certificate in AWS Certificate Manager (the certificate could be requested in the AWS Certificate Manager or uploaded from the third-party service to AWS).
     Default: ""
     Type: String
 
