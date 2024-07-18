@@ -18,7 +18,7 @@ jobs:
       - name: 'Install pnpm'
         uses: pnpm/action-setup@ebcfd6995dade4b0104ac774445cef8b3b4635b0
         with:
-          version: 8
+          version: 9
 
       - name: 'Install latest node version'
         uses: actions/setup-node@v4
