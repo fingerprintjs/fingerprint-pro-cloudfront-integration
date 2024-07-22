@@ -1,3 +1,10 @@
+## [2.0.2-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.1...v2.0.2-rc.1) (2024-07-22)
+
+
+### Bug Fixes
+
+* remove traffic monitoring for cache endpoint ([f6e800e](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/f6e800e9a5c2a7492e6391d18cf2dc5eeabdb764))
+
 ## [2.0.2-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.1...v2.0.2-rc.1) (2024-07-01)
 
 
