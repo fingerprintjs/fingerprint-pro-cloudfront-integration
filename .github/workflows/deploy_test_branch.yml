@@ -16,9 +16,9 @@ jobs:
           fetch-depth: 0
 
       - name: 'Install pnpm'
-        uses: pnpm/action-setup@ebcfd6995dade4b0104ac774445cef8b3b4635b0
+        uses: pnpm/action-setup@129abb77bf5884e578fcaf1f37628e41622cc371
         with:
-          version: 8
+          version: 9
 
       - name: 'Install latest node version'
         uses: actions/setup-node@v4
