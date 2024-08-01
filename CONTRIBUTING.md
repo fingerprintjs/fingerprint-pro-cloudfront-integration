@@ -1,4 +1,4 @@
-# Contributing to FingerprintJS Pro Cloudflare Integration
+# Contributing to Fingerprint Pro CloudFront Integration
 
 ## Working with code
 
