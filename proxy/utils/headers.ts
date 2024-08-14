@@ -6,6 +6,7 @@ import { CustomerVariables } from './customer-variables/customer-variables'
 import { getPreSharedSecret } from './customer-variables/selectors'
 
 const BLACKLISTED_HEADERS = new Set([
+  'age',
   'connection',
   'expect',
   'keep-alive',
