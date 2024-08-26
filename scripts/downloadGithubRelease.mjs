@@ -4,7 +4,6 @@ import { fileURLToPath } from 'url'
 import Zip from 'adm-zip'
 
 const config = {
-  token: process.env.GITHUB_TOKEN,
   owner: 'fingerprintjs',
   repo: 'fingerprint-pro-cloudfront-integration',
 }
@@ -31,17 +30,13 @@ async function main() {
     return
   }
 
-  const zip = await downloadReleaseAsset(asset.url, config.token)
+  const zip = await downloadReleaseAsset(asset.url)
 
   if (process.env.UNPACK_TO_DIST) {
     new Zip(zip).extractAllTo(path.resolve(dirname, '../dist'), true)
   } else {
     fs.writeFileSync(path.resolve(dirname, '../package.zip'), zip)
   }
-}
-
-function bearer(token) {
-  return `Bearer ${token}`
 }
 
 async function getGitHubRelease() {
@@ -95,24 +90,15 @@ async function getLatestGitHubRelease() {
 }
 
 async function doGitHubGetRequest(url) {
-  const response = await fetch(url, {
-    headers: config.token
-      ? {
-          Authorization: bearer(config.token),
-        }
-      : undefined,
-  })
+  const response = await fetch(url)
 
   return await response.json()
 }
 
-async function downloadReleaseAsset(url, token) {
+async function downloadReleaseAsset(url) {
   const headers = {
     Accept: 'application/octet-stream',
     'User-Agent': 'fingerprint-pro-cloudfront-integration',
-  }
-  if (token) {
-    headers['Authorization'] = bearer(token)
   }
 
   console.info('Downloading release asset...', url)
