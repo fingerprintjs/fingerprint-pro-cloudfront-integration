@@ -2,7 +2,7 @@
   <a href="https://fingerprint.com">
     <picture>
      <source media="(prefers-color-scheme: dark)" srcset="https://fingerprintjs.github.io/home/resources/logo_light.svg" />
-     <source media="(prefers-color-scheme: light)" srcset=https://fingerprintjs.github.io/home/resources/logo_dark.svg" />
+     <source media="(prefers-color-scheme: light)" srcset="https://fingerprintjs.github.io/home/resources/logo_dark.svg" />
      <img src="https://fingerprintjs.github.io/home/resources/logo_dark.svg" alt="Fingerprint logo" width="312px" />
    </picture>
   </a>
@@ -22,7 +22,7 @@ Fingerprint Pro CloudFront Integration is responsible for
 - Proxying download requests of the latest Fingerprint Pro JS Agent between your site and Fingerprint CDN.
 - Proxying identification requests and responses between your site and Fingerprint Pro's APIs.
 
-This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration#the-benefits-of-using-the-cloudfront-integration) both accuracy and reliability of visitor identification and bot detection on your site.
+This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration-v2#the-benefits-of-using-the-cloudfront-integration) both accuracy and reliability of visitor identification and bot detection on your site.
 
 > [!IMPORTANT]  
 > CloudFront integration v1 has been [deprecated](https://dev.fingerprint.com/docs/cloudfront-proxy-integration).
