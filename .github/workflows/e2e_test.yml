@@ -36,7 +36,7 @@ jobs:
             sleep 30
 
             status=$(aws codepipeline get-pipeline-execution \
-              --pipeline-name necipallef_cloudfront \
+              --pipeline-name ${{secrets.AWS_E2E_CODEPIPELINE_NAME}} \
               --pipeline-execution-id ${{ env.codepipeline_execution_id }} \
               --query 'pipelineExecution.status' --output text)
           
