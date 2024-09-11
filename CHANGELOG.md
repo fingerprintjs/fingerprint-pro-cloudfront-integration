@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.2...v2.0.3) (2024-09-04)
+
+
+### Bug Fixes
+
+* fix broken agent req caching due to age header ([dcd6ae1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/dcd6ae1ec8c737614a5dbc25d9185f5c813b36ea))
+
 ## [2.0.3-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.2...v2.0.3-rc.1) (2024-08-14)
 
 
