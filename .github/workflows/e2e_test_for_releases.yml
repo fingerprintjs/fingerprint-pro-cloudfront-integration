@@ -26,7 +26,7 @@ jobs:
           aws-region: ${{secrets.AWS_E2E_REGION}}
       - name: Trigger AWS CodePipeline
         run: |
-          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{secrets.AWS_E2E_RC_CODEPIPELINE_NAME}} --query 'pipelineExecutionId' --output text)
+          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_RC_CODEPIPELINE_NAME}} --query 'pipelineExecutionId' --output text)
           echo "Pipeline execution ID: $codepipeline_execution_id"
           echo "codepipeline_execution_id=$codepipeline_execution_id" >> $GITHUB_ENV
       - name: Poll Pipeline Status
@@ -36,7 +36,7 @@ jobs:
             sleep 30
 
             status=$(aws codepipeline get-pipeline-execution \
-              --pipeline-name ${{secrets.AWS_E2E_RC_CODEPIPELINE_NAME}} \
+              --pipeline-name ${{vars.AWS_E2E_RC_CODEPIPELINE_NAME}} \
               --pipeline-execution-id ${{ env.codepipeline_execution_id }} \
               --query 'pipelineExecution.status' --output text)
           
