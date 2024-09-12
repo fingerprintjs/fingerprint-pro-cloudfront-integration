@@ -1,11 +1,10 @@
-name: AWS E2E
+name: AWS E2E for releases and pre-releases
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-      - rc
+    tags:
+      - v*
     paths-ignore:
       - '**.md'
       - 'cloudformation/*.yml'
