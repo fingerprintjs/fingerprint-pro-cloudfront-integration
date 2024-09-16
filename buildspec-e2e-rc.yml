@@ -1,7 +1,5 @@
 version: 0.2
-env:
-  secrets-manager:
-    GITHUB_TOKEN: "fpjs-dev-cloudfront-secrets:GITHUB_TOKEN"
+
 phases:
   install:
     runtime-versions:
@@ -12,14 +10,6 @@ phases:
       - echo $CODEBUILD_SOURCE_VERSION
       - echo $CODEBUILD_BUILD_ID
       - echo $CODEBUILD_PUBLIC_BUILD_URL
-      - |
-        curl \
-          -X POST \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer $GITHUB_TOKEN"\
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_ID \
-          -d "{\"state\":\"pending\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/$AWS_ACCOUNT_ID/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests for release are running\",\"context\":\"e2e-release\"}"
       - ls -a
       - curl -fsSL https://get.pulumi.com | sh
       - export PATH=$PATH:$HOME/.pulumi/bin
@@ -31,37 +21,15 @@ phases:
   pre_build:
     commands:
       - pwd
-      - pulumi version      
+      - pulumi version
       - cd e2e/infra/lambda && pulumi stack init e2e && pulumi stack select e2e && cd ../../..
       - cd e2e/infra/cloudfront && pulumi stack init e2e && pulumi stack select e2e && cd ../../..
       - cd e2e/infra && pnpm run lambda:up && pnpm run lambda:export && pnpm run cloudfront:up && pnpm run cloudfront:export && cd ../..
-    finally:
-      - |
-        if [ "$CODEBUILD_BUILD_SUCCEEDING" -eq 0 ]; then
-          curl \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN"\
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_ID \
-            -d "{\"state\":\"error\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/$AWS_ACCOUNT_ID/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests for release failed during the pre-build step\",\"context\":\"e2e-release\"}"
-        fi
   build:
     commands:
       - ls -a
       - cd e2e/tests && pnpm test
     finally:
       - cd ../..
-      - echo $CODEBUILD_BUILD_SUCCEEDING
       - echo $COMMIT_ID
-      - export STATUS=$(sh ./e2e/scripts/get-codebuild-status.sh)
-      - echo $STATUS
-      - |
-        curl \
-          -X POST \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer $GITHUB_TOKEN"\
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/statuses/$COMMIT_ID \
-          -d "{\"state\":\"$STATUS\",\"target_url\":\"https://us-east-1.console.aws.amazon.com/codesuite/codebuild/$AWS_ACCOUNT_ID/projects/fpjs-dev-cloudfront-lambda-e2e-tests/build/$CODEBUILD_BUILD_ID/?region=us-east-1\",\"description\":\"E2E tests for release finished\",\"context\":\"e2e-release\"}"
       - cd e2e/infra && pnpm cloudfront:destroy && pnpm lambda:destroy && cd ../..
