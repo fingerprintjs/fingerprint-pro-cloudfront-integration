@@ -20,7 +20,7 @@ jobs:
       - name: Git clone
         uses: actions/checkout@v4
       - name: configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 // #v4.0.2
         with:
           role-to-assume: ${{secrets.AWS_E2E_ROLE_ARN}}
           aws-region: ${{secrets.AWS_E2E_REGION}}
