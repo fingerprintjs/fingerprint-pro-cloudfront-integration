@@ -1,11 +1,10 @@
-name: AWS E2E
+name: AWS E2E for releases and pre-releases
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-      - rc
+    tags:
+      - v*
     paths-ignore:
       - '**.md'
       - 'cloudformation/*.yml'
@@ -21,13 +20,13 @@ jobs:
       - name: Git clone
         uses: actions/checkout@v4
       - name: configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 // #v4.0.2
         with:
           role-to-assume: ${{secrets.AWS_E2E_ROLE_ARN}}
           aws-region: ${{secrets.AWS_E2E_REGION}}
       - name: Trigger AWS CodePipeline
         run: |
-          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{secrets.AWS_E2E_CODEPIPELINE_NAME}} --query 'pipelineExecutionId' --output text)
+          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_RC_CODEPIPELINE_NAME}} --query 'pipelineExecutionId' --output text)
           echo "Pipeline execution ID: $codepipeline_execution_id"
           echo "codepipeline_execution_id=$codepipeline_execution_id" >> $GITHUB_ENV
       - name: Poll Pipeline Status
@@ -37,7 +36,7 @@ jobs:
             sleep 30
 
             status=$(aws codepipeline get-pipeline-execution \
-              --pipeline-name ${{secrets.AWS_E2E_CODEPIPELINE_NAME}} \
+              --pipeline-name ${{vars.AWS_E2E_RC_CODEPIPELINE_NAME}} \
               --pipeline-execution-id ${{ env.codepipeline_execution_id }} \
               --query 'pipelineExecution.status' --output text)
           
