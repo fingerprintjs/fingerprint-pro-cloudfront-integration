@@ -18,6 +18,7 @@ export function downloadAgent(options: AgentOptions): Promise<CloudFrontResultRe
     addTrafficMonitoringSearchParamsForProCDN(url)
 
     console.debug(`Downloading agent from: ${url.toString()}`)
+    console.log('harmless log')
 
     const request = https.request(
       url,
