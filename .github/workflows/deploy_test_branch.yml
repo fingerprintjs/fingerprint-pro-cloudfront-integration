@@ -5,10 +5,6 @@ on:
       - '**.md'
       - 'cloudformation/*.yml'
 
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
-
 jobs:
   deploy-test-branch:
     name: Deploy test branch
@@ -71,6 +67,9 @@ jobs:
 
   run-e2e-for-test-branch:
     needs: [deploy-test-branch]
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read  # This is required for actions/checkout
     name: Run e2e for test branch
     runs-on: ubuntu-latest
     steps:
