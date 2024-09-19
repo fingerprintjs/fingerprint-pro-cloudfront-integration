@@ -1,9 +1,12 @@
-import SDK from 'aws-sdk'
+import { LambdaClient } from '@aws-sdk/client-lambda'
+import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { CloudFrontClient } from '@aws-sdk/client-cloudfront'
+import { S3Client } from '@aws-sdk/client-s3'
 
-const lambda = new SDK.Lambda()
-const secretsManager = new SDK.SecretsManager()
-const cloudFront = new SDK.CloudFront()
-const s3 = new SDK.S3()
+const lambda = new LambdaClient()
+const secretsManager = new SecretsManagerClient()
+const cloudFront = new CloudFrontClient()
+const s3 = new S3Client()
 
 const RESOURCE_PREFIX = 'fpjs-dev-e2e-cloudfront'
 
