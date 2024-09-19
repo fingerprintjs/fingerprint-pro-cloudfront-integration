@@ -65,3 +65,43 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MESSAGE: Deploy prepared in [${{ steps.date.outputs.today }}]
 
+  run-e2e-for-test-branch:
+    needs: [deploy-test-branch]
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read  # This is required for actions/checkout
+    name: Run e2e for test branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone
+        uses: actions/checkout@v4
+      - name: configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 #v4.0.2
+        with:
+          role-to-assume: ${{secrets.AWS_E2E_ROLE_ARN}}
+          aws-region: ${{secrets.AWS_E2E_REGION}}
+      - name: Trigger AWS CodePipeline
+        run: |
+          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_TEST_BRANCH_CODEPIPELINE_NAME}} --query 'pipelineExecutionId' --output text)
+          echo "Pipeline execution ID: $codepipeline_execution_id"
+          echo "codepipeline_execution_id=$codepipeline_execution_id" >> $GITHUB_ENV
+      - name: Poll Pipeline Status
+        id: poll-status
+        run: |
+          while true; do
+            sleep 30
+            status=$(aws codepipeline get-pipeline-execution \
+              --pipeline-name ${{vars.AWS_E2E_TEST_BRANCH_CODEPIPELINE_NAME}} \
+              --pipeline-execution-id ${{ env.codepipeline_execution_id }} \
+              --query 'pipelineExecution.status' --output text)
+
+            echo "Current pipeline status: $status"
+
+            if [[ "$status" == "Succeeded" ]]; then
+              echo "Pipeline execution succeeded!"
+              exit 0
+            elif [[ "$status" == "Failed" ]]; then
+              echo "Pipeline execution failed!"
+              exit 1
+            fi
+          done
