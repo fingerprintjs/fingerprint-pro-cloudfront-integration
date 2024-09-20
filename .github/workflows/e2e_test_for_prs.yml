@@ -22,7 +22,7 @@ jobs:
           aws-region: ${{vars.AWS_E2E_REGION}}
       - name: Store BRANCH_NAME in Parameter Store
         run: |
-          aws ssm put-parameter --name "BRANCH_NAME" --value "${{github.head_ref}}" --type "String" --overwrite
+          aws ssm put-parameter --name "/cloudfront-integration-e2e/branch_name" --value "${{github.head_ref}}" --type "String" --overwrite
       - name: Trigger AWS CodePipeline
         run: |
           codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_TOPIC_BRANCH_CODEPIPELINE_NAME}} --query 'pipelineExecutionId' --output text)
