@@ -6,7 +6,8 @@ phases:
       nodejs: 20
     commands:
       - npm i -g pnpm
-      - export COMMIT_SHA=$(cat meta.json | jq -r '.sha')
+      - # export COMMIT_SHA=$(cat meta.json | jq -r '.sha')
+      - export COMMIT_SHA=$(git rev-parse HEAD)
       - echo $COMMIT_SHA
       - echo $CODEBUILD_BUILD_ID
       - echo $CODEBUILD_PUBLIC_BUILD_URL
@@ -20,16 +21,17 @@ phases:
       - ls -lah
       - pulumi version
       - pnpm install
-      - pnpm -C website install && pnpm -C website build
-      - cd tests && pnpm install && npx playwright install --with-deps && cd ..
-      - cd infra/lambda && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd ../../
-      - cd infra/cloudfront && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd ../../
-      - cd infra && pnpm install && pnpm run lambda:up && pnpm run lambda:export && pnpm run cloudfront:up && pnpm run cloudfront:export && cd ../
+      - pnpm build
+      - cp -r dist e2e
+      - pnpm -C e2e/website install && pnpm -C website build
+      - cd e2e/tests && pnpm install && npx playwright install --with-deps && cd -
+      - cd e2e/infra/lambda && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd -
+      - cd e2e/infra/cloudfront && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd -
+      - cd e2e/infra && pnpm install && pnpm run lambda:up && pnpm run lambda:export && pnpm run cloudfront:up && pnpm run cloudfront:export && cd -
   build:
     commands:
       - ls -a
-      - cd tests && pnpm test
+      - cd e2e/tests && pnpm test && cd -
     finally:
-      - cd ../
       - echo $COMMIT_SHA
-      - cd infra && pnpm cloudfront:destroy && pnpm lambda:destroy && cd ../
+      - cd e2e/infra && pnpm cloudfront:destroy && pnpm lambda:destroy && cd -
