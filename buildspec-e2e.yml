@@ -23,7 +23,7 @@ phases:
       - pnpm install
       - pnpm build
       - cp -r dist e2e
-      - pnpm -C e2e/website install && pnpm -C website build
+      - pnpm -C e2e/website install && pnpm -C e2e/website build
       - cd e2e/tests && pnpm install && npx playwright install --with-deps && cd -
       - cd e2e/infra/lambda && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd -
       - cd e2e/infra/cloudfront && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd -
