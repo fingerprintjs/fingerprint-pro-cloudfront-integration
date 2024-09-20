@@ -13,9 +13,9 @@ import {
   DeleteBucketCommand,
   DeleteObjectsCommand,
   ListBucketsCommand,
-  ListObjectsV2Command,
-  S3Client
-} from "@aws-sdk/client-s3"
+  paginateListObjectsV2,
+  S3Client,
+} from '@aws-sdk/client-s3'
 
 const lambda = new LambdaClient()
 const secretsManager = new SecretsManagerClient()
@@ -203,28 +203,19 @@ async function* listS3Buckets() {
 }
 
 async function emptyS3Bucket(bucketName) {
-  const listObjectsCommand = new ListObjectsV2Command({ Bucket: bucketName })
-  const listedObjects = await s3.send(listObjectsCommand)
+  const paginator = paginateListObjectsV2({ client: s3 }, { Bucket: bucketName })
+  for await (const page of paginator) {
+    if (page?.KeyCount > 0) {
+      const deleteParams = {
+        Bucket: bucketName,
+        Delete: { Objects: page.Contents.map(({ Key }) => ({ Key })) },
+      }
+      console.info(`Removing objects from S3 bucket: ${JSON.stringify(deleteParams)}. `)
 
-  console.log('listedObjects:', listedObjects)
-
-  if (listedObjects.Contents.length === 0) {
-    return
-  }
-
-  const deleteParams = {
-    Bucket: bucketName,
-    Delete: { Objects: listedObjects.Contents.map(({ Key }) => ({ Key })) },
-  }
-
-  console.info(`Removing objects from S3 bucket: ${JSON.stringify(deleteParams)}. `)
-
-  const deleteObjectsCommand = new DeleteObjectsCommand(deleteParams)
-  console.log(deleteObjectsCommand)
-  // await s3.send(deleteObjectsCommand)
-
-  if (listedObjects.IsTruncated) {
-    await emptyS3Bucket(bucketName)
+      const deleteObjectsCommand = new DeleteObjectsCommand(deleteParams)
+      console.log(deleteObjectsCommand)
+      // await s3.send(deleteObjectsCommand)
+    }
   }
 }
 
