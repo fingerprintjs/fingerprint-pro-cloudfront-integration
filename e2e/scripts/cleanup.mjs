@@ -42,8 +42,7 @@ async function cleanupLambdas() {
   for await (const lambdaFunction of listLambdas()) {
     try {
       const deleteFunctionCommand = new DeleteFunctionCommand({ FunctionName: lambdaFunction.FunctionName })
-      console.log(deleteFunctionCommand)
-      // await lambda.send(deleteFunctionCommand)
+      await lambda.send(deleteFunctionCommand)
 
       console.info(`Deleted Lambda function ${lambdaFunction.FunctionName}`)
     } catch (error) {
@@ -56,8 +55,7 @@ async function cleanupSecrets() {
   for await (const secret of listSecrets()) {
     try {
       const deleteSecretCommand = new DeleteSecretCommand({ SecretId: secret.ARN })
-      console.log(deleteSecretCommand)
-      // await secretsManager.send(deleteSecretCommand)
+      await secretsManager.send(deleteSecretCommand)
 
       console.info(`Deleted secret ${secret.ARN}`)
     } catch (error) {
@@ -75,8 +73,7 @@ async function cleanupCloudFrontCachePolicies() {
         Id: policy.CachePolicy.Id,
         IfMatch: getResponse.ETag,
       })
-      console.log(deleteCachePolicyCommand)
-      // await cloudFront.send(deleteCachePolicyCommand)
+      await cloudFront.send(deleteCachePolicyCommand)
       console.info(`Deleted Cache Policy ${policy.CachePolicy.CachePolicyConfig.Name}`)
     } catch (error) {
       console.error(`Failed to delete Cache Policy ${policy.CachePolicy.CachePolicyConfig.Name}`, error)
@@ -93,8 +90,7 @@ async function cleanupCloudFrontOriginPolicies() {
         Id: policy.OriginRequestPolicy.Id,
         IfMatch: getResponse.ETag,
       })
-      console.log(deleteOriginRequestPolicyCommand)
-      // await cloudFront.send(deleteOriginRequestPolicyCommand)
+      await cloudFront.send(deleteOriginRequestPolicyCommand)
       console.info(`Deleted Origin Request Policy ${policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name}`)
     } catch (error) {
       console.error(
@@ -110,8 +106,7 @@ async function cleanupS3Buckets() {
     try {
       await emptyS3Bucket(bucket.Name)
       const deleteBucketCommand = new DeleteBucketCommand({ Bucket: bucket.Name })
-      console.log(deleteBucketCommand)
-      // await s3.send(deleteBucketCommand)
+      await s3.send(deleteBucketCommand)
       console.info(`Deleted S3 bucket: ${bucket.Name}`)
     } catch (error) {
       console.error(`Failed to delete S3 bucket ${bucket.Name}`, error)
@@ -213,8 +208,7 @@ async function emptyS3Bucket(bucketName) {
       console.info(`Removing objects from S3 bucket: ${JSON.stringify(deleteParams)}. `)
 
       const deleteObjectsCommand = new DeleteObjectsCommand(deleteParams)
-      console.log(deleteObjectsCommand)
-      // await s3.send(deleteObjectsCommand)
+      await s3.send(deleteObjectsCommand)
     }
   }
 }
