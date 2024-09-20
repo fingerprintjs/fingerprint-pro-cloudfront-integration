@@ -25,6 +25,7 @@ jobs:
           codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_TOPIC_BRANCH_CODEPIPELINE_NAME}} --query 'pipelineExecutionId' --output text)
           echo "Pipeline execution ID: $codepipeline_execution_id"
           echo "codepipeline_execution_id=$codepipeline_execution_id" >> $GITHUB_ENV
+          echo ${{github.head_ref}}
         env:
           BRANCH_NAME: ${{github.head_ref}}
       - name: Poll Pipeline Status
