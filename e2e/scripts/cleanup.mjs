@@ -9,7 +9,13 @@ import {
   ListCachePoliciesCommand,
   ListOriginRequestPoliciesCommand,
 } from '@aws-sdk/client-cloudfront'
-import { DeleteBucketCommand, DeleteObjectsCommand, ListBucketsCommand, S3Client } from '@aws-sdk/client-s3'
+import {
+  DeleteBucketCommand,
+  DeleteObjectsCommand,
+  ListBucketsCommand,
+  ListObjectsV2Command,
+  S3Client
+} from "@aws-sdk/client-s3"
 
 const lambda = new LambdaClient()
 const secretsManager = new SecretsManagerClient()
@@ -197,7 +203,10 @@ async function* listS3Buckets() {
 }
 
 async function emptyS3Bucket(bucketName) {
-  const listedObjects = await s3.listObjectsV2({ Bucket: bucketName }).promise()
+  const listObjectsCommand = new ListObjectsV2Command({ Bucket: bucketName })
+  const listedObjects = await s3.send(listObjectsCommand)
+
+  console.log('listedObjects:', listedObjects)
 
   if (listedObjects.Contents.length === 0) {
     return
