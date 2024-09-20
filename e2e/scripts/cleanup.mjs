@@ -1,7 +1,21 @@
-import { LambdaClient } from '@aws-sdk/client-lambda'
-import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
-import { CloudFrontClient } from '@aws-sdk/client-cloudfront'
-import { S3Client } from '@aws-sdk/client-s3'
+import { DeleteFunctionCommand, LambdaClient, paginateListFunctions } from '@aws-sdk/client-lambda'
+import { SecretsManagerClient, paginateListSecrets, DeleteSecretCommand } from '@aws-sdk/client-secrets-manager'
+import {
+  CloudFrontClient,
+  DeleteCachePolicyCommand,
+  DeleteOriginRequestPolicyCommand,
+  GetCachePolicyCommand,
+  GetOriginRequestPolicyCommand,
+  ListCachePoliciesCommand,
+  ListOriginRequestPoliciesCommand,
+} from '@aws-sdk/client-cloudfront'
+import {
+  DeleteBucketCommand,
+  DeleteObjectsCommand,
+  ListBucketsCommand,
+  paginateListObjectsV2,
+  S3Client,
+} from '@aws-sdk/client-s3'
 
 const lambda = new LambdaClient()
 const secretsManager = new SecretsManagerClient()
@@ -15,7 +29,7 @@ const cleanupFns = [
   cleanupSecrets,
   cleanupCloudFrontCachePolicies,
   cleanupCloudFrontOriginPolicies,
-  cleanupS3Buckets
+  cleanupS3Buckets,
 ]
 
 async function main() {
@@ -27,7 +41,8 @@ async function main() {
 async function cleanupLambdas() {
   for await (const lambdaFunction of listLambdas()) {
     try {
-      await lambda.deleteFunction({ FunctionName: lambdaFunction.FunctionName }).promise()
+      const deleteFunctionCommand = new DeleteFunctionCommand({ FunctionName: lambdaFunction.FunctionName })
+      await lambda.send(deleteFunctionCommand)
 
       console.info(`Deleted Lambda function ${lambdaFunction.FunctionName}`)
     } catch (error) {
@@ -39,7 +54,8 @@ async function cleanupLambdas() {
 async function cleanupSecrets() {
   for await (const secret of listSecrets()) {
     try {
-      await secretsManager.deleteSecret({ SecretId: secret.ARN }).promise()
+      const deleteSecretCommand = new DeleteSecretCommand({ SecretId: secret.ARN })
+      await secretsManager.send(deleteSecretCommand)
 
       console.info(`Deleted secret ${secret.ARN}`)
     } catch (error) {
@@ -49,10 +65,15 @@ async function cleanupSecrets() {
 }
 
 async function cleanupCloudFrontCachePolicies() {
-  for await(const policy of listCloudFrontCachePolicies()) {
+  for await (const policy of listCloudFrontCachePolicies()) {
     try {
-      const getResponse = await cloudFront.getCachePolicy({ Id: policy.CachePolicy.Id }).promise()
-      await cloudFront.deleteCachePolicy({ Id: policy.CachePolicy.Id, IfMatch: getResponse.ETag }).promise()
+      const getCachePolicyCommand = new GetCachePolicyCommand({ Id: policy.CachePolicy.Id })
+      const getResponse = await cloudFront.send(getCachePolicyCommand)
+      const deleteCachePolicyCommand = new DeleteCachePolicyCommand({
+        Id: policy.CachePolicy.Id,
+        IfMatch: getResponse.ETag,
+      })
+      await cloudFront.send(deleteCachePolicyCommand)
       console.info(`Deleted Cache Policy ${policy.CachePolicy.CachePolicyConfig.Name}`)
     } catch (error) {
       console.error(`Failed to delete Cache Policy ${policy.CachePolicy.CachePolicyConfig.Name}`, error)
@@ -61,22 +82,31 @@ async function cleanupCloudFrontCachePolicies() {
 }
 
 async function cleanupCloudFrontOriginPolicies() {
-  for await(const policy of listCloudFrontOriginPolicies()) {
+  for await (const policy of listCloudFrontOriginPolicies()) {
     try {
-      const getResponse = await cloudFront.getOriginRequestPolicy({ Id: policy.OriginRequestPolicy.Id }).promise()
-      await cloudFront.deleteOriginRequestPolicy({ Id: policy.OriginRequestPolicy.Id, IfMatch: getResponse.ETag }).promise()
+      const getOriginRequestPolicyCommand = new GetOriginRequestPolicyCommand({ Id: policy.OriginRequestPolicy.Id })
+      const getResponse = await cloudFront.send(getOriginRequestPolicyCommand)
+      const deleteOriginRequestPolicyCommand = new DeleteOriginRequestPolicyCommand({
+        Id: policy.OriginRequestPolicy.Id,
+        IfMatch: getResponse.ETag,
+      })
+      await cloudFront.send(deleteOriginRequestPolicyCommand)
       console.info(`Deleted Origin Request Policy ${policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name}`)
     } catch (error) {
-      console.error(`Failed to delete Origin Request Policy ${policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name}`, error)
+      console.error(
+        `Failed to delete Origin Request Policy ${policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name}`,
+        error
+      )
     }
   }
 }
 
 async function cleanupS3Buckets() {
-  for await(const bucket of listS3Buckets()) {
+  for await (const bucket of listS3Buckets()) {
     try {
       await emptyS3Bucket(bucket.Name)
-      await s3.deleteBucket({ Bucket: bucket.Name }).promise()
+      const deleteBucketCommand = new DeleteBucketCommand({ Bucket: bucket.Name })
+      await s3.send(deleteBucketCommand)
       console.info(`Deleted S3 bucket: ${bucket.Name}`)
     } catch (error) {
       console.error(`Failed to delete S3 bucket ${bucket.Name}`, error)
@@ -85,59 +115,54 @@ async function cleanupS3Buckets() {
 }
 
 async function* listLambdas() {
-  let nextMarker
+  const paginator = paginateListFunctions({ client: lambda }, {})
 
-  do {
-    const response = await lambda.listFunctions({ Marker: nextMarker }).promise()
-
-    for (const lambdaFunction of response.Functions ?? []) {
+  for await (const page of paginator) {
+    for (const lambdaFunction of page.Functions ?? []) {
       if (lambdaFunction.FunctionName?.startsWith(RESOURCE_PREFIX)) {
         yield lambdaFunction
       }
     }
-
-    nextMarker = response.NextMarker
-  } while (nextMarker)
+  }
 }
 
 async function* listSecrets() {
-  let nextToken
+  const paginator = paginateListSecrets(
+    { client: secretsManager },
+    {
+      Filters: [
+        {
+          Key: 'name',
+          Values: [RESOURCE_PREFIX],
+        },
+      ],
+    }
+  )
 
-  do {
-    const response = await secretsManager
-      .listSecrets({
-        Filters: [
-          {
-            Key: 'name',
-            Values: [RESOURCE_PREFIX],
-          },
-        ],
-        NextToken: nextToken,
-      })
-      .promise()
-
-    for (const secret of response.SecretList ?? []) {
+  for await (const page of paginator) {
+    for (const secret of page.SecretList ?? []) {
       yield secret
     }
-
-    nextToken = response.NextToken
-  } while (nextToken)
+  }
 }
 
 async function* listCloudFrontCachePolicies() {
   let nextMarker
 
   do {
-    const listResponse = await cloudFront.listCachePolicies({ Marker: nextMarker }).promise()
-    const policies = listResponse.CachePolicyList.Items
+    const listCachePoliciesCommand = new ListCachePoliciesCommand({
+      Marker: nextMarker,
+    })
+    const listResponse = await cloudFront.send(listCachePoliciesCommand)
+    const policies = listResponse?.CachePolicyList?.Items ?? []
 
     for (const policy of policies) {
-      if (policy.CachePolicy.CachePolicyConfig.Name.startsWith(RESOURCE_PREFIX)) {
+      if (policy.CachePolicy?.CachePolicyConfig?.Name?.startsWith(RESOURCE_PREFIX)) {
         yield policy
       }
     }
 
-    nextMarker = listResponse.CachePolicyList.NextMarker
+    nextMarker = listResponse.CachePolicyList?.NextMarker
   } while (nextMarker)
 }
 
@@ -145,22 +170,26 @@ async function* listCloudFrontOriginPolicies() {
   let nextMarker
 
   do {
-    const listResponse = await cloudFront.listOriginRequestPolicies({ Marker: nextMarker }).promise()
-    const policies = listResponse.OriginRequestPolicyList.Items
+    const listOriginRequestPoliciesCommand = new ListOriginRequestPoliciesCommand({
+      Marker: nextMarker,
+    })
+    const listResponse = await cloudFront.send(listOriginRequestPoliciesCommand)
+    const policies = listResponse?.OriginRequestPolicyList?.Items ?? []
 
     for (const policy of policies) {
-      if (policy.OriginRequestPolicy.OriginRequestPolicyConfig.Name.startsWith(RESOURCE_PREFIX)) {
+      if (policy.OriginRequestPolicy?.OriginRequestPolicyConfig?.Name?.startsWith(RESOURCE_PREFIX)) {
         yield policy
       }
     }
 
-    nextMarker = listResponse.OriginRequestPolicyList.NextMarker
+    nextMarker = listResponse.OriginRequestPolicyList?.NextMarker
   } while (nextMarker)
 }
 
 async function* listS3Buckets() {
-  const listBuckets = await s3.listBuckets().promise()
-  const buckets = listBuckets.Buckets
+  const listBucketsCommand = new ListBucketsCommand({})
+  const listBuckets = await s3.send(listBucketsCommand)
+  const buckets = listBuckets.Buckets ?? []
   for (const bucket of buckets) {
     if (bucket.Name.startsWith(RESOURCE_PREFIX)) {
       yield bucket
@@ -169,23 +198,18 @@ async function* listS3Buckets() {
 }
 
 async function emptyS3Bucket(bucketName) {
-  const listedObjects = await s3.listObjectsV2({ Bucket: bucketName }).promise()
+  const paginator = paginateListObjectsV2({ client: s3 }, { Bucket: bucketName })
+  for await (const page of paginator) {
+    if (page?.KeyCount > 0) {
+      const deleteParams = {
+        Bucket: bucketName,
+        Delete: { Objects: page.Contents.map(({ Key }) => ({ Key })) },
+      }
+      console.info(`Removing objects from S3 bucket: ${JSON.stringify(deleteParams)}. `)
 
-  if (listedObjects.Contents.length === 0) {
-    return
-  }
-
-  const deleteParams = {
-    Bucket: bucketName,
-    Delete: { Objects: listedObjects.Contents.map(({ Key }) => ({ Key })) },
-  }
-
-  console.info(`Removing objects from S3 bucket: ${JSON.stringify(deleteParams)}. `);
-
-  await s3.deleteObjects(deleteParams).promise()
-
-  if (listedObjects.IsTruncated) {
-    await emptyS3Bucket(bucketName)
+      const deleteObjectsCommand = new DeleteObjectsCommand(deleteParams)
+      await s3.send(deleteObjectsCommand)
+    }
   }
 }
 

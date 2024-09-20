@@ -46,3 +46,13 @@ jobs:
               exit 1
             fi
           done
+      - name: Output Pipeline Link
+        if: always()
+        run: |
+          region=${{ secrets.AWS_E2E_REGION }}
+          pipeline_name=${{ vars.AWS_CLEANUP_E2E_LAMBDAS_CODEPIPELINE_NAME }}
+          execution_id=${{ env.codepipeline_execution_id }}
+          pipeline_url="https://${region}.console.aws.amazon.com/codesuite/codepipeline/pipelines/${pipeline_name}/executions/${execution_id}?region=${region}"
+          echo "AWS CodePipeline Execution URL: $pipeline_url"
+          echo "## AWS CodePipeline Execution Link" >> $GITHUB_STEP_SUMMARY
+          echo "[$pipeline_url]($pipeline_url)" >> $GITHUB_STEP_SUMMARY
