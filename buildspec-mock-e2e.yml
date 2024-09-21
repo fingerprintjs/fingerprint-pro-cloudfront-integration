@@ -23,6 +23,7 @@ phases:
       - ls -lah
       - pulumi version
       - pnpm install
+      - FPCDN=$MOCK_FPCDN INGRESS_API=$MOCK_INGRESS_API pnpm build
       - npm i -g ts-node
       - pnpm -C e2e/website install && pnpm -C e2e/website build
       - cd e2e/tests && pnpm install && cd -
