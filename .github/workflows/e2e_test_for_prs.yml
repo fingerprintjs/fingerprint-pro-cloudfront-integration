@@ -20,9 +20,6 @@ jobs:
         with:
           role-to-assume: ${{secrets.AWS_E2E_ROLE_ARN}}
           aws-region: ${{vars.AWS_E2E_REGION}}
-#      - name: Store BRANCH_NAME in Parameter Store
-#        run: |
-#          aws ssm put-parameter --name "/cloudfront-integration-e2e/branch_name" --value "${{github.head_ref}}" --type "String" --overwrite
       - name: Trigger AWS CodePipeline
         run: |
           git_hash=${{ github.event.pull_request.head.sha }}
