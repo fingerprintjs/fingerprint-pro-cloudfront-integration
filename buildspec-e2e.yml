@@ -1,4 +1,3 @@
-# todo use this file and delete hard coded code editor
 version: 0.2
 
 phases:
@@ -7,7 +6,6 @@ phases:
       nodejs: 20
     commands:
       - npm i -g pnpm
-      - # export COMMIT_SHA=$(cat meta.json | jq -r '.sha')
       - export COMMIT_SHA=$(git rev-parse HEAD)
       - echo $COMMIT_SHA
       - echo $CODEBUILD_BUILD_ID

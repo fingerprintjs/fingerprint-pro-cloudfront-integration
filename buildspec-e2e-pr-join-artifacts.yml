@@ -1,40 +1,6 @@
-# todo use this in the CodeBuild project
-
 version: 0.2
 
-  #env:
-  #variables:
-  # key: "value"
-  # key: "value"
-  #parameter-store:
-  # key: "value"
-  # key: "value"
-  #secrets-manager:
-  # key: secret-id:json-key:version-stage:version-id
-  # key: secret-id:json-key:version-stage:version-id
-  #exported-variables:
-  # - variable
-  # - variable
-  #git-credential-helper: yes
-  #batch:
-  #fast-fail: true
-  #build-list:
-  #build-matrix:
-#build-graph:
 phases:
-  #install:
-  #If you use the Ubuntu standard image 2.0 or later, you must specify runtime-versions.
-  #If you specify runtime-versions and use an image other than Ubuntu standard image 2.0, the build fails.
-  #runtime-versions:
-  # name: version
-  # name: version
-  #commands:
-  # - command
-  # - command
-  #pre_build:
-  #commands:
-  # - command
-  # - command
   build:
     commands:
       - ls -la $CODEBUILD_SRC_DIR # rc branch, also called as primary source
@@ -45,28 +11,6 @@ phases:
       - git status
       - cp $CODEBUILD_SRC_DIR/buildspec-e2e.yml buildspec-e2e.yml
       - cp $CODEBUILD_SRC_DIR/buildspec-mock-e2e.yml buildspec-mock-e2e.yml
-      # - command
-      # - command
-      #post_build:
-      #commands:
-      # - command
-      # - command
-      #reports:
-      #report-name-or-arn:
-      #files:
-      # - location
-      # - location
-    #base-directory: location
-    #discard-paths: yes
-    #file-format: JunitXml | CucumberJson
 artifacts:
   files:
-    - '**/*'
-    # - location
-    # - location
-  #name: $(date +%Y-%m-%d)
-  #discard-paths: yes
   base-directory: $CODEBUILD_SRC_DIR_SourceArtifact
-    #cache:
-    #paths:
-  # - paths

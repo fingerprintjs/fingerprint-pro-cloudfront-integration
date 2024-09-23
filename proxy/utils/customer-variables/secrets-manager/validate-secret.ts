@@ -8,7 +8,6 @@ function assertIsCustomerVariableValue(value: unknown, key: string): asserts val
   }
 }
 
-// TODO Update notion documentation to contain correct keys
 export function validateSecret(obj: unknown): asserts obj is CustomerVariablesRecord {
   if (!obj || typeof obj !== 'object') {
     throw new TypeError('Secrets Manager secret is not an object')
