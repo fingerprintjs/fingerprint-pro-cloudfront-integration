@@ -26,8 +26,8 @@ jobs:
       - name: Trigger AWS CodePipeline
         run: |
           git_hash=$(git rev-parse HEAD)
-          echo git_hash
-          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_TOPIC_BRANCH_CODEPIPELINE_NAME}} --source-revisions actionName=Source,revisionType=COMMIT_ID,revisionValue=git_hash --query 'pipelineExecutionId' --output text)
+          echo $git_hash
+          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_TOPIC_BRANCH_CODEPIPELINE_NAME}} --source-revisions actionName=Source,revisionType=COMMIT_ID,revisionValue=$git_hash --query 'pipelineExecutionId' --output text)
           echo "Pipeline execution ID: $codepipeline_execution_id"
           echo "codepipeline_execution_id=$codepipeline_execution_id" >> $GITHUB_ENV
       - name: Poll Pipeline Status
