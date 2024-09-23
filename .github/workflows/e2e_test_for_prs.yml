@@ -20,13 +20,14 @@ jobs:
         with:
           role-to-assume: ${{secrets.AWS_E2E_ROLE_ARN}}
           aws-region: ${{vars.AWS_E2E_REGION}}
-      - name: Store BRANCH_NAME in Parameter Store
-        run: |
-          aws ssm put-parameter --name "/cloudfront-integration-e2e/branch_name" --value "${{github.head_ref}}" --type "String" --overwrite
+#      - name: Store BRANCH_NAME in Parameter Store
+#        run: |
+#          aws ssm put-parameter --name "/cloudfront-integration-e2e/branch_name" --value "${{github.head_ref}}" --type "String" --overwrite
       - name: Trigger AWS CodePipeline
         run: |
           git status
-          git_hash=$(git rev-parse HEAD)
+          git_hash=$(git rev-parse --short "$GITHUB_SHA")
+          echo $git_hash
           codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_TOPIC_BRANCH_CODEPIPELINE_NAME}} --source-revisions actionName=Source,revisionType=COMMIT_ID,revisionValue=$git_hash --query 'pipelineExecutionId' --output text)
           echo "Pipeline execution ID: $codepipeline_execution_id"
           echo "codepipeline_execution_id=$codepipeline_execution_id" >> $GITHUB_ENV
