@@ -6,8 +6,6 @@ phases:
       nodejs: 20
     commands:
       - npm i -g pnpm
-      - export COMMIT_SHA=$(git rev-parse HEAD)
-      - echo $COMMIT_SHA
       - echo $CODEBUILD_BUILD_ID
       - echo $CODEBUILD_PUBLIC_BUILD_URL
       - ls -a
