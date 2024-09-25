@@ -6,6 +6,8 @@ jobs:
   check-changed-files:
     runs-on: ubuntu-20.04
     name: Check changed files
+    outputs:
+      NEED_TO_RUN_TESTS: ${{ steps.decision.outputs.NEED_TO_RUN_TESTS }}
     steps:
       - id: files
         uses: jitterbit/get-changed-files@b17fbb00bdc0c0f63fcf166580804b4d2cdc2a42
@@ -22,10 +24,9 @@ jobs:
             fi
           done
           echo $needToRunTests
-          echo NEED_TO_RUN_TESTS=${needToRunTests} >> $GITHUB_ENV
+          echo NEED_TO_RUN_TESTS=${needToRunTests} >> $GITHUB_OUTPUT
   run-e2e-for-topic-branch:
-    needs: check-changed-files
-    if: ${{ env.NEED_TO_RUN_TESTS == 'true' }}
+    if: needs['check-changed-files'].outputs.NEED_TO_RUN_TESTS == 'true'
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read  # This is required for actions/checkout
