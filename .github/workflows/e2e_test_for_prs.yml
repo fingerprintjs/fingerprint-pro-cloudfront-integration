@@ -25,7 +25,7 @@ jobs:
           echo NEED_TO_RUN_TESTS=${needToRunTests} >> $GITHUB_ENV
   run-e2e-for-topic-branch:
     needs: check-changed-files
-    if: ${{ env.NEED_TO_RUN_TESTS }} == 'true'
+    if: ${{ env.NEED_TO_RUN_TESTS == 'true' }}
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read  # This is required for actions/checkout
