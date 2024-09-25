@@ -12,22 +12,13 @@ jobs:
       - name: Git clone
         uses: actions/checkout@v4
       - name: Get changed files
-        id: testing-behavior
+        id: decision
         run: |
           git fetch origin $GITHUB_BASE_REF
           diff=$(git diff --name-only --diff-filter=AM origin/$GITHUB_BASE_REF..HEAD)
           echo $diff
-          echo "ADDED_MODIFIED=$diff" >> "$GITHUB_OUTPUT"
-          for changed_file in $diff; do
-            echo $changed_file
-          done
-      - id: files
-        uses: jitterbit/get-changed-files@b17fbb00bdc0c0f63fcf166580804b4d2cdc2a42
-      - name: Make decision based on changed files
-        id: decision
-        run: |
           needToRunTests=false
-          for changed_file in ${{ steps.files.outputs.all }}; do
+          for changed_file in $diff; do
             if [[ ${changed_file} =~ ^(proxy|scripts|mgmt-lambda)\/.+$ ]]; then
               needToRunTests=true
             fi
