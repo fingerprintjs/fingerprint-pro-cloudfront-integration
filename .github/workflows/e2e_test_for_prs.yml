@@ -28,6 +28,13 @@ jobs:
           done
           echo $needToRunTests
           echo NEED_TO_RUN_TESTS=${needToRunTests} >> $GITHUB_OUTPUT
+  debug-job:
+    name: debug job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug output
+        run: echo "NEED_TO_RUN_TESTS=${{ needs['check-changed-files'].outputs.NEED_TO_RUN_TESTS }}"
+
   run-e2e-for-topic-branch:
     if: needs['check-changed-files'].outputs.NEED_TO_RUN_TESTS == 'true'
     permissions:
