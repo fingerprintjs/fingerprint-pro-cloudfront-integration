@@ -29,6 +29,7 @@ jobs:
           echo $needToRunTests
           echo NEED_TO_RUN_TESTS=${needToRunTests} >> $GITHUB_OUTPUT
   debug-job:
+    needs: check-changed-files
     name: debug job
     runs-on: ubuntu-latest
     steps:
@@ -36,6 +37,7 @@ jobs:
         run: echo "NEED_TO_RUN_TESTS=${{ needs['check-changed-files'].outputs.NEED_TO_RUN_TESTS }}"
 
   run-e2e-for-topic-branch:
+    needs: check-changed-files
     if: needs['check-changed-files'].outputs.NEED_TO_RUN_TESTS == 'true'
     permissions:
       id-token: write # This is required for requesting the JWT
