@@ -15,7 +15,7 @@ jobs:
         id: decision
         run: |
           git fetch origin $GITHUB_BASE_REF
-          diff=$(git diff --name-only --diff-filter=AM origin/$GITHUB_BASE_REF..HEAD)
+          diff=$(git diff --name-only origin/$GITHUB_BASE_REF..HEAD)
           echo $diff
           needToRunTests=false
           for changed_file in $diff; do
@@ -28,13 +28,6 @@ jobs:
           done
           echo $needToRunTests
           echo NEED_TO_RUN_TESTS=${needToRunTests} >> $GITHUB_OUTPUT
-  debug-job:
-    needs: check-changed-files
-    name: debug job
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug output
-        run: echo "NEED_TO_RUN_TESTS=${{ needs['check-changed-files'].outputs.NEED_TO_RUN_TESTS }}"
 
   run-e2e-for-topic-branch:
     needs: check-changed-files
