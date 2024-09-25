@@ -9,11 +9,13 @@ jobs:
     outputs:
       NEED_TO_RUN_TESTS: ${{ steps.decision.outputs.NEED_TO_RUN_TESTS }}
     steps:
+      - name: Git clone
+        uses: actions/checkout@v4
       - name: Get changed files
         id: testing-behavior
         run: |
           git fetch origin {{ GITHUB_BASE_REF }}
-          diff=$(git diff --name-only --diff-filter=AM origin/{{ GITHUB_BASE_REF }}..HEAD | tr '\n' ' ')
+          diff=$(git diff --name-only --diff-filter=AM origin/{{ GITHUB_BASE_REF }}..HEAD)
           echo $diff
           echo "ADDED_MODIFIED=$diff" >> "$GITHUB_OUTPUT"
           for changed_file in $diff; do
