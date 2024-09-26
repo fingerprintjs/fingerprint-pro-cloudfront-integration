@@ -6,6 +6,7 @@ phases:
       nodejs: 20
     commands:
       - npm i -g pnpm
+      - export VERSION=$(cat package.json | jq -r '.version')
       - echo $CODEBUILD_BUILD_ID
       - echo $CODEBUILD_PUBLIC_BUILD_URL
       - ls -a
