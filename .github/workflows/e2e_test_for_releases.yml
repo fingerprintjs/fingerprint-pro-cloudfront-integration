@@ -2,19 +2,45 @@ name: AWS E2E for releases and pre-releases
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - v*
-    paths-ignore:
-      - '**.md'
-      - 'cloudformation/*.yml'
-
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
+  pull_request:
+    branches:
+      - main
+#  push:
+#    tags:
+#      - v*
 
 jobs:
+  check-changed-files:
+    runs-on: ubuntu-20.04
+    name: Check changed files
+    outputs:
+      NEED_TO_RUN_TESTS: ${{ steps.decision.outputs.NEED_TO_RUN_TESTS }}
+    steps:
+      - name: Git clone
+        uses: actions/checkout@v4
+      - name: Get changed files
+        id: decision
+        run: |
+          git fetch origin $GITHUB_BASE_REF
+          diff=$(git log $GITHUB_BASE_REF..$GITHUB_SHA --oneline --format="%H")
+          echo $diff
+          needToRunTests=false
+          for commit in $diff; do
+            tag=$(git tag --points-at "$commit")
+            if [[ -z "$tag" ]]; then
+              echo COMMIT_WITH_TAG=${commit} >> $GITHUB_OUTPUT    
+              needToRunTests=true
+            fi
+          done
+          echo $needToRunTests
+          echo NEED_TO_RUN_TESTS=${needToRunTests} >> $GITHUB_OUTPUT
+
   run-e2e-for-releases-and-pre-releases:
+    needs: check-changed-files
+    if: needs['check-changed-files'].outputs.NEED_TO_RUN_TESTS == 'true'
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read  # This is required for actions/checkout
     name: Run e2e for releases and pre-releases
     runs-on: ubuntu-latest
     steps:
@@ -27,7 +53,7 @@ jobs:
           aws-region: ${{vars.AWS_E2E_REGION}}
       - name: Trigger AWS CodePipeline
         run: |
-          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_RC_CODEPIPELINE_NAME}} --query 'pipelineExecutionId' --output text)
+          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_RC_CODEPIPELINE_NAME}}--source-revisions actionName=Source,revisionType=COMMIT_ID,revisionValue=${{env.COMMIT_WITH_TAG}} --query 'pipelineExecutionId' --output text)
           echo "Pipeline execution ID: $codepipeline_execution_id"
           echo "codepipeline_execution_id=$codepipeline_execution_id" >> $GITHUB_ENV
       - name: Poll Pipeline Status
@@ -52,3 +78,13 @@ jobs:
             fi
 
           done
+      - name: Output Pipeline Link
+        if: always()
+        run: |
+          region=${{ vars.AWS_E2E_REGION }}
+          pipeline_name=${{ vars.AWS_E2E_RC_CODEPIPELINE_NAME }}
+          execution_id=${{ env.codepipeline_execution_id }}
+          pipeline_url="https://${region}.console.aws.amazon.com/codesuite/codepipeline/pipelines/${pipeline_name}/executions/${execution_id}?region=${region}"
+          echo "AWS CodePipeline Execution URL: $pipeline_url"
+          echo "## AWS CodePipeline Execution Link" >> $GITHUB_STEP_SUMMARY
+          echo "[$pipeline_url]($pipeline_url)" >> $GITHUB_STEP_SUMMARY

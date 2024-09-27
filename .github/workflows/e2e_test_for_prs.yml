@@ -1,6 +1,8 @@
 name: Run e2e for topic branch
 on:
   pull_request:
+    branches:
+      - rc
 
 jobs:
   check-changed-files:
