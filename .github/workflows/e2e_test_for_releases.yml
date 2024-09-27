@@ -27,7 +27,7 @@ jobs:
           needToRunTests=false
           for commit in $diff; do
             tag=$(git tag --points-at "$commit")
-            if [[ -z "$tag" ]]; then
+            if [[ -n "$tag" ]]; then
               echo COMMIT_WITH_TAG=${commit} >> $GITHUB_OUTPUT    
               needToRunTests=true
             fi
