@@ -1,4 +1,5 @@
-name: Run e2e for topic branch
+name: AWS E2E for topic branch
+
 on:
   pull_request:
     branches:

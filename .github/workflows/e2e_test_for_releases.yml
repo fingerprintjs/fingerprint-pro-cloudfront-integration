@@ -9,35 +9,101 @@ on:
 #    tags:
 #      - v*
 
+# todo: find a way to not use hardcoded `rc`
 jobs:
-  check-changed-files:
+  check-commit-with-tag-and-old-tests:
     runs-on: ubuntu-20.04
-    name: Check changed files
+    name: Check latest commit with tag and its checks
     outputs:
       NEED_TO_RUN_TESTS: ${{ steps.decision.outputs.NEED_TO_RUN_TESTS }}
+      COMMIT_WITH_TAG: ${{ steps.decision.outputs.COMMIT_WITH_TAG }}
     steps:
       - name: Git clone
         uses: actions/checkout@v4
-      - name: Get changed files
-        id: decision
+      - name: Check latest commit with tag
+        id: latest_commit_with_test
         run: |
           git fetch origin $GITHUB_BASE_REF
-          diff=$(git log $GITHUB_BASE_REF..$GITHUB_SHA --oneline --format="%H")
-          echo $diff
-          needToRunTests=false
+          git fetch origin rc --tags
+          diff=$(git log origin/$GITHUB_BASE_REF..origin/rc --oneline --format="%H")
+          echo "diff=$diff"
+          latestCommitWithTag=''
           for commit in $diff; do
+            echo "checking commit $commit for tag"
             tag=$(git tag --points-at "$commit")
             if [[ -n "$tag" ]]; then
-              echo COMMIT_WITH_TAG=${commit} >> $GITHUB_OUTPUT    
-              needToRunTests=true
+              latestCommitWithTag=$commit
+              break
             fi
           done
-          echo $needToRunTests
-          echo NEED_TO_RUN_TESTS=${needToRunTests} >> $GITHUB_OUTPUT
+          echo "latestCommitWithTag=$latestCommitWithTag"
+          echo "latestCommitWithTag=$latestCommitWithTag" >> $GITHUB_OUTPUT
+
+      - name: Fetch checks from GitHub
+        id: response_from_github
+        if: steps.latest_commit_with_test.outputs.latestCommitWithTag != ''
+        run: |
+          latestCommitWithTag=${{ steps.latest_commit_with_test.outputs.latestCommitWithTag }}
+          response=$(curl \
+            -X GET \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/fingerprintjs/fingerprint-pro-cloudfront-integration/commits/$latestCommitWithTag/check-runs)
+          if [[ $? -ne 0 ]]; then
+            echo "Failed to fetch check runs. Exiting."
+            exit 1
+          fi 
+          if ! echo "$response" | jq . >/dev/null 2>&1; then
+           echo "Invalid JSON response: $response"
+           exit 1
+          fi
+          file_name=response_from_github.json
+          echo "$response" > $file_name
+          echo "filename=$file_name" >> $GITHUB_OUTPUT
+
+      - name: Find test conclusion
+        if: steps.response_from_github.outputs.filename != ''
+        id: conclusion
+        run: |
+          latestCommitWithTag=${{ steps.latest_commit_with_test.outputs.latestCommitWithTag }}
+          response="$(cat ${{ steps.response_from_github.outputs.filename }} )"
+          needToRunTests=false
+          number_of_checks=$(echo "$response" | jq '.check_runs | length')
+          echo "# of check runs=$number_of_checks"
+          run_conclusion='(empty)'
+          if [[ "$number_of_checks" -ne 0 ]]; then
+           # Note: Iterating with `for run in $(...)` can lead issues with whitespaces, so using `while read` here
+           while read -r run; do
+             run_name=$(echo "$run" | jq -r '.name')
+             echo "run_name=$run_name"
+             if [[ "$run_name" == 'Run e2e for releases and pre-releases' ]]; then
+               run_conclusion=$(echo "$run" | jq -r '.conclusion')
+               break
+             fi         
+           done < <(echo "$response" | jq -c '.check_runs[]')
+          fi
+          echo "run_conclusion=$run_conclusion"
+          echo "run_conclusion=$run_conclusion" >> $GITHUB_OUTPUT
+
+      - name: Decide whether to run tests
+        id: decision
+        run: |
+          latestCommitWithTag=${{ steps.latest_commit_with_test.outputs.latestCommitWithTag }}
+          run_conclusion=${{ steps.conclusion.outputs.run_conclusion }}
+          if [[ "$run_conclusion" == "success" ]]; then
+            echo "test has run successfully before. Skipping..."
+          elif [[ "$run_conclusion" == "failure" ]]; then
+            echo "test has failed before. Exiting..."
+            exit 1
+          else
+            echo "COMMIT_WITH_TAG=${latestCommitWithTag}" >> $GITHUB_OUTPUT
+            echo "NEED_TO_RUN_TESTS=true" >> $GITHUB_OUTPUT
+          fi
 
   run-e2e-for-releases-and-pre-releases:
-    needs: check-changed-files
-    if: needs['check-changed-files'].outputs.NEED_TO_RUN_TESTS == 'true'
+    needs: check-commit-with-tag-and-old-tests
+    if: needs['check-commit-with-tag-and-old-tests'].outputs.NEED_TO_RUN_TESTS == 'true'
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read  # This is required for actions/checkout
@@ -53,7 +119,7 @@ jobs:
           aws-region: ${{vars.AWS_E2E_REGION}}
       - name: Trigger AWS CodePipeline
         run: |
-          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_RC_CODEPIPELINE_NAME}} --source-revisions actionName=Source,revisionType=COMMIT_ID,revisionValue=${{env.COMMIT_WITH_TAG}} --query 'pipelineExecutionId' --output text)
+          codepipeline_execution_id=$(aws codepipeline start-pipeline-execution --name ${{vars.AWS_E2E_RC_CODEPIPELINE_NAME}} --source-revisions actionName=Source,revisionType=COMMIT_ID,revisionValue=${{needs['check-commit-with-tag-and-old-tests'].outputs.COMMIT_WITH_TAG}} --query 'pipelineExecutionId' --output text)
           echo "Pipeline execution ID: $codepipeline_execution_id"
           echo "codepipeline_execution_id=$codepipeline_execution_id" >> $GITHUB_ENV
       - name: Poll Pipeline Status
