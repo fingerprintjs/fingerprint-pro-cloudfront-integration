@@ -1,0 +1,45 @@
+name: Check AWS E2E for releases and pre-releases
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-commit-with-tag-and-old-tests:
+    runs-on: ubuntu-20.04
+    name: Check latest commit with tag and its checks
+    steps:
+      - name: 'Install latest node version'
+        uses: actions/setup-node@v4
+
+      - name: Git clone
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check latest commit with tag
+        id: latest_commit_with_test
+        run: |
+          diff=$(git log origin/$GITHUB_BASE_REF..HEAD --oneline --format="%H")
+          echo "diff=$diff"
+          latestCommitWithTag=''
+          for commit in $diff; do
+            echo "checking commit $commit for tag"
+            tag=$(git tag --points-at "$commit")
+            if [[ -n "$tag" ]]; then
+              latestCommitWithTag=$commit
+              break
+            fi
+          done
+          echo "latestCommitWithTag=$latestCommitWithTag"
+          echo "latestCommitWithTag=$latestCommitWithTag" >> $GITHUB_OUTPUT
+          if [[ -z "$latestCommitWithTag" ]]; then
+            echo "no tag has found. Skipping..."
+          fi
+
+      - name: Poll checks from GitHub
+        if: steps.latest_commit_with_test.outputs.latestCommitWithTag != ''
+        run: node scripts/checkCommitStatusForE2E.mjs
+        env:
+          COMMIT_SHA: ${{ steps.latest_commit_with_test.outputs.latestCommitWithTag }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
