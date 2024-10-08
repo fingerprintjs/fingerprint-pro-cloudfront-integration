@@ -1,3 +1,4 @@
+THIS SHOULD NOT TRIGGER E2E TESTS
 <p align="center">
   <a href="https://fingerprint.com">
     <picture>
