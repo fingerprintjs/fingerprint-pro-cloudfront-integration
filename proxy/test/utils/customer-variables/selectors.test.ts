@@ -74,7 +74,7 @@ describe('customer variables selectors', () => {
             domainName: 'adewe.cloudfront.net',
             path: '/',
             region: 'us',
-            authMethod: 'none',
+            authMethod: 'origin-access-identity',
             customHeaders: {
               fpjs_pre_shared_secret: [
                 {
@@ -261,7 +261,7 @@ describe('customer variables selectors', () => {
             domainName: 'adewe.cloudfront.net',
             path: '/',
             region: 'us',
-            authMethod: 'none',
+            authMethod: 'origin-access-identity',
             customHeaders: {
               fpjs_secret_name: [
                 {
