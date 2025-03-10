@@ -15,6 +15,7 @@ export interface EnvVarInfo {
 export interface StatusInfo {
   version: string
   envInfo: EnvVarInfo[]
+  styleNonce: string
 }
 
 async function getEnvInfo(customerVariables: CustomerVariables) {
@@ -64,13 +65,13 @@ function renderEnvInfo(envInfo: EnvVarInfo[]) {
   `
 }
 
-function renderHtml({ version, envInfo }: StatusInfo) {
+function renderHtml({ version, envInfo, styleNonce }: StatusInfo) {
   return `
     <html lang="en-US">
       <head>
         <title>CloudFront integration status</title>
         <meta charset="utf-8">
-        <style>
+        <style nonce='${styleNonce}'>
           body, .env-info {
             display: flex;
           }
@@ -99,21 +100,31 @@ function renderHtml({ version, envInfo }: StatusInfo) {
   `
 }
 
-export async function getStatusInfo(customerVariables: CustomerVariables): Promise<StatusInfo> {
+export async function getStatusInfo(customerVariables: CustomerVariables, styleNonce: string): Promise<StatusInfo> {
   return {
     version: '__lambda_func_version__',
     envInfo: await getEnvInfo(customerVariables),
+    styleNonce,
   }
 }
 
-export async function handleStatus(customerVariables: CustomerVariables): Promise<CloudFrontResultResponse> {
-  const body = await getStatusInfo(customerVariables)
+export async function handleStatus(
+  customerVariables: CustomerVariables,
+  styleNonce: string
+): Promise<CloudFrontResultResponse> {
+  const body = await getStatusInfo(customerVariables, styleNonce)
 
   return {
     status: '200',
     body: renderHtml(body).trim(),
     headers: {
       'content-type': [{ key: 'Content-Type', value: 'text/html' }],
+      'content-security-policy': [
+        {
+          key: 'Content-Security-Policy',
+          value: `default-src 'none'; img-src https://fingerprint.com; style-src 'nonce-${styleNonce}'`,
+        },
+      ],
     },
   }
 }
