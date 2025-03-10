@@ -13,6 +13,7 @@ import {
   getLoaderVersion,
   setLogLevel,
   createRoute,
+  generateRandom,
 } from './utils'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
 import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
@@ -112,7 +113,7 @@ function handleStatusPage(
   _: CloudFrontRequest,
   customerVariables: CustomerVariables
 ): Promise<CloudFrontResultResponse> {
-  return handleStatus(customerVariables)
+  return handleStatus(customerVariables, generateRandom())
 }
 
 export const handler = async (event: CloudFrontRequestEvent): Promise<CloudFrontResultResponse> => {
