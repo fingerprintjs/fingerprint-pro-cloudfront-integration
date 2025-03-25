@@ -48,6 +48,10 @@ To set up CloudFront integration, you need to:
 
 See [CloudFront Proxy Integration guide](https://dev.fingerprint.com/docs/cloudfront-proxy-integration-v2) in our documentation for step-by-step instructions. If you have any questions, reach out to our [support team](https://fingerprint.com/support/).
 
+### Deployment using Terraform
+
+If you prefer to deploy the integration using Terraform, see the [Terraform module repository](https://github.com/fingerprintjs/terraform-aws-fingerprint-cloudfront-proxy-integration) and the related [Terraform guide](https://dev.fingerprint.com/docs/aws-cloudfront-integration-via-terraform).
+
 ## License
 
 This project is licensed under the MIT license. See the [LICENSE](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/blob/main/LICENSE) file for more info.
