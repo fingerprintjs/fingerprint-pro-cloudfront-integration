@@ -61,4 +61,16 @@ The integration is automatically released on every push to the main branch if th
 
 ### How to keep your integration up-to-date
 
-CloudFront Integration by Fingerprint always uses the latest stable version for the customers and keeps it up-to-date by using the management Lambda function created during the installation. 
+CloudFront Integration by Fingerprint always uses the latest stable version for the customers and keeps it up-to-date by using the management Lambda function created during the installation.
+
+### Testing against custom CDN and API hosts
+
+During testing, you might need the integration to proxy requests to the CDN and API hosts of your choosing (for example, the staging environment) instead of the production Fingerprint CDN and API.
+
+To achieve this, you can add your custom *host* (not URL) values to the **AWS Secret** associated with the proxy integration: 
+
+```
+FPJS_CDN_URL: your.cdn.net
+FPJS_INGRESS_BASE_HOST: your.api.net
+```
+

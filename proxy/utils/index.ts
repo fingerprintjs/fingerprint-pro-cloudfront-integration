@@ -20,6 +20,7 @@ import {
   addEndingTrailingSlashToRoute,
 } from './routing'
 import { setLogLevel } from './log'
+import { generateRandom } from './string'
 
 export {
   getAgentUri,
@@ -43,4 +44,5 @@ export {
   addPathnameMatchBeforeRoute,
   addEndingTrailingSlashToRoute,
   setLogLevel,
+  generateRandom,
 }
