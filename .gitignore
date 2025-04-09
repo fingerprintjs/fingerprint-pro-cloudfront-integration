@@ -71,6 +71,8 @@ typings/
 
 # dotenv environment variables file
 .env.test
+.env
+!.env.dist
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -112,3 +114,13 @@ stack.json
 
 # misc
 .DS_Store
+
+# terraform
+terraform.tfstate
+terraform.tfvars
+terraform.tfstate.*
+*.tfstate
+*.tfstate.*
+.terraform/
+infra.json
+package.zip
