@@ -1,7 +1,7 @@
 import type { PlaywrightTestConfig } from '@playwright/test'
 import { devices } from '@playwright/test'
-import { CloudfrontUrls, getCloudfrontUrls } from './src/cloudfront'
 import { getProjectName } from './src/project'
+import { CloudfrontUrls, getCloudfrontUrls } from './src/utils/cloudfront'
 
 /**
  * Read environment variables from file.
@@ -9,6 +9,7 @@ import { getProjectName } from './src/project'
  */
 // require('dotenv').config();
 
+//const cloudfrontUrls = Object.entries(getCloudfrontUrls())
 const cloudfrontUrls = Object.entries(getCloudfrontUrls())
 
 /**

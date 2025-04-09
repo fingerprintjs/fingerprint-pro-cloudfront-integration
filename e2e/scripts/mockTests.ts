@@ -1,5 +1,5 @@
 import { execSync } from 'child_process'
-import { getCloudfrontUrls } from '../tests/src/cloudfront'
+import { getCloudfrontUrls } from '../tests/src/utils/cloudfront'
 
 function getEnv(name: string) {
   const value = process.env[name]
