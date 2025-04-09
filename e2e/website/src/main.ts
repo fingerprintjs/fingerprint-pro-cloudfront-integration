@@ -2,11 +2,23 @@ import * as fpjs from '@fingerprintjs/fingerprintjs-pro'
 
 type Text = string | { html: string }
 
+const formFields = {
+  apiKey: document.querySelector<HTMLInputElement>('#apiKey')!,
+  endpoint: document.querySelector<HTMLInputElement>('#endpoint')!,
+  scriptUrlPattern: document.querySelector<HTMLInputElement>('#scriptUrlPattern')!,
+}
+
+function initForm() {
+  formFields.apiKey.value = import.meta.env.VITE_API_KEY as string
+  formFields.endpoint.value = import.meta.env.VITE_ENDPOINT as string
+  formFields.scriptUrlPattern.value = import.meta.env.VITE_SCRIPT_URL_PATTERN as string
+}
+
 async function getVisitorData() {
   const agent = await fpjs.load({
-    apiKey: process.env.API_KEY as string,
-    endpoint: process.env.ENDPOINT,
-    scriptUrlPattern: process.env.SCRIPT_URL_PATTERN,
+    apiKey: formFields.apiKey.value,
+    endpoint: formFields.endpoint.value,
+    scriptUrlPattern: formFields.scriptUrlPattern.value || fpjs.defaultScriptUrlPattern,
   })
 
   return await agent.get({
@@ -143,5 +155,7 @@ function textToDOM(text: Text): Node {
   }
   return fragment
 }
+
+initForm()
 
 startPlayground()

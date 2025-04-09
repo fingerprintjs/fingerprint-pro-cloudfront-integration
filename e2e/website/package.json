@@ -1,21 +1,15 @@
 {
   "name": "website",
-  "main": "index.ts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "build": "webpack --mode production",
-    "start": "webpack-dev-server --mode development"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/node": "^20.11.24",
-    "clean-webpack-plugin": "^4.0.0",
-    "dotenv": "^16.4.5",
-    "file-loader": "^6.2.0",
-    "html-webpack-plugin": "^5.6.0",
-    "terser-webpack-plugin": "^5.3.10",
-    "ts-loader": "^9.5.1",
-    "webpack": "^5.90.3",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.0.2"
+    "vite": "^6.2.0"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs-pro": "^3.9.0"
