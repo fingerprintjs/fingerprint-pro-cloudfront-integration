@@ -9,26 +9,25 @@ phases:
       - echo $CODEBUILD_BUILD_ID
       - echo $CODEBUILD_PUBLIC_BUILD_URL
       - ls -a
-      - curl -fsSL https://get.pulumi.com | sh
-      - export PATH=$PATH:$HOME/.pulumi/bin
-      - pulumi version
+      - wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+      - sudo apt update && sudo apt install terraform
+      - terraform version
+      - cd e2e/infra/terraform && terraform init && cd -
   pre_build:
     commands:
       - pwd
       - ls -lah
-      - pulumi version
+      - terraform version
       - pnpm install
       - pnpm build
-      - cp -r dist e2e
+      #- cp -r dist e2e
       - pnpm -C e2e/website install && pnpm -C e2e/website build
       - cd e2e/tests && pnpm install && npx playwright install --with-deps && cd -
-      - cd e2e/infra/lambda && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd -
-      - cd e2e/infra/cloudfront && pnpm install && pulumi stack init e2e && pulumi stack select e2e && cd -
-      - cd e2e/infra && pnpm install && pnpm run lambda:up && pnpm run lambda:export && pnpm run cloudfront:up && pnpm run cloudfront:export && cd -
   build:
     commands:
       - ls -a
-      - cd e2e/tests && pnpm test && cd -
+      - cd e2e/infra/terraform && pnpm test && cd -
     finally:
       - echo $COMMIT_SHA
-      - cd e2e/infra && pnpm cloudfront:destroy && pnpm lambda:destroy && cd -
+      - cd e2e/infra/terraform && terraform destroy
