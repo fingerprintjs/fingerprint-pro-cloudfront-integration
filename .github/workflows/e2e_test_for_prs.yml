@@ -22,7 +22,7 @@ jobs:
           echo $diff
           needToRunTests=false
           for changed_file in $diff; do
-            if [[ ${changed_file} =~ ^(proxy|scripts|mgmt-lambda)\/.+$ ]]; then
+            if [[ ${changed_file} =~ ^(proxy|scripts|mgmt-lambda|e2e)\/.+$ ]]; then
               needToRunTests=true
             fi
             if [[ ${changed_file} =~ ^\.github\/workflows\/.+$ ]]; then
