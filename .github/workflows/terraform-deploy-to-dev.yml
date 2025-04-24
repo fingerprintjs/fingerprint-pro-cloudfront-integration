@@ -38,7 +38,7 @@ jobs:
 
       - name: Terraform plan
         env:
-        working-directory: .e2e/infra/terraform
+        working-directory: ./e2e/infra/terraform
         run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} plan
 
 
