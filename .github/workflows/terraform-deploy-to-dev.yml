@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/k8-setup-runner
  
       - name: Configure AWS credentials from dev account
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::708050157146:role/github_eb_ci_cd
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
