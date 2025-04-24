@@ -11,15 +11,11 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
 jobs:
-  build-and-deploy-ecs:
-    runs-on: k8-arm64
+  terraform:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup k8 Runner
-        id: setup-k8-runner
-        uses: ./.github/actions/k8-setup-runner
  
       - name: Configure AWS credentials from dev account
         uses: aws-actions/configure-aws-credentials@v4
@@ -35,8 +31,13 @@ jobs:
         with:
           terraform_version: "1.5.0"
 
-      - name: Terraform plan
+      - name: Setup infra robot credentials
+        env:
+          GIT_TOKEN: ${{ secrets.A_GH_TOKEN }}
+          GIT_USER: ${{ secrets.A_GH_USER }}
+        run: |
+          git config --global url."https://${{ env.GIT_USER }}:${{ env.GIT_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
+
+      - name: Terraform apply
         working-directory: ./e2e/infra/terraform
-        run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} plan
-
-
+        run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
