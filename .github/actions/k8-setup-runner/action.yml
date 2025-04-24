@@ -1,0 +1,42 @@
+name: Update K8s Manifests
+description: Updates Kubernetes manifests with new image tags
+inputs:
+  arch:
+    description: Architecture (arm64 or amd64)
+    required: true
+    default: arm64
+  aws_cli_version:
+    description: AWS CLI version to install
+    required: false
+    default: "2.15.14"
+runs:
+  using: composite
+  steps:
+    - name: Install GNU Make
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y make
+      # Verify installation and version
+    - name: Verify GMake Installation
+      shell: bash
+      run: |
+        make --version
+    - name: Install AWS CLI v2
+      shell: bash
+      run: |-
+        # Map GitHub Actions arch to AWS CLI arch
+        if [ "${{ inputs.arch }}" = "arm64" ]; then
+          AWS_ARCH="aarch64"
+        else
+          AWS_ARCH="x86_64"
+        fi
+
+        VERSION="${{ inputs.aws_cli_version }}"
+        ARCH_URL="awscli-exe-linux-${AWS_ARCH}-${VERSION}.zip"
+        echo "Installing AWS CLI version ${VERSION} for ${AWS_ARCH}"
+        curl "https://awscli.amazonaws.com/$ARCH_URL" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+        rm -rf aws awscliv2.zip
+        aws --version
