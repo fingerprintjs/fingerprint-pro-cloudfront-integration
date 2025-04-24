@@ -1,4 +1,4 @@
-name: Deploy identification to APS1 - DEV
+name: Deploy CloudFront integration to USE1 - DEV
 # Controls when the action will run. Invokes the workflow only on dispatch (manually)
 on: [workflow_dispatch]
 env:
@@ -38,5 +38,3 @@ jobs:
       - name: Terraform plan
         working-directory: ./e2e/infra/terraform
         run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} plan
-
-

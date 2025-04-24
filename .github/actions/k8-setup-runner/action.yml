@@ -1,5 +1,5 @@
-name: Update K8s Manifests
-description: Updates Kubernetes manifests with new image tags
+name: Setup K8 GH runner
+description: Install necessary tools for K8 GitHub runner
 inputs:
   arch:
     description: Architecture (arm64 or amd64)
