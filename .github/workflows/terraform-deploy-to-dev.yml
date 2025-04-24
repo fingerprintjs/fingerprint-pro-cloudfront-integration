@@ -1,0 +1,42 @@
+name: Deploy CloudFront integration to USE1 - DEV
+# Controls when the action will run. Invokes the workflow only on dispatch (manually)
+on: [workflow_dispatch]
+env:
+  AWS_IAM_AUTH_REGION: us-east-1
+
+  ENV: dev
+  TIER: use1
+  REGION: us-east-1
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+jobs:
+  build-and-deploy-ecs:
+    runs-on: k8-arm64
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup k8 Runner
+        id: setup-k8-runner
+        uses: ./.github/actions/k8-setup-runner
+ 
+      - name: Configure AWS credentials from dev account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::708050157146:role/github_eb_ci_cd
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_IAM_AUTH_REGION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      - name: Terraform plan
+        working-directory: ./e2e/infra/terraform
+        run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} plan
+
+
