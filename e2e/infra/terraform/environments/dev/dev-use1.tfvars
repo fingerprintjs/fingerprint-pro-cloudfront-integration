@@ -1,0 +1,8 @@
+workspace          = "fingerprint-pro-cloudfront-integration"
+platform           = "fpjs-dev-use1-fingerprint-pro-cloudfront-integration"
+company            = "fingerprint"
+region             = "us-east-1"
+env                = "dev"
+tier               = "use1"
+aws_account        = "708050157146"
+fpjs_shared_secret = "test_secret"

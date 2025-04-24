@@ -29,20 +29,20 @@ variable "fpjs_proxy_lambda_role_permissions_boundary_arn" {
 }
 
 variable "use_local_lambda" {
-  type    = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Whether to use locally built lambda function instead of artifact from S3"
 }
 
 variable "run_tests" {
-  type = bool
-  default = true
+  type        = bool
+  default     = true
   description = "Whether to run E2E tests are part of `terraform apply`."
 }
 
 variable "use_prerelease" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Whether to use prerelease version of the module. Not relevant if use_local_lambda is true."
 }
 
@@ -58,7 +58,7 @@ variable "fpjs_origin_id" {
 }
 
 variable "fpjs_origin_request_policy_id" {
-  default = "216adef6-5c7f-47e4-b989-5492eafa07d3" # Default AllViewer policy
+  default     = "216adef6-5c7f-47e4-b989-5492eafa07d3" # Default AllViewer policy
   type        = string
   description = "Fingerprint Pro CDN origin request policy id"
 }
