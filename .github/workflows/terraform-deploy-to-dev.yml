@@ -28,7 +28,6 @@ jobs:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_IAM_AUTH_REGION }}
 
-
       - uses: actions/setup-node@v4
         with:
           node-version: 18
