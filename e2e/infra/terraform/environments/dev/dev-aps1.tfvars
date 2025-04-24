@@ -1,0 +1,5 @@
+workspace    = "fingerprint-pro-cloudfront-integration"
+region       = "us-east-1"
+env          = "dev"
+tier         = "use1"
+aws_account  = "708050157146"
