@@ -3,7 +3,7 @@ resource "random_id" "bucket_id" {
 }
 
 resource "aws_s3_bucket" "website_bucket" {
-  bucket = "website-bucket-${random_id.bucket_id.dec}"
+  bucket = "test-website-bucket-${random_id.bucket_id.dec}"
 
   tags = {
     Name = "website-bucket"
