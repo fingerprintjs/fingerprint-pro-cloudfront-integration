@@ -12,14 +12,10 @@ permissions:
   contents: read # This is required for actions/checkout
 jobs:
   terraform:
-    runs-on: k8-arm64
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup k8 Runner
-        id: setup-k8-runner
-        uses: ./.github/actions/k8-setup-runner
  
       - name: Configure AWS credentials from dev account
         uses: aws-actions/configure-aws-credentials@v4
