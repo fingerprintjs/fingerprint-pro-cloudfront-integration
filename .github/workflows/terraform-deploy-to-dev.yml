@@ -31,6 +31,13 @@ jobs:
         with:
           terraform_version: "1.5.0"
 
+      - name: Setup infra robot credentials
+        env:
+          GIT_TOKEN: ${{ secrets.A_GH_TOKEN }}
+          GIT_USER: ${{ secrets.A_GH_USER }}
+        run: |
+          git config --global url."https://${{ env.GIT_USER }}:${{ env.GIT_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
+
       - name: Terraform plan
         working-directory: ./e2e/infra/terraform
         run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} plan
