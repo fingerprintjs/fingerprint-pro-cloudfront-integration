@@ -40,20 +40,6 @@ resource "aws_s3_bucket_policy" "website_bucket_policy" {
   })
 }
 
-resource "aws_s3_object" "index" {
-  bucket       = aws_s3_bucket.website_bucket.bucket
-  key          = "index.html"
-  source       = data.local_file.index.filename
-  content_type = "text/html"
-  source_hash  = data.local_file.index.content_base64sha256
-}
 
-resource "aws_s3_object" "js" {
-  bucket       = aws_s3_bucket.website_bucket.bucket
-  key          = "assets/index.js"
-  source       = data.local_file.js.filename
-  content_type = "application/javascript"
-  source_hash  = data.local_file.js.content_base64sha256
-}
 
 
