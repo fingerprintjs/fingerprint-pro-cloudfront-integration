@@ -40,14 +40,6 @@ resource "aws_s3_bucket_policy" "website_bucket_policy" {
   })
 }
 
-data "local_file" "index" {
-  filename = "../../website/dist/index.html"
-}
-
-data "local_file" "js" {
-  filename = "../../website/dist/assets/index.js"
-}
-
 resource "aws_s3_object" "index" {
   bucket       = aws_s3_bucket.website_bucket.bucket
   key          = "index.html"
