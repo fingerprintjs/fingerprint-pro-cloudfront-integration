@@ -19,7 +19,7 @@ resource "aws_s3_bucket_website_configuration" "website_endpoint" {
 }
 
 resource "aws_s3_bucket_public_access_block" "website_bucket_access_block" {
-  bucket = aws_s3_bucket.website_bucket.id
+  bucket              = aws_s3_bucket.website_bucket.id
   block_public_acls   = false
   block_public_policy = false
 }
@@ -53,7 +53,7 @@ resource "aws_s3_object" "index" {
   key          = "index.html"
   source       = data.local_file.index.filename
   content_type = "text/html"
-  source_hash = data.local_file.index.content_base64sha256
+  source_hash  = data.local_file.index.content_base64sha256
 }
 
 resource "aws_s3_object" "js" {
@@ -61,7 +61,7 @@ resource "aws_s3_object" "js" {
   key          = "assets/index.js"
   source       = data.local_file.js.filename
   content_type = "application/javascript"
-  source_hash = data.local_file.js.content_base64sha256
+  source_hash  = data.local_file.js.content_base64sha256
 }
 
 

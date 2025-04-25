@@ -2,7 +2,7 @@ resource "null_resource" "tests" {
   count = var.run_tests ? 1 : 0
 
   provisioner "local-exec" {
-    command = "pnpm test"
+    command     = "pnpm test"
     working_dir = "../../tests"
     environment = {
       CLOUDFRONT_WITH_HEADERS_URL = aws_cloudfront_distribution.with_headers.domain_name

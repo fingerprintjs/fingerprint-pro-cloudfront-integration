@@ -24,8 +24,8 @@ resource "aws_lambda_function" "fpjs_proxy_lambda" {
   role             = aws_iam_role.fpjs_proxy_lambda.arn
   handler          = "fingerprintjs-pro-cloudfront-lambda-function.handler"
   source_code_hash = var.use_local_lambda ? data.archive_file.lambda_package.output_base64sha256 : data.aws_s3_object.fpjs_integration_s3_bucket.checksum_sha256
-  memory_size = 128
-  timeout     = 10
+  memory_size      = 128
+  timeout          = 10
 
   runtime = "nodejs20.x"
 

@@ -34,6 +34,6 @@ resource "aws_iam_role" "fpjs_proxy_lambda" {
   name                 = "fingerprint-pro-lambda-role-${local.integration_id}"
   permissions_boundary = var.fpjs_proxy_lambda_role_permissions_boundary_arn
   assume_role_policy   = data.aws_iam_policy_document.assume_role.json
-  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
+  managed_policy_arns  = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
 }
 
