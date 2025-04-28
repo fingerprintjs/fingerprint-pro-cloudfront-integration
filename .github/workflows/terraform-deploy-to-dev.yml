@@ -36,6 +36,9 @@ jobs:
       
       - run: pnpm build
       
+      - run: pnpm build
+        working-directory: e2e/website
+      
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.11.0"
