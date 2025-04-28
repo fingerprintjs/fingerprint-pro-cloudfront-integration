@@ -29,7 +29,7 @@ jobs:
           node-version: 18
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.5.0"
+          terraform_version: "1.11.0"
 
       - name: Setup infra robot credentials
         env:
