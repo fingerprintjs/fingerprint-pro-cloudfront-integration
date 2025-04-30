@@ -28,7 +28,7 @@ export function getCloudfrontUrls(): CloudfrontUrls {
         cloudfrontWithHeadersUrl: `https://${fromEnv.cloudfrontWithHeadersUrl}`,
         cloudfrontWithSecretsUrl: `https://${fromEnv.cloudfrontWithSecretsUrl}`,
       }
-      console.info('Using cloudfront urls from env')
+      console.info('Using cloudfront urls from env', cache)
     } else {
       const contents = readTerraformOutput()
 
@@ -37,7 +37,7 @@ export function getCloudfrontUrls(): CloudfrontUrls {
         cloudfrontWithSecretsUrl: `https://${contents.cloudfront_with_secret_url.value}`,
       }
 
-      console.info('Using cloudfront urls from terraform output')
+      console.info('Using cloudfront urls from terraform output', cache)
     }
   }
 
