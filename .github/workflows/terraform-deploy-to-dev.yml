@@ -41,6 +41,11 @@ jobs:
       
       - run: pnpm build
         working-directory: e2e/website
+        env: 
+          VITE_API_KEY: ${{ secrets.PUBLIC_API_KEY }}
+          VITE_SCRIPT_URL_PATTERN: /fpjs/agent?apiKey=<apiKey>&version=<version>&loaderVersion=<loaderVersion>
+          VITE_ENDPOINT: /fpjs/result?region=us
+          
       
       - uses: hashicorp/setup-terraform@v3
         with:
@@ -56,3 +61,4 @@ jobs:
       - name: Terraform apply
         working-directory: ./e2e/infra/terraform
         run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
+          
