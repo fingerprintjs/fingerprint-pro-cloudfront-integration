@@ -63,4 +63,6 @@ jobs:
       - name: Terraform apply
         working-directory: ./e2e/infra/terraform
         run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
+        env:
+          TF_VAR_fpjs_shared_secret: ${{ secrets.PROXY_SECRET }}
           
