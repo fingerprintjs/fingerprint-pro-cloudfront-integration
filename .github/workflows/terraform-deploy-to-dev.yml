@@ -1,6 +1,9 @@
-name: Deploy CloudFront integration to USE1 - DEV
-# Controls when the action will run. Invokes the workflow only on dispatch (manually)
-on: [workflow_dispatch]
+name: Run CloudFront integration E2E tests on USE1 - DEV
+on:
+  pull_request:
+  release: 
+    types:
+      - published
 env:
   AWS_IAM_AUTH_REGION: us-east-1
 
@@ -45,7 +48,6 @@ jobs:
           VITE_API_KEY: ${{ secrets.PUBLIC_API_KEY }}
           VITE_SCRIPT_URL_PATTERN: /fpjs/agent?apiKey=<apiKey>&version=<version>&loaderVersion=<loaderVersion>
           VITE_ENDPOINT: /fpjs/result?region=us
-          
       
       - uses: hashicorp/setup-terraform@v3
         with:
