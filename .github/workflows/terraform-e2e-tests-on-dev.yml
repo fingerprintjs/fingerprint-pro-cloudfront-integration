@@ -1,9 +1,6 @@
 name: Run CloudFront integration E2E tests on USE1 - DEV
 on:
   pull_request:
-  release: 
-    types:
-      - published
 env:
   AWS_IAM_AUTH_REGION: us-east-1
 
