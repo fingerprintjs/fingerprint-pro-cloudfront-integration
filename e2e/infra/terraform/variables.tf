@@ -40,6 +40,18 @@ variable "run_tests" {
   description = "Whether to run E2E tests are part of `terraform apply`."
 }
 
+variable "run_mock_warden_tests" {
+  type        = bool
+  default     = false
+  description = "Whether to run mock-warden tests as part of `terraform apply`."
+}
+
+variable "mock_warden_url" {
+  type = string
+  default = null
+  description = "URL of the mock-warden. Relevant only if `run_mock_warden_tests` is set to true."
+}
+
 variable "use_prerelease" {
   type        = bool
   default     = false
@@ -58,7 +70,7 @@ variable "fpjs_origin_id" {
 }
 
 variable "fpjs_origin_request_policy_id" {
-  default     = "216adef6-5c7f-47e4-b989-5492eafa07d3" # Default AllViewer policy
+  default = "216adef6-5c7f-47e4-b989-5492eafa07d3" # Default AllViewer policy
   type        = string
   description = "Fingerprint Pro CDN origin request policy id"
 }
