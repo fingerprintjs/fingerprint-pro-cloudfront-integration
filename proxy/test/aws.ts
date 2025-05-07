@@ -35,7 +35,7 @@ export const mockRequest = (
         domainName: 'adewe.cloudfront.net',
         path: '/',
         region: 'us',
-        authMethod: 'none',
+        authMethod: 'origin-access-identity',
         customHeaders: {
           fpjs_pre_shared_secret: [
             {

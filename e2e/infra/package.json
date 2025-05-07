@@ -11,11 +11,11 @@
     "cloudfront:export": "cd cloudfront && pnpm run export"
   },
   "devDependencies": {
-    "@types/node": "^20.11.24"
+    "@types/node": "^20.17.12"
   },
   "dependencies": {
-    "@pulumi/aws": "^6.24.0",
-    "@pulumi/awsx": "^2.5.0",
-    "@pulumi/pulumi": "^3.107.0"
+    "@pulumi/aws": "^6.66.3",
+    "@pulumi/awsx": "^2.19.0",
+    "@pulumi/pulumi": "^3.145.0"
   }
 }

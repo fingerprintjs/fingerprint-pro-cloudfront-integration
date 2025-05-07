@@ -3,7 +3,7 @@
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
-    "@playwright/test": "^1.42.0"
+    "@playwright/test": "^1.49.1"
   },
   "scripts": {
     "test": "playwright test"
