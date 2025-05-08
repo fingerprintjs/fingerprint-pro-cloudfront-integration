@@ -83,7 +83,7 @@ jobs:
         with:
           version: 9
 
-      - run: pnpm install
+      - run: pnpm install && npm install ts-node -g
 
       - run: pnpm build
         env:
@@ -112,7 +112,8 @@ jobs:
         working-directory: ./e2e/infra/terraform
         run: gmake ENV=dev TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
         env:
-          TF_VAR_fpjs_shared_secret: ${{ secrets.PROXY_SECRET }}
+          # "secret" is the shared secret required by mock-warden
+          TF_VAR_fpjs_shared_secret: "secret"
           TF_VAR_run_tests: false
           TF_VAR_run_mock_warden_tests: true
           TF_VAR_mock_warden_url: ${{ secrets.MOCK_WARDEN_URL }}
