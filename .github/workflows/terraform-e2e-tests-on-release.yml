@@ -1,4 +1,4 @@
-name: Run CloudFront integration E2E tests on USE1 - DEV
+name: Run CloudFront integration E2E tests on USE1 - RELEASE
 on:
   pull_request:
 env:
@@ -57,6 +57,7 @@ jobs:
 
       - name: Terraform apply
         working-directory: ./e2e/infra/terraform
-        run: gmake ENV=dev TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
+        run: gmake ENV=release TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
         env:
           TF_VAR_fpjs_shared_secret: ${{ secrets.PROXY_SECRET }}
+          
