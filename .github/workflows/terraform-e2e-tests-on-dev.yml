@@ -110,7 +110,7 @@ jobs:
 
       - name: Terraform apply
         working-directory: ./e2e/infra/terraform
-        run: gmake ENV=dev-mock-warden TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
+        run: gmake ENV=dev TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
         env:
           TF_VAR_fpjs_shared_secret: ${{ secrets.PROXY_SECRET }}
           TF_VAR_run_tests: false
