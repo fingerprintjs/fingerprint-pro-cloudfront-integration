@@ -1,5 +1,6 @@
 import { execSync } from 'child_process'
 import { getCloudfrontUrls } from '../tests/src/utils/cloudfront'
+import { version } from '../../package.json'
 
 function getEnv(name: string) {
   const value = process.env[name]
@@ -15,12 +16,6 @@ async function main() {
   let hasError = false
 
   const cloudfrontUrls = getCloudfrontUrls()
-
-  const version = process.env.VERSION
-
-  if (!version) {
-    throw new Error('VERSION is not set.')
-  }
 
   const apiUrl = getEnv('API_URL')
   const behaviorPath = getEnv('FPJS_BEHAVIOR_PATH')
