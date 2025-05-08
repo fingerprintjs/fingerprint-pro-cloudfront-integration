@@ -30,98 +30,22 @@ PAR=200
 EXTRA_ARGS?=
 
 
+ifeq ($(ATLANTIS),true)
 CURRENT_FOLDER=$(shell git remote get-url --push origin | awk -F'/' '{print $$5}' | awk -F'.' '{print $$1}')
 BUCKET_KEY=$(shell git remote get-url --push origin | awk -F'/' '{print $$5}' | awk -F'.' '{print $$1}')
-
-
-ifeq ($(ENV)$(REGION),produs-east-1)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=55986a7b-ee99-496f-a4d3-686ad727d46a
-else ifeq ($(ENV)$(REGION),prodeu-central-1)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=8d1e9db5-bd1f-4d22-9b0f-1d60f88afeb3
-else ifeq ($(ENV)$(REGION),prodeu-north-1)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=e0741c62-076f-4205-99c7-89572c3a72a0
-else ifeq ($(ENV)$(REGION),prodeu-west-1)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=bb8af443-ca42-46f9-b1c2-104278968b7f
-else ifeq ($(ENV)$(REGION),produs-west-2)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=d11fc899-b403-4b3b-b021-7f5681d63e9f
-else ifeq ($(ENV)$(REGION),produs-east-2)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=aab12b4b-5f8e-4a51-b9ab-2e53dd530c71
-else ifeq ($(ENV)$(REGION),prodap-south-1)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=d4956b69-69d2-4ee3-ba3e-f11ba61de5ae
-else ifeq ($(ENV)$(REGION),rcus-east-1)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=55986a7b-ee99-496f-a4d3-686ad727d46a
-else ifeq ($(ENV)$(REGION),rceu-central-1)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=8d1e9db5-bd1f-4d22-9b0f-1d60f88afeb3
-else ifeq ($(ENV)$(REGION),rceu-north-1)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=e0741c62-076f-4205-99c7-89572c3a72a0
-else ifeq ($(ENV)$(REGION),rceu-west-1)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=bb8af443-ca42-46f9-b1c2-104278968b7f
-else ifeq ($(ENV)$(REGION),rcus-east-2)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=aab12b4b-5f8e-4a51-b9ab-2e53dd530c71
-else ifeq ($(ENV)$(REGION),rcap-south-1)
-AWS_PROFILE?=fpjs_prod
-ACCOUNT=421367603048
-KEY_ARN=d4956b69-69d2-4ee3-ba3e-f11ba61de5ae
-else ifeq ($(ENV)$(REGION),mainus-east-1)
-AWS_PROFILE?=fpjs_main
-ACCOUNT=271131155785
-KEY_ARN=d89683bb-f11a-473a-9a38-df42f47b4e53
-else ifeq ($(ENV)$(REGION),devus-east-1)
-AWS_PROFILE?=fpjs_dev
-ACCOUNT=708050157146
-KEY_ARN=1fd4b7e6-1547-4b62-859e-469aa2c0ca83
-else ifeq ($(ENV)$(REGION),sandboxus-west-2)
-AWS_PROFILE?=fpjs_dev
-ACCOUNT=708050157146
-KEY_ARN=adb687c6-41b3-4265-ac99-e1589f12254f
-else ifeq ($(ENV)$(REGION),devus-east-2)
-AWS_PROFILE?=fpjs_dev
-ACCOUNT=708050157146
-KEY_ARN=f8b583c1-d083-42b3-91ce-58f0296b2513
-else ifeq ($(ENV)$(REGION),toolsus-east-1)
-AWS_PROFILE?=fpjs_tools
-ACCOUNT=963800667800
-KEY_ARN=325f175e-bb98-4f05-b3fe-cd3e3aded348
-else ifeq ($(ENV)$(REGION),toolsus-east-2)
-AWS_PROFILE?=fpjs_tools
-ACCOUNT=963800667800
-KEY_ARN=5c781627-1151-4b1b-ae3d-7b199e421123
-else ifeq ($(ENV)$(REGION),devap-south-1)
-AWS_PROFILE?=fpjs_dev
-ACCOUNT=708050157146
-KEY_ARN=7f6a5c8d-cf92-457e-a3fa-bf4d76739944
-else ifeq ($(ENV)$(REGION),stageus-east-1)
-AWS_PROFILE?=fpjs_dev
-ACCOUNT=708050157146
-KEY_ARN=1fd4b7e6-1547-4b62-859e-469aa2c0ca83
 else
+CURRENT_FOLDER=$(shell git remote get-url --push origin | awk -F'/' '{print $$2}' | awk -F'.' '{print $$1}')
+BUCKET_KEY=$(shell git remote get-url --push origin | awk -F'/' '{print $$2}' | awk -F'.' '{print $$1}')
+endif
+
+ifeq ($(ENV)$(REGION),devus-east-1)
 AWS_PROFILE?=fpjs_dev
 ACCOUNT=708050157146
-KEY_ARN=mrk-5942c12b997c42cd8b1db02449c63875
+KEY_ARN=1fd4b7e6-1547-4b62-859e-469aa2c0ca83
+else ifeq ($(ENV)$(REGION),releaseus-east-1)
+AWS_PROFILE?=fpjs_dev
+ACCOUNT=708050157146
+KEY_ARN=1fd4b7e6-1547-4b62-859e-469aa2c0ca83
 endif
 
 help:
@@ -163,13 +87,11 @@ prep: set-env ## Prepare a new workspace (environment) if needed, configure the 
 		echo "$(BOLD)S3 bucket $(S3_BUCKET) was not found, creating new bucket with versioning enabled to store tfstate$(RESET)"; \
 		aws --profile $(AWS_PROFILE) s3api create-bucket \
 			--bucket $(S3_BUCKET) \
+			--region $(REGION) \
 			--acl private > /dev/null 2>&1 ; \
 		aws --profile $(AWS_PROFILE) s3api put-bucket-versioning \
 			--bucket $(S3_BUCKET) \
 			--versioning-configuration Status=Enabled > /dev/null 2>&1 ; \
-		aws --profile $(AWS_PROFILE) s3api put-bucket-encryption \
-			--bucket $(S3_BUCKET) \
-			--server-side-encryption-configuration '{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "aws:kms","KMSMasterKeyID": "$(KEY_ARN)"},"BucketKeyEnabled": true}]}' ; \
 		echo "$(BOLD)$(GREEN)S3 bucket $(S3_BUCKET) created$(RESET)"; \
 	 else
 		echo "$(BOLD)$(GREEN)S3 bucket $(S3_BUCKET) exists$(RESET)"; \
@@ -211,7 +133,7 @@ prep: set-env ## Prepare a new workspace (environment) if needed, configure the 
 	@echo "$(ACCOUNT),$(REGION),$(ENV),$(KEY_ARN),$(AWS_PROFILE)" > /dev/null 2>&1 ;
 	@rm -rf .terraform/
 	@echo "$(BOLD)Verifying that the S3 bucket $(S3_BUCKET) for remote state exists$(RESET)"
-	@if ! aws --profile $(AWS_PROFILE) s3api head-bucket --region $(REGION) --bucket $(S3_BUCKET) > /dev/null 2>&1 ; then \
+	@if ! aws --profile $(AWS_PROFILE) s3api head-bucket --region $(REGION) --bucket $(S3_BUCKET) > ; then \
 		echo "$(BOLD)S3 bucket $(S3_BUCKET) was not found, creating new bucket with versioning enabled to store tfstate$(RESET)"; \
 		aws --profile $(AWS_PROFILE) s3api create-bucket \
 			--bucket $(S3_BUCKET) \
@@ -221,9 +143,7 @@ prep: set-env ## Prepare a new workspace (environment) if needed, configure the 
 		aws --profile $(AWS_PROFILE) s3api put-bucket-versioning \
 			--bucket $(S3_BUCKET) \
 			--versioning-configuration Status=Enabled ; \
-		aws --profile $(AWS_PROFILE) s3api put-bucket-encryption \
-			--bucket $(S3_BUCKET) \
-			--server-side-encryption-configuration '{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "aws:kms","KMSMasterKeyID": "$(KEY_ARN)"},"BucketKeyEnabled": true}]}'  > /dev/null 2>&1 ;\
+
 		echo "$(BOLD)$(GREEN)S3 bucket $(S3_BUCKET) created$(RESET)"; \
 	 else
 		echo "$(BOLD)$(GREEN)S3 bucket $(S3_BUCKET) exists$(RESET)"; \
