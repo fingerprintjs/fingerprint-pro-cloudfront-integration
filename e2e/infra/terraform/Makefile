@@ -29,14 +29,8 @@ RESET=$(shell tput -T xterm sgr0)
 PAR=200
 EXTRA_ARGS?=
 
-
-ifeq ($(ATLANTIS),true)
 CURRENT_FOLDER=$(shell git remote get-url --push origin | awk -F'/' '{print $$5}' | awk -F'.' '{print $$1}')
 BUCKET_KEY=$(shell git remote get-url --push origin | awk -F'/' '{print $$5}' | awk -F'.' '{print $$1}')
-else
-CURRENT_FOLDER=$(shell git remote get-url --push origin | awk -F'/' '{print $$2}' | awk -F'.' '{print $$1}')
-BUCKET_KEY=$(shell git remote get-url --push origin | awk -F'/' '{print $$2}' | awk -F'.' '{print $$1}')
-endif
 
 ifeq ($(ENV)$(REGION),devus-east-1)
 AWS_PROFILE?=fpjs_dev
