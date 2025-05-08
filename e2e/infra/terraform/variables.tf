@@ -30,7 +30,7 @@ variable "fpjs_proxy_lambda_role_permissions_boundary_arn" {
 
 variable "use_local_lambda" {
   type        = bool
-  default     = false
+  default     = true
   description = "Whether to use locally built lambda function instead of artifact from S3"
 }
 
