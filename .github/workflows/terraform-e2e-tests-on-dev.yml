@@ -36,7 +36,7 @@ jobs:
       - run: pnpm exec playwright install
         working-directory: e2e/tests
       
-      - run: pnpm build
+      - run: pnpm build && bash scripts/preparePackage.sh
       
       - run: pnpm build
         working-directory: e2e/website
@@ -86,7 +86,7 @@ jobs:
 
       - run: pnpm install && npm install ts-node -g
 
-      - run: pnpm build
+      - run: pnpm build && bash scripts/preparePackage.sh
         env:
           FPCDN: ${{ secrets.MOCK_WARDEN_URL }}
           INGRESS_API: ${{ secrets.MOCK_WARDEN_URL }}
