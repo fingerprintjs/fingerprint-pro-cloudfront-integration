@@ -1,5 +1,6 @@
 name: Run CloudFront integration E2E tests on USE1 - RELEASE
 on:
+  # TODO Run on release after finishing 
   pull_request:
 env:
   AWS_IAM_AUTH_REGION: us-east-1
@@ -35,7 +36,10 @@ jobs:
       - run: pnpm exec playwright install
         working-directory: e2e/tests
       
-      - run: pnpm build
+      # TODO Pass tag on release
+      - run: node scripts/downloadGithubRelease.mjs
+        env:
+          UNPACK_TO_DIST: true
       
       - run: pnpm build
         working-directory: e2e/website
