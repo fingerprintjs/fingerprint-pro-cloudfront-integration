@@ -22,18 +22,6 @@ variable "fpjs_behavior_path" {
   default = "fpjs"
 }
 
-variable "fpjs_proxy_lambda_role_permissions_boundary_arn" {
-  type        = string
-  description = "Permissions boundary ARN for the role assumed by the Proxy lambda. Make sure your permissions boundary allows the function to access the Secrets Manager secret created for the integration (`secretsmanager:GetSecretValue`) and create logs (`logs:CreateLogStream`, `logs:CreateLogGroup`, `logs:PutLogEvents`)."
-  default     = null
-}
-
-variable "use_local_lambda" {
-  type        = bool
-  default     = true
-  description = "Whether to use locally built lambda function instead of artifact from S3"
-}
-
 variable "run_tests" {
   type        = bool
   default     = true
@@ -50,12 +38,6 @@ variable "mock_warden_url" {
   type = string
   default = null
   description = "URL of the mock-warden. Relevant only if `run_mock_warden_tests` is set to true."
-}
-
-variable "use_prerelease" {
-  type        = bool
-  default     = false
-  description = "Whether to use prerelease version of the module. Not relevant if use_local_lambda is true."
 }
 
 variable "fpjs_origin_name" {
