@@ -40,7 +40,7 @@ resource "aws_cloudfront_distribution" "with_secret" {
     }
     custom_header {
       name  = "FPJS_SECRET_NAME"
-      value = aws_secretsmanager_secret.fpjs_proxy_lambda_secret.arn
+      value = module.fingerprint_cloudfront_integration.fpjs_secret_manager_arn
     }
   }
 
@@ -49,15 +49,15 @@ resource "aws_cloudfront_distribution" "with_secret" {
 
     allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods           = ["GET", "HEAD"]
-    cache_policy_id          = aws_cloudfront_cache_policy.fpjs_procdn.id
-    origin_request_policy_id = var.fpjs_origin_request_policy_id
-    target_origin_id         = var.fpjs_origin_id
+    cache_policy_id          = module.fingerprint_cloudfront_integration.fpjs_cache_policy_id
+    origin_request_policy_id = module.fingerprint_cloudfront_integration.fpjs_origin_request_policy_id
+    target_origin_id         = module.fingerprint_cloudfront_integration.fpjs_origin_id
     viewer_protocol_policy   = "https-only"
     compress                 = true
 
     lambda_function_association {
       event_type   = "origin-request"
-      lambda_arn   = aws_lambda_function.fpjs_proxy_lambda.qualified_arn
+      lambda_arn   = module.fingerprint_cloudfront_integration.fpjs_proxy_lambda_arn
       include_body = true
     }
   }
@@ -128,15 +128,15 @@ resource "aws_cloudfront_distribution" "with_headers" {
 
     allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods           = ["GET", "HEAD"]
-    cache_policy_id          = aws_cloudfront_cache_policy.fpjs_procdn.id
-    origin_request_policy_id = var.fpjs_origin_request_policy_id
-    target_origin_id         = var.fpjs_origin_id
+    cache_policy_id          = module.fingerprint_cloudfront_integration.fpjs_cache_policy_id
+    origin_request_policy_id = module.fingerprint_cloudfront_integration.fpjs_origin_request_policy_id
+    target_origin_id         = module.fingerprint_cloudfront_integration.fpjs_origin_id
     viewer_protocol_policy   = "https-only"
     compress                 = true
 
     lambda_function_association {
       event_type   = "origin-request"
-      lambda_arn   = aws_lambda_function.fpjs_proxy_lambda.qualified_arn
+      lambda_arn   = module.fingerprint_cloudfront_integration.fpjs_proxy_lambda_arn
       include_body = true
     }
   }
