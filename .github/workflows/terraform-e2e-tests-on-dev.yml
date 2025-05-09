@@ -5,6 +5,7 @@ env:
   AWS_IAM_AUTH_REGION: us-east-1
   TIER: use1
   REGION: us-east-1
+  ENV: dev
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
@@ -57,6 +58,63 @@ jobs:
 
       - name: Terraform apply
         working-directory: ./e2e/infra/terraform
-        run: gmake ENV=dev TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
+        run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
         env:
           TF_VAR_fpjs_shared_secret: ${{ secrets.PROXY_SECRET }}
+          
+  mock-warden-e2e-tests:
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials from dev account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::708050157146:role/github_eb_ci_cd
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_IAM_AUTH_REGION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: pnpm/action-setup@129abb77bf5884e578fcaf1f37628e41622cc371
+        with:
+          version: 9
+
+      - run: pnpm install && npm install ts-node -g
+
+      - run: pnpm build
+        env:
+          FPCDN: ${{ secrets.MOCK_WARDEN_URL }}
+          INGRESS_API: ${{ secrets.MOCK_WARDEN_URL }}
+
+      - run: pnpm build
+        working-directory: e2e/website
+        env:
+          VITE_API_KEY: ${{ secrets.PUBLIC_API_KEY }}
+          VITE_SCRIPT_URL_PATTERN: /fpjs/agent?apiKey=<apiKey>&version=<version>&loaderVersion=<loaderVersion>
+          VITE_ENDPOINT: /fpjs/result?region=us
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.11.0"
+
+      - name: Setup infra robot credentials
+        env:
+          GIT_TOKEN: ${{ secrets.A_GH_TOKEN }}
+          GIT_USER: ${{ secrets.A_GH_USER }}
+        run: |
+          git config --global url."https://${{ env.GIT_USER }}:${{ env.GIT_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
+
+      - name: Terraform apply
+        working-directory: ./e2e/infra/terraform
+        run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
+        env:
+          # "secret" is the shared secret required by mock-warden
+          TF_VAR_fpjs_shared_secret: "secret"
+          TF_VAR_run_tests: false
+          TF_VAR_run_mock_warden_tests: true
+          TF_VAR_mock_warden_url: ${{ secrets.MOCK_WARDEN_URL }}
