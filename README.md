@@ -15,7 +15,7 @@
 
 # Fingerprint Pro CloudFront Integration
 
-[Fingerprint](https://fingerprint.com/) is a device intelligence platform offering 99.5% accurate visitor identification.
+[Fingerprint](https://fingerprint.com/) is a device intelligence platform offering industry-leading accuracy.
 
 Fingerprint Pro CloudFront Integration is responsible for
 
