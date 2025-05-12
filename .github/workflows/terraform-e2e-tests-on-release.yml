@@ -6,6 +6,7 @@ env:
   AWS_IAM_AUTH_REGION: us-east-1
   TIER: use1
   REGION: us-east-1
+  ENV: release
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
@@ -38,8 +39,6 @@ jobs:
       
       # TODO Pass tag on release
       - run: node scripts/downloadGithubRelease.mjs
-        env:
-          UNPACK_TO_DIST: true
       
       - run: pnpm build
         working-directory: e2e/website
@@ -61,7 +60,7 @@ jobs:
 
       - name: Terraform apply
         working-directory: ./e2e/infra/terraform
-        run: gmake ENV=release TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
+        run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
         env:
           TF_VAR_fpjs_shared_secret: ${{ secrets.PROXY_SECRET }}
           
