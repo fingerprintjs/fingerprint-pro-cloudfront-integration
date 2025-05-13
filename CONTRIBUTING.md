@@ -49,8 +49,8 @@ You are required to follow [conventional commits](https://www.conventionalcommit
 
 ### How to test
 
-End-to-end tests are written in [playwright](https://github.com/microsoft/playwright) and [pulumi](https://www.pulumi.com) and located in the `e2e` folder.
-These tests are run automatically by the `deploy_test_branch.yml` workflow on every PR automatically, you don't need to run them locally. 
+End-to-end tests are written using [Playwright](https://github.com/microsoft/playwright) and use [Terraform](https://developer.hashicorp.com/terraform) to deploy the required infrastructure. They are located in the [e2e](e2e) directory.
+These tests run automatically on every pull request via the [terraform-e2e-tests-on-dev.yml](.github/workflows/terraform-e2e-tests-on-dev.yml) workflow, so there's no need to run them locally.
 
 ### How to release a new version
 
