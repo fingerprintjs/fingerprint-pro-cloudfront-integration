@@ -1,5 +1,0 @@
-name: cloudfront
-runtime: nodejs
-description: E2E infra for CloudFront lambda
-backend:
-  url: file://.
