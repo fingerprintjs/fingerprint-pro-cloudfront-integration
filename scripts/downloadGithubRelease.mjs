@@ -10,6 +10,16 @@ const config = {
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
+const legacyPackageName = "package.zip"
+
+const assetsToFind = [
+  'mgmt_lambda_latest.zip',
+  'lambda_latest.zip',
+  
+  // Legacy package
+  legacyPackageName,
+]
+
 console.debug('dirname', dirname)
 
 async function main() {
@@ -23,52 +33,36 @@ async function main() {
 
   console.info('Release', release.tag_name)
 
-  const asset = await findFunctionZip(release.assets)
+  const assets = await findAssets(release.assets)
 
-  if (!asset) {
-    console.warn('No package.zip asset found')
+  if (!assets?.length) {
+    console.warn('No assets found')
     return
   }
+  
+  for (const asset of assets) {
+    const zip = await downloadReleaseAsset(asset.url)
+    const fileName = asset.name === legacyPackageName ? 'lambda_latest.zip' : asset.name
 
-  const zip = await downloadReleaseAsset(asset.url)
-
-  if (process.env.UNPACK_TO_DIST) {
-    new Zip(zip).extractAllTo(path.resolve(dirname, '../dist'), true)
-  } else {
-    fs.writeFileSync(path.resolve(dirname, '../package.zip'), zip)
+    if (process.env.UNPACK_TO_DIST) {
+      new Zip(zip).extractAllTo(path.resolve(dirname, '../dist'), true)
+    } else {
+      fs.writeFileSync(path.resolve(dirname, '../', fileName), zip)
+    }
   }
 }
 
 async function getGitHubRelease() {
-  const commitId = process.env.COMMIT_ID
+  const tag = process.env.TAG
 
-  if (!commitId) {
+  if (!tag) {
     return getLatestGitHubRelease()
   }
 
-  console.info('Using commit id', commitId)
+  console.info('Using tag', tag)
 
-  return getGitHubReleaseByCommitId(commitId)
+  return getGitHubReleaseByTag(tag)
 }
-
-async function listTags() {
-  const url = `https://api.github.com/repos/${config.owner}/${config.repo}/tags`
-
-  console.debug('fetchTags url', url)
-
-  return await doGitHubGetRequest(url)
-}
-
-async function getGitHubReleaseByCommitId(commitId) {
-  const tag = await listTags().then((response) => findTagByCommitId(response, commitId))
-
-  if (!tag) {
-    throw new Error(`Tag for commit ${commitId} not found`)
-  }
-
-  return await getGitHubReleaseByTag(tag.name)
-}
-
 async function getGitHubReleaseByTag(tag) {
   const url = `https://api.github.com/repos/${config.owner}/${config.repo}/releases/tags/${tag}`
 
@@ -76,11 +70,6 @@ async function getGitHubReleaseByTag(tag) {
 
   return await doGitHubGetRequest(url)
 }
-
-function findTagByCommitId(tags, commitId) {
-  return tags.find((tag) => tag?.commit?.sha === commitId)
-}
-
 async function getLatestGitHubRelease() {
   const url = `https://api.github.com/repos/${config.owner}/${config.repo}/releases/latest`
 
@@ -96,6 +85,8 @@ async function doGitHubGetRequest(url) {
 }
 
 async function downloadReleaseAsset(url) {
+  console.info('Downloading asset', url)
+  
   const headers = {
     Accept: 'application/octet-stream',
     'User-Agent': 'fingerprint-pro-cloudfront-integration',
@@ -112,9 +103,9 @@ async function downloadReleaseAsset(url) {
   return Buffer.from(arrayBuffer)
 }
 
-export async function findFunctionZip(assets) {
-  return assets?.find(
-    (asset) => asset.name === 'package.zip' && asset.state === 'uploaded' && asset.content_type === 'application/zip',
+export async function findAssets(assets) {
+  return assets?.filter(
+    (asset) =>  assetsToFind.includes(asset.name) && asset.state === 'uploaded' && asset.content_type === 'application/zip',
   )
 }
 

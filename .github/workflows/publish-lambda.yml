@@ -1,7 +1,8 @@
-name: Run CloudFront integration E2E tests on USE1 - RELEASE
+name: Publish CloudFront integration
 on:
-  # TODO Run on release after finishing 
-  pull_request:
+  release:
+    types:
+      - published
 env:
   AWS_IAM_AUTH_REGION: us-east-1
   TIER: use1
@@ -16,7 +17,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
- 
+
       - name: Configure AWS credentials from dev account
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -31,22 +32,23 @@ jobs:
       - uses: pnpm/action-setup@129abb77bf5884e578fcaf1f37628e41622cc371
         with:
           version: 9
-      
+
       - run: pnpm install
-      
+
       - run: pnpm exec playwright install
         working-directory: e2e/tests
-      
-      # TODO Pass tag on release
+
       - run: node scripts/downloadGithubRelease.mjs
-      
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+
       - run: pnpm build
         working-directory: e2e/website
-        env: 
+        env:
           VITE_API_KEY: ${{ secrets.PUBLIC_API_KEY }}
           VITE_SCRIPT_URL_PATTERN: /fpjs/agent?apiKey=<apiKey>&version=<version>&loaderVersion=<loaderVersion>
           VITE_ENDPOINT: /fpjs/result?region=us
-      
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.11.0"
@@ -58,9 +60,40 @@ jobs:
         run: |
           git config --global url."https://${{ env.GIT_USER }}:${{ env.GIT_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
 
-      - name: Terraform apply
+      - name: Run tests
         working-directory: ./e2e/infra/terraform
         run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
         env:
           TF_VAR_fpjs_shared_secret: ${{ secrets.PROXY_SECRET }}
-          
+  
+  deploy-to-s3:
+    # Skip for pre-releases
+    if: ${{ !github.event.release.prerelease }}
+    name: Deploy artifact to S3 bucket
+    needs: e2e-tests
+    environment: production
+    runs-on: k8-arm64
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup k8 Runner
+        id: setup-k8-runner
+        uses: ./.github/actions/k8-setup-runner
+ 
+      - name: Configure AWS credentials from dev account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::421367603048:role/github_eb_ci_cd
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_IAM_AUTH_REGION }}
+
+      - run: node scripts/downloadGithubRelease.mjs
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+      
+      - name: Upload files
+        run: |
+          aws s3api put-object --body lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2/lambda_latest.zip
+          aws s3api put-object --body mgmt_lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2/mgmt_lambda_latest.zip
+          aws s3api put-object --body cloudformation/template.yml --bucket fingerprint-pro-cloudfront-integration --key v2/template.yml
