@@ -56,7 +56,7 @@ jobs:
         run: |
           git config --global url."https://${{ env.GIT_USER }}:${{ env.GIT_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
 
-      - name: Terraform apply
+      - name: Run tests
         working-directory: ./e2e/infra/terraform
         run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
         env:
@@ -109,7 +109,7 @@ jobs:
         run: |
           git config --global url."https://${{ env.GIT_USER }}:${{ env.GIT_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
 
-      - name: Terraform apply
+      - name: Run mock-warden tests
         working-directory: ./e2e/infra/terraform
         run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
         env:
