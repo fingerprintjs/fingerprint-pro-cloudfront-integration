@@ -16,7 +16,7 @@ jobs:
     # Skip for pre-releases
     #if: ${{ !github.event.release.prerelease }}
     name: Deploy artifact to S3 bucket
-    environment: production
+    #environment: production
     runs-on: k8-arm64
     steps:
       - name: Checkout code
