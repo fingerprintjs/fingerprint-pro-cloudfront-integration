@@ -39,10 +39,10 @@ jobs:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_IAM_AUTH_REGION }}
 
-      - run: node scripts/downloadGithubRelease.mjs
-        env:
-          TAG: ${{ github.event.release.tag_name }}
-
+      - run: yarn build && yarn prepare-package
+      
       - name: Upload files
         run: |
           aws s3api put-object --body lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key testing/lambda_latest_test.zip
+          aws s3api put-object --body mgmt_lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key testing/mgmt_lambda_latest_test.zip
+          aws s3api put-object --body cloudformation/template.yml --bucket fingerprint-pro-cloudfront-integration --key testing/template_test.yml
