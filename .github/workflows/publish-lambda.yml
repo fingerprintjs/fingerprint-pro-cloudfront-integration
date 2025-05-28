@@ -1,6 +1,8 @@
 name: Publish CloudFront integration
 on:
-  pull_request: 
+  release: 
+    types:
+      - published
 env:
   AWS_IAM_AUTH_REGION: us-east-1
   TIER: use1
@@ -10,13 +12,63 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
 jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Configure AWS credentials from dev account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::708050157146:role/github_eb_ci_cd
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_IAM_AUTH_REGION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: pnpm/action-setup@129abb77bf5884e578fcaf1f37628e41622cc371
+        with:
+          version: 9
+
+      - run: pnpm install
+
+      - run: pnpm exec playwright install
+        working-directory: e2e/tests
+
+      - run: node scripts/downloadGithubRelease.mjs
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+
+      - run: pnpm build
+        working-directory: e2e/website
+        env:
+          VITE_API_KEY: ${{ secrets.PUBLIC_API_KEY }}
+          VITE_SCRIPT_URL_PATTERN: /fpjs/agent?apiKey=<apiKey>&version=<version>&loaderVersion=<loaderVersion>
+          VITE_ENDPOINT: /fpjs/result?region=us
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.11.0"
+
+      - name: Setup infra robot credentials
+        env:
+          GIT_TOKEN: ${{ secrets.A_GH_TOKEN }}
+          GIT_USER: ${{ secrets.A_GH_USER }}
+        run: |
+          git config --global url."https://${{ env.GIT_USER }}:${{ env.GIT_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
+
+      - name: Run tests
+        working-directory: ./e2e/infra/terraform
+        run: gmake ENV=${{ env.ENV }} TIER=${{ env.TIER }} REGION=${{ env.REGION }} apply-auto-approve
+        env:
+          TF_VAR_fpjs_shared_secret: ${{ secrets.PROXY_SECRET }}
   
   deploy-to-s3:
-    # Skip for pre-releases
-    #if: ${{ !github.event.release.prerelease }}
     name: Deploy artifact to S3 bucket
-    #environment: production
+    environment: production
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -39,10 +91,20 @@ jobs:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_IAM_AUTH_REGION }}
 
-      - run: yarn build && yarn prepare-package
+      - run: node scripts/downloadGithubRelease.mjs
+        env:
+          TAG: ${{ github.event.release.tag_name }}
       
       - name: Upload files
+        if: ${{ !github.event.release.prerelease }}
         run: |
-          aws s3api put-object --body lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key testing/lambda_latest_test.zip
-          aws s3api put-object --body mgmt_lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key testing/mgmt_lambda_latest_test.zip
-          aws s3api put-object --body cloudformation/template.yml --bucket fingerprint-pro-cloudfront-integration --key testing/template_test.yml
+          aws s3api put-object --body lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2/lambda_latest.zip
+          aws s3api put-object --body mgmt_lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2/mgmt_lambda_latest.zip
+          aws s3api put-object --body cloudformation/template.yml --bucket fingerprint-pro-cloudfront-integration --key v2/template.yml
+          
+      - name: Upload pre-release files
+        if: ${{ github.event.release.prerelease }}
+        run: |
+          aws s3api put-object --body lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2_rc/lambda_latest.zip
+          aws s3api put-object --body mgmt_lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2_rc/mgmt_lambda_latest.zip
+          aws s3api put-object --body cloudformation/template.yml --bucket fingerprint-pro-cloudfront-integration --key v2_rc/template.yml
