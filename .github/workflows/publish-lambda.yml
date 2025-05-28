@@ -17,7 +17,7 @@ jobs:
     #if: ${{ !github.event.release.prerelease }}
     name: Deploy artifact to S3 bucket
     #environment: production
-    runs-on: k8-arm64
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
