@@ -21,10 +21,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup k8 Runner
-        id: setup-k8-runner
-        uses: ./.github/actions/k8-setup-runner
  
       - name: Configure AWS credentials from dev account
         uses: aws-actions/configure-aws-credentials@v4
