@@ -31,4 +31,4 @@ jobs:
 
       - name: Get files
         run: |
-          aws s3api get-object --bucket fingerprint-pro-cloudfront-integration --key lambda_latest.zip lambda_latest.zip
+          aws s3api get-object --bucket fingerprint-pro-cloudfront-integration --key lambda_latest.zip
