@@ -1,6 +1,8 @@
 name: Publish CloudFront integration
 on:
-  pull_request: 
+  release:
+    types:
+      - published
 env:
   AWS_IAM_AUTH_REGION: us-east-1
   TIER: use1
@@ -15,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       lambda_sha: ${{ steps.sha.outputs.lambda_sha }}
+      mgmt_lambda_sha: ${{ steps.sha.outputs.mgmt_lambda_sha }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -71,10 +74,11 @@ jobs:
         id: sha
         run: |
           echo "lambda_sha=$(sha256sum lambda_latest.zip | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+          echo "mgmt_lambda_sha=$(sha256sum mgmt_lambda_latest.zip.zip | awk '{print $1}')" >> "$GITHUB_OUTPUT"
   
   deploy-to-s3:
     name: Deploy artifact to S3 bucket
-    #environment: production
+    environment: production
     runs-on: ubuntu-latest
     needs: e2e-tests
     steps:
@@ -105,23 +109,31 @@ jobs:
       - name: Compare SHA
         run: |
           local_lambda_sha=$(sha256sum lambda_latest.zip | awk '{print $1}')
+          local_mgmt_lambda_sha=$(sha256sum mgmt_lambda_latest.zip | awk '{print $1}')
+          
           if [ "$local_lambda_sha" != "$LAMBDA_SHA" ]; then
             echo "SHA mismatch: local=$local_lambda_sha, expected=$LAMBDA_SHA"
             exit 1
           fi
+          
+          if [ "local_mgmt_lambda_sha" != "$MGMT_LAMBDA_SHA" ]; then
+            echo "SHA mismatch: local=$local_mgmt_lambda_sha, expected=$MGMT_LAMBDA_SHA"
+            exit 1
+          fi
         env:
           LAMBDA_SHA: ${{ needs.e2e-tests.outputs.lambda_sha }}
+          MGMT_LAMBDA_SHA: ${{ needs.e2e-tests.outputs.mgmt_lambda_sha }}
       
-    #  - name: Upload files
-    #    if: ${{ !github.event.release.prerelease }}
-    #    run: |
-    #      aws s3api put-object --body lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2/lambda_latest.zip
-    #      aws s3api put-object --body mgmt_lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2/mgmt_lambda_latest.zip
-    #      aws s3api put-object --body cloudformation/template.yml --bucket fingerprint-pro-cloudfront-integration --key v2/template.yml
+      - name: Upload files
+        if: ${{ !github.event.release.prerelease }}
+        run: |
+          aws s3api put-object --body lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2/lambda_latest.zip
+          aws s3api put-object --body mgmt_lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2/mgmt_lambda_latest.zip
+          aws s3api put-object --body cloudformation/template.yml --bucket fingerprint-pro-cloudfront-integration --key v2/template.yml
           
-    #  - name: Upload pre-release files
-    #    if: ${{ github.event.release.prerelease }}
-    #    run: |
-    #      aws s3api put-object --body lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2_rc/lambda_latest.zip
-    #      aws s3api put-object --body mgmt_lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2_rc/mgmt_lambda_latest.zip
-    #      aws s3api put-object --body cloudformation/template.yml --bucket fingerprint-pro-cloudfront-integration --key v2_rc/template.yml
+      - name: Upload pre-release files
+        if: ${{ github.event.release.prerelease }}
+        run: |
+          aws s3api put-object --body lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2_rc/lambda_latest.zip
+          aws s3api put-object --body mgmt_lambda_latest.zip --bucket fingerprint-pro-cloudfront-integration --key v2_rc/mgmt_lambda_latest.zip
+          aws s3api put-object --body cloudformation/template.yml --bucket fingerprint-pro-cloudfront-integration --key v2_rc/template.yml
