@@ -8,8 +8,6 @@ import { CloudfrontUrls, getCloudfrontUrls } from './src/utils/cloudfront'
  * https://github.com/motdotla/dotenv
  */
 // require('dotenv').config();
-
-//const cloudfrontUrls = Object.entries(getCloudfrontUrls())
 const cloudfrontUrls = Object.entries(getCloudfrontUrls())
 
 /**
