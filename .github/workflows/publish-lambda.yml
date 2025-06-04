@@ -74,7 +74,7 @@ jobs:
         id: sha
         run: |
           echo "lambda_sha=$(sha256sum lambda_latest.zip | awk '{print $1}')" >> "$GITHUB_OUTPUT"
-          echo "mgmt_lambda_sha=$(sha256sum mgmt_lambda_latest.zip.zip | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+          echo "mgmt_lambda_sha=$(sha256sum mgmt_lambda_latest.zip | awk '{print $1}')" >> "$GITHUB_OUTPUT"
   
   deploy-to-s3:
     name: Deploy artifact to S3 bucket
