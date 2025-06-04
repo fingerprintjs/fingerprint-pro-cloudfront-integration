@@ -49,7 +49,10 @@
       {
         "assets": [
           {
-            "path": "package.zip"
+            "path": "lambda_latest.zip"
+          },
+          {
+            "path": "mgmt_lambda_latest.zip"
           }
         ]
       }

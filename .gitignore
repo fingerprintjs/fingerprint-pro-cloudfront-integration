@@ -71,6 +71,8 @@ typings/
 
 # dotenv environment variables file
 .env.test
+.env
+!.env.dist
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -106,9 +108,17 @@ dist
 # IDE
 .idea
 
-# Pulumi
-.pulumi
-stack.json
-
 # misc
 .DS_Store
+
+# terraform
+terraform.tfstate
+terraform.tfvars
+terraform.tfstate.*
+*.tfstate
+*.tfstate.*
+.terraform/
+infra.json
+
+# Artifacts
+*.zip
