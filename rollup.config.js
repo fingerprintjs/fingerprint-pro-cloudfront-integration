@@ -55,8 +55,8 @@ function makeConfig(entryFile, artifactName) {
       nodeResolve({ preferBuiltins: false }),
       commonjs(),
       replace({
-        __FPCDN__: getEnv('FPCDN'),
-        __INGRESS_API__: getEnv('INGRESS_API'),
+        __FPCDN__: getEnv('FPCDN', 'fpcdn.io'),
+        __INGRESS_API__: getEnv('INGRESS_API', 'api.fpjs.io'),
         __lambda_func_version__: packageJson.version,
         preventAssignment: true,
       }),
