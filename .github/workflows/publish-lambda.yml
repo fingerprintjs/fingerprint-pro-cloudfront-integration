@@ -116,7 +116,7 @@ jobs:
             exit 1
           fi
           
-          if [ "local_mgmt_lambda_sha" != "$MGMT_LAMBDA_SHA" ]; then
+          if [ "$local_mgmt_lambda_sha" != "$MGMT_LAMBDA_SHA" ]; then
             echo "SHA mismatch: local=$local_mgmt_lambda_sha, expected=$MGMT_LAMBDA_SHA"
             exit 1
           fi
