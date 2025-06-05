@@ -112,12 +112,12 @@ jobs:
           local_mgmt_lambda_sha=$(sha256sum mgmt_lambda_latest.zip | awk '{print $1}')
           
           if [ "$local_lambda_sha" != "$LAMBDA_SHA" ]; then
-            echo "SHA mismatch: local=$local_lambda_sha, expected=$LAMBDA_SHA"
+            echo "SHA mismatch for lambda: local=$local_lambda_sha, expected=$LAMBDA_SHA"
             exit 1
           fi
           
           if [ "$local_mgmt_lambda_sha" != "$MGMT_LAMBDA_SHA" ]; then
-            echo "SHA mismatch: local=$local_mgmt_lambda_sha, expected=$MGMT_LAMBDA_SHA"
+            echo "SHA mismatch for mgmt lambda: local=$local_mgmt_lambda_sha, expected=$MGMT_LAMBDA_SHA"
             exit 1
           fi
         env:
