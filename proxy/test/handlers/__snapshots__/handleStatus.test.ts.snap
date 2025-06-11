@@ -39,6 +39,7 @@ exports[`Get status info returns correct response with empty non obfuscated vari
       "value": "api.fpjs.io",
     },
   ],
+  "styleNonce": "hardcodedStyleNonce",
   "version": "__lambda_func_version__",
 }
 `;
@@ -82,6 +83,7 @@ exports[`Get status info returns correct response with empty pre shared secret 1
       "value": "api.fpjs.io",
     },
   ],
+  "styleNonce": "hardcodedStyleNonce",
   "version": "__lambda_func_version__",
 }
 `;
@@ -125,6 +127,7 @@ exports[`Get status info returns correct status info 1`] = `
       "value": "api.fpjs.io",
     },
   ],
+  "styleNonce": "hardcodedStyleNonce",
   "version": "__lambda_func_version__",
 }
 `;
@@ -134,7 +137,7 @@ exports[`Handle status returns correct status info in html if all variables are 
       <head>
         <title>CloudFront integration status</title>
         <meta charset="utf-8">
-        <style>
+        <style nonce='hardcodedStyleNonce'>
           body, .env-info {
             display: flex;
           }
@@ -171,7 +174,7 @@ exports[`Handle status returns correct status info in html if some variables are
       <head>
         <title>CloudFront integration status</title>
         <meta charset="utf-8">
-        <style>
+        <style nonce='hardcodedStyleNonce'>
           body, .env-info {
             display: flex;
           }
@@ -211,7 +214,7 @@ exports[`Handle status returns correct status info in html if some variables are
       <head>
         <title>CloudFront integration status</title>
         <meta charset="utf-8">
-        <style>
+        <style nonce='hardcodedStyleNonce'>
           body, .env-info {
             display: flex;
           }

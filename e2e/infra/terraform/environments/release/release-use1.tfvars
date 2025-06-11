@@ -1,0 +1,7 @@
+workspace          = "fingerprint-pro-cloudfront-integration"
+platform           = "fpjs-dev-use1-fingerprint-pro-cloudfront-integration"
+company            = "fingerprint"
+region             = "us-east-1"
+env                = "release"
+tier               = "use1"
+aws_account        = "708050157146"

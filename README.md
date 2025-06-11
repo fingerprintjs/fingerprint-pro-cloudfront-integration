@@ -15,7 +15,7 @@
 
 # Fingerprint Pro CloudFront Integration
 
-[Fingerprint](https://fingerprint.com/) is a device intelligence platform offering 99.5% accurate visitor identification.
+[Fingerprint](https://fingerprint.com/) is a device intelligence platform offering industry-leading accuracy.
 
 Fingerprint Pro CloudFront Integration is responsible for
 
@@ -44,9 +44,13 @@ This [improves](https://dev.fingerprint.com/docs/cloudfront-proxy-integration-v2
 To set up CloudFront integration, you need to:
 
 1. Create the required resources in your AWS infrastructure — a CloudFormation stack and a CloudFront distribution.
-2. Configure the Fingerprint Pro JS Agent on your site to communicate with your created Lambda@Edge function using the [scriptUrlPattern](https://dev.fingerprint.com/docs/js-agent#scripturlpattern) and [endpoint](https://dev.fingerprint.com/docs/js-agent#endpoint) parameters.
+2. Configure the Fingerprint Pro JS Agent on your site to communicate with your created Lambda@Edge function using the [scriptUrlPattern](https://dev.fingerprint.com/reference/load-function#scripturlpattern) and [endpoint](https://dev.fingerprint.com/reference/load-function#endpoint) parameters.
 
 See [CloudFront Proxy Integration guide](https://dev.fingerprint.com/docs/cloudfront-proxy-integration-v2) in our documentation for step-by-step instructions. If you have any questions, reach out to our [support team](https://fingerprint.com/support/).
+
+### Deployment using Terraform
+
+If you prefer to deploy the integration using Terraform, see the [Terraform module repository](https://github.com/fingerprintjs/terraform-aws-fingerprint-cloudfront-proxy-integration) and the related [Terraform guide](https://dev.fingerprint.com/docs/aws-cloudfront-integration-via-terraform).
 
 ## License
 
