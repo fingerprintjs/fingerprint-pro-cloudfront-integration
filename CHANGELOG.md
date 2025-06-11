@@ -1,15 +1,3 @@
-## [2.1.0-rc.1](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.3...v2.1.0-rc.1) (2025-06-10)
-
-
-### Features
-
-* add nonce-based csp to style ([e2b5f6c](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/e2b5f6ce5f156202860a15d8aa0a269376ce13c4))
-
-
-### Build System
-
-* **deps:** update dependencies ([9242e69](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/commit/9242e69e79a991e1f3d3297af3fd891b8a714f37))
-
 ## [2.0.3](https://github.com/fingerprintjs/fingerprint-pro-cloudfront-integration/compare/v2.0.2...v2.0.3) (2024-09-04)
 
 
