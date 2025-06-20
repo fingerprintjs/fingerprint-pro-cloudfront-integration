@@ -51,7 +51,6 @@
     "aws-sdk-client-mock": "^3.1.0",
     "aws-sdk-client-mock-jest": "^3.1.0",
     "commitizen": "^4.3.1",
-    "conventional-changelog-conventionalcommits": "7.0.2",
     "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.7",
     "husky": "^9.1.7",
