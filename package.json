@@ -27,7 +27,7 @@
     "wrap-ansi": "7.0.0"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "^3.726.1",
+    "@aws-sdk/client-cloudfront": "^3.830.0",
     "@aws-sdk/client-lambda": "^3.726.1",
     "@aws-sdk/client-secrets-manager": "^3.726.1"
   },
