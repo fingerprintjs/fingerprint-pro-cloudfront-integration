@@ -21,6 +21,7 @@ import {
 } from './routing'
 import { setLogLevel } from './log'
 import { generateRandom } from './string'
+import { base64ToArrayBuffer } from './base64ToArrayBuffer'
 
 export {
   getAgentUri,
@@ -45,4 +46,5 @@ export {
   addEndingTrailingSlashToRoute,
   setLogLevel,
   generateRandom,
+  base64ToArrayBuffer,
 }

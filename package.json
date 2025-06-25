@@ -37,6 +37,7 @@
     "@fingerprintjs/commit-lint-dx-team": "^0.0.2",
     "@fingerprintjs/conventional-changelog-dx-team": "^0.1.0",
     "@fingerprintjs/eslint-config-dx-team": "^0.1.0",
+    "@fingerprintjs/fingerprintjs-pro-server-api": "^6.6.0",
     "@fingerprintjs/prettier-config-dx-team": "^0.1.0",
     "@fingerprintjs/tsconfig-dx-team": "^0.0.2",
     "@rollup/plugin-commonjs": "^25.0.8",

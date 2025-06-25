@@ -6,6 +6,7 @@ const defaultCustomerVariables: Record<CustomerVariableType, CustomerVariableVal
   [CustomerVariableType.AgentDownloadPath]: 'agent',
   [CustomerVariableType.FpCdnUrl]: '__FPCDN__',
   [CustomerVariableType.FpIngressBaseHost]: '__INGRESS_API__',
+  [CustomerVariableType.DecryptionKey]: null,
 }
 
 export function getDefaultCustomerVariable(variable: CustomerVariableType): CustomerVariableValue {

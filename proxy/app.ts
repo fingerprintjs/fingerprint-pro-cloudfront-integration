@@ -14,12 +14,15 @@ import {
   setLogLevel,
   createRoute,
   generateRandom,
+  base64ToArrayBuffer,
 } from './utils'
 import { CustomerVariables } from './utils/customer-variables/customer-variables'
 import { HeaderCustomerVariables } from './utils/customer-variables/header-customer-variables'
 import { SecretsManagerVariables } from './utils/customer-variables/secrets-manager/secrets-manager-variables'
 import { getFpCdnUrl, getFpIngressBaseHost } from './utils/customer-variables/selectors'
 import type { CloudFrontRequest } from 'aws-lambda/common/cloudfront'
+import { processOpenClientResponse } from './utils/processOpenClientResponse'
+import { CustomerVariableType } from './utils/customer-variables/types'
 
 export type Route = {
   pathPattern: RegExp
@@ -106,6 +109,22 @@ async function handleIngressAPI(
     headers: await prepareHeadersForIngressAPI(request, customerVariables, isIngressCall),
     body: request.body?.data || '',
     suffix,
+  }).then(async (originalResponse) => {
+    const decryptionKey = await customerVariables.getVariable(CustomerVariableType.DecryptionKey)
+    Promise.resolve().then(() => {
+      processOpenClientResponse(
+        base64ToArrayBuffer(originalResponse.body as string),
+        originalResponse,
+        decryptionKey.value as string
+      ).catch((e) =>
+        console.error(
+          'Failed to parse identification response. Make sure Open Client Response is enabled for your Fingerprint workspace: ',
+          e
+        )
+      )
+    })
+
+    return originalResponse
   })
 }
 
