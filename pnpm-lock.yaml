@@ -36,6 +36,9 @@ importers:
       '@fingerprintjs/eslint-config-dx-team':
         specifier: ^0.1.0
         version: 0.1.0(@types/eslint@8.56.5)(prettier@3.5.3)(typescript@5.8.3)
+      '@fingerprintjs/fingerprintjs-pro-server-api':
+        specifier: ^6.6.0
+        version: 6.6.0
       '@fingerprintjs/prettier-config-dx-team':
         specifier: ^0.1.0
         version: 0.1.0
@@ -759,6 +762,10 @@ packages:
     peerDependencies:
       prettier: '>=3'
 
+  '@fingerprintjs/fingerprintjs-pro-server-api@6.6.0':
+    resolution: {integrity: sha512-uJo9dZXMaga4jpcyQX4UIkUcin1eQDbMMXil+sYVNaZi2pQUj/C7OFi9KdRGaBQbXY7AnmZpjT3rirVsOBXmtg==}
+    engines: {node: '>=18.17.0'}
+
   '@fingerprintjs/fingerprintjs-pro@3.9.0':
     resolution: {integrity: sha512-QXWDIAf9VR8OLLdMDnvrQU6PszTFAgqryQbXXpE/nNEtGNHJ0SCX4swpjA9x75pX6kzX1q5XSRTMgXZk9Nrwrg==}
 
@@ -771,6 +778,7 @@ packages:
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -778,6 +786,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.2':
     resolution: {integrity: sha512-6EwiSjwWYP7pTckG6I5eyFANjPhmPjUX9JRLUSfNPC7FX7zK9gyZAfUEaECL6ALTpGX5AjnBq3C9XmVWPitNpw==}
+    deprecated: Use @eslint/object-schema instead
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -2032,6 +2041,7 @@ packages:
   eslint@8.56.0:
     resolution: {integrity: sha512-Go19xM6T9puCOWntie1/P997aXxFsOi37JIHRWI514Hc6ZnaHGKY9xFhrU65RT6CcBEzZoGG1e6Nq+DT04ZtZQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@9.6.1:
@@ -4799,7 +4809,7 @@ snapshots:
   '@eslint/eslintrc@2.1.4':
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.4
+      debug: 4.4.0
       espree: 9.6.1
       globals: 13.24.0
       ignore: 5.3.1
@@ -4833,6 +4843,8 @@ snapshots:
       - supports-color
       - typescript
 
+  '@fingerprintjs/fingerprintjs-pro-server-api@6.6.0': {}
+
   '@fingerprintjs/fingerprintjs-pro@3.9.0':
     dependencies:
       tslib: 2.8.1
@@ -4846,7 +4858,7 @@ snapshots:
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
       '@humanwhocodes/object-schema': 2.0.2
-      debug: 4.3.4
+      debug: 4.4.0
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -5663,12 +5675,12 @@ snapshots:
       '@typescript-eslint/type-utils': 6.19.1(eslint@8.56.0)(typescript@5.8.3)
       '@typescript-eslint/utils': 6.19.1(eslint@8.56.0)(typescript@5.8.3)
       '@typescript-eslint/visitor-keys': 6.19.1
-      debug: 4.3.4
+      debug: 4.4.0
       eslint: 8.56.0
       graphemer: 1.4.0
       ignore: 5.3.1
       natural-compare: 1.4.0
-      semver: 7.6.0
+      semver: 7.7.1
       ts-api-utils: 1.2.1(typescript@5.8.3)
     optionalDependencies:
       typescript: 5.8.3
@@ -5681,7 +5693,7 @@ snapshots:
       '@typescript-eslint/types': 6.19.1
       '@typescript-eslint/typescript-estree': 6.19.1(typescript@5.8.3)
       '@typescript-eslint/visitor-keys': 6.19.1
-      debug: 4.3.4
+      debug: 4.4.0
       eslint: 8.56.0
     optionalDependencies:
       typescript: 5.8.3
@@ -5697,7 +5709,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 6.19.1(typescript@5.8.3)
       '@typescript-eslint/utils': 6.19.1(eslint@8.56.0)(typescript@5.8.3)
-      debug: 4.3.4
+      debug: 4.4.0
       eslint: 8.56.0
       ts-api-utils: 1.2.1(typescript@5.8.3)
     optionalDependencies:
@@ -5711,11 +5723,11 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 6.19.1
       '@typescript-eslint/visitor-keys': 6.19.1
-      debug: 4.3.4
+      debug: 4.4.0
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
-      semver: 7.6.0
+      semver: 7.7.1
       ts-api-utils: 1.2.1(typescript@5.8.3)
     optionalDependencies:
       typescript: 5.8.3
@@ -5731,7 +5743,7 @@ snapshots:
       '@typescript-eslint/types': 6.19.1
       '@typescript-eslint/typescript-estree': 6.19.1(typescript@5.8.3)
       eslint: 8.56.0
-      semver: 7.6.0
+      semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -5755,16 +5767,15 @@ snapshots:
       acorn: 8.11.3
       acorn-walk: 8.3.2
 
-  acorn-jsx@5.3.2(acorn@8.11.3):
+  acorn-jsx@5.3.2(acorn@8.14.1):
     dependencies:
-      acorn: 8.11.3
+      acorn: 8.14.1
 
   acorn-walk@8.3.2: {}
 
   acorn@8.11.3: {}
 
-  acorn@8.14.1:
-    optional: true
+  acorn@8.14.1: {}
 
   adm-zip@0.5.16: {}
 
@@ -6326,7 +6337,7 @@ snapshots:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.3
-      debug: 4.3.4
+      debug: 4.4.0
       doctrine: 3.0.0
       escape-string-regexp: 4.0.0
       eslint-scope: 7.2.2
@@ -6358,8 +6369,8 @@ snapshots:
 
   espree@9.6.1:
     dependencies:
-      acorn: 8.11.3
-      acorn-jsx: 5.3.2(acorn@8.11.3)
+      acorn: 8.14.1
+      acorn-jsx: 5.3.2(acorn@8.14.1)
       eslint-visitor-keys: 3.4.3
 
   esprima@4.0.1: {}
@@ -6434,7 +6445,7 @@ snapshots:
       '@nodelib/fs.walk': 1.2.8
       glob-parent: 5.1.2
       merge2: 1.4.1
-      micromatch: 4.0.5
+      micromatch: 4.0.8
 
   fast-json-stable-stringify@2.1.0: {}
 

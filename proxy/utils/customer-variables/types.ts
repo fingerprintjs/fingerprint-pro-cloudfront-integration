@@ -4,6 +4,7 @@ export enum CustomerVariableType {
   AgentDownloadPath = 'fpjs_agent_download_path',
   FpCdnUrl = 'fpjs_cdn_url',
   FpIngressBaseHost = 'fpjs_ingress_base_host',
+  DecryptionKey = 'decryption_key',
 }
 
 export const internalVariables: Set<CustomerVariableType> = new Set<CustomerVariableType>([
