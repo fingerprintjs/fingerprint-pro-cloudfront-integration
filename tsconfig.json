@@ -1,7 +1,7 @@
 {
   "extends": "@fingerprintjs/tsconfig-dx-team/tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist/src",
+    "outDir": "dist",
     "module": "es6",
     "moduleResolution": "node",
     "target": "es2020",
