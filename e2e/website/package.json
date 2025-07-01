@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^6.2.0"
+    "vite": "^6.3.5"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs-pro": "^3.9.0"
